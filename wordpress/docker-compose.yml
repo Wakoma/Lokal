@@ -5,9 +5,10 @@ services:
   wordpress_test:
     image: wordpress
     restart: always
+    network_mode: bridge
     environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_HOST: db_test
+      WORDPRESS_DB_USER: exampleuse
       WORDPRESS_DB_PASSWORD: examplepass
       WORDPRESS_DB_NAME: exampledb
     volumes:
