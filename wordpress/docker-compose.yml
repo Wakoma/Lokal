@@ -6,7 +6,6 @@ services:
     image: wordpress
     # restart: always
     network_mode: bridge
-    ports:
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: exampleuser
