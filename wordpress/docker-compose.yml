@@ -17,6 +17,7 @@ services:
   db_test:
     image: mysql:5.7
     restart: always
+    network_mode: bridge
     environment:
       MYSQL_DATABASE: exampledb
       MYSQL_USER: exampleuser
