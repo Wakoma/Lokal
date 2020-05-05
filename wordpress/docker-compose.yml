@@ -2,21 +2,22 @@ version: '3.1'
 
 services:
 
-  wordpress_test:
+  wordpress:
     image: wordpress
-    restart: always
+    # restart: always
     network_mode: bridge
+    ports:
     environment:
-      WORDPRESS_DB_HOST: db_test
+      WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: exampleuser
       WORDPRESS_DB_PASSWORD: examplepass
       WORDPRESS_DB_NAME: exampledb
     volumes:
       - wordpress:/var/www/html
 
-  db_test:
+  db:
     image: mysql:5.7
-    restart: always
+    # restart: always
     network_mode: bridge
     environment:
       MYSQL_DATABASE: exampledb
