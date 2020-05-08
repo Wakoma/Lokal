@@ -1,0 +1,18 @@
+version: "3.3"
+services:
+  nextcloud:
+    image: linuxserver/nextcloud
+    container_name: nextcloud
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ./config:/config
+      - ./data:/data
+    restart: unless-stopped
+
+networks:
+  default:
+    external:
+      name: vpuu-offline

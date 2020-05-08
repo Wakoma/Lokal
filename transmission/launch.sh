@@ -1,6 +1,7 @@
 docker run \
+  --rm \
   --name=transmission \
-  --network testnet \
+  --network vpuu-offline \
   -d \
   -e PUID=1000 \
   -e PGID=1000 \
@@ -14,5 +15,4 @@ docker run \
   -v $PWD/config:/config \
   -v $PWD/downloads:/downloads \
   -v $PWD/watch:/watch \
-  --restart unless-stopped \
   linuxserver/transmission

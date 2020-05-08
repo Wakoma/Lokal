@@ -1,0 +1,18 @@
+version: "2.1"
+services:
+  calibre:
+    image: linuxserver/calibre
+    container_name: calibre
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - GUAC_USER=abc #optional
+      - GUAC_PASS=900150983cd24fb0d6963f7d28e17f72 #optional
+      - UMASK_SET=022 #optional
+    volumes:
+      - ./data:/config
+networks:
+  default:
+    external:
+      name: vpuu-offline
