@@ -8,8 +8,19 @@ services:
       - PGID=1000
       - TZ=Europe/London
     volumes:
-      - ./data:/config
+      - ./data-calibre-web:/config
       - ./library:/library
+    restart: unless-stopped
+  calibre-server:
+    image: linuxserver/calibre
+    container_name: calibre-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ./data-calibre-server:/config
+      - ./library:/config/Calibre Library
     restart: unless-stopped
 networks:
   default:
