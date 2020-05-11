@@ -1,1 +1,1 @@
-docker run -d --network vpuu-offline --name matomo matomo
+docker run -d --restart unless-stopped --network vpuu-offline --name matomo matomo

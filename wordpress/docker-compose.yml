@@ -10,6 +10,7 @@ services:
        MYSQL_DATABASE: wordpress
        MYSQL_USER: wordpress
        MYSQL_PASSWORD: qWerTGB1@#
+    restart: unless-stopped
 
    wordpress:
      depends_on:
@@ -22,6 +23,7 @@ services:
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_PASSWORD: qWerTGB1@#
        WORDPRESS_DB_NAME: wordpress
+    restart_policy: unless-stopped
 volumes:
     db_data: {}
 

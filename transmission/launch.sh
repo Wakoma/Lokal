@@ -1,5 +1,5 @@
 docker run \
-  --rm \
+  --restart unless-stopped \
   --name=transmission \
   --network vpuu-offline \
   -d \
