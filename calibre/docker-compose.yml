@@ -18,6 +18,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
+      - GUAC_USER=admin `#optional` \
+      - GUAC_PASS=Asdlkjm3123
     volumes:
       - ./data-calibre-server:/config
       - ./library:/config/Calibre Library
