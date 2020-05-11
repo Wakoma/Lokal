@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   calibre:
-    image: linuxserver/calibre
+    image: linuxserver/calibre-web
     container_name: calibre
     environment:
       - PUID=1000
@@ -9,6 +9,7 @@ services:
       - TZ=Europe/London
     volumes:
       - ./data:/config
+      - ./library:/libary
     restart: unless-stopped
 networks:
   default:
