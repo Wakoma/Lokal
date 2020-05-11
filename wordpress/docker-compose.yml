@@ -3,13 +3,13 @@ version: '3.3'
 services:
    db:
      image: mysql:5.7
-     volumes:
-       - db_data:/var/lib/mysql
+     # volumes:
+     #   - db_data:/var/lib/mysql
      environment:
-       MYSQL_ROOT_PASSWORD: test
+       MYSQL_ROOT_PASSWORD: aSDtGBVfcx1@#
        MYSQL_DATABASE: wordpress
        MYSQL_USER: wordpress
-       MYSQL_PASSWORD: wordpress
+       MYSQL_PASSWORD: qWerTGB1@#
 
    wordpress:
      depends_on:
@@ -20,7 +20,7 @@ services:
      environment:
        WORDPRESS_DB_HOST: db:3306
        WORDPRESS_DB_USER: wordpress
-       WORDPRESS_DB_PASSWORD: wordpress
+       WORDPRESS_DB_PASSWORD: qWerTGB1@#
        WORDPRESS_DB_NAME: wordpress
 volumes:
     db_data: {}
