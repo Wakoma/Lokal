@@ -9,7 +9,7 @@ services:
       - TZ=Europe/London
     volumes:
       - ./data:/config
-      - ./library:/libary
+      - ./library:/library
     restart: unless-stopped
 networks:
   default:
