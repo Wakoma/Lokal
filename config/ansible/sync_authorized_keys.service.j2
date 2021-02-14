@@ -1,0 +1,9 @@
+[Unit]
+Description = Oneshot sync of content from {{ authorized_keys_src }} to {{ authorized_keys_dest }}
+
+[Service]
+Type=oneshot
+ExecStart = /bin/sh -c 'cat {{ authorized_keys_src }} >> {{ authorized_keys_dest }}'
+
+[Install]
+WantedBy = multi-user.target

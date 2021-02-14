@@ -1,0 +1,35 @@
+local
+
+# Tools
+__pycache__
+.envrc
+.idea
+*.log
+.now
+.terraform
+*tfstate*
+.vagrant
+.vscode
+
+# kiwix
+services/kiwix/data/
+library.xml
+.zims
+
+# calibre
+services/calibre/data-calibre-server/
+services/calibre/data-calibre-web/
+
+# nextcloud
+services/nextcloud/config/
+services/nextcloud/data/
+
+# transmission
+services/transmission/config/
+
+# wordpress
+services/wordpress/html/
+
+# traefik
+certs
+acme

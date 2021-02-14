@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  netdata:
+    labels:
+      traefik.http.routers.netdata.middlewares: traefik-auth
+      traefik.http.routers.netdata.tls.certresolver: dns
+
+  traefik:
+    command:
+      - --accessLog=true
+      - --api.insecure=false
+      - --api.dashboard=true
+      - --api.debug=false
+      - --certificatesResolvers.dns.acme.dnsChallenge.delayBeforeCheck=60
+      - --certificatesResolvers.dns.acme.dnsChallenge.provider=namecheap
+      - --certificatesResolvers.dns.acme.email=${ACME_EMAIL}
+      - --certificatesResolvers.dns.acme.storage=/acme/acme.json
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entryPoints.metrics.address=:8082
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --log.level=WARNING
+      - --metrics.prometheus=true
+      - --metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addServicesLabels=true
+      - --metrics.prometheus.entryPoint=metrics
+      - --providers.docker=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=traefik
+    environment:
+      NAMECHEAP_API_USER: ${NAMECHEAP_API_USER}
+      NAMECHEAP_API_KEY: ${NAMECHEAP_API_KEY}
+    labels:
+      traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
+      traefik.http.routers.traefik.middlewares: traefik-auth
+      traefik.http.routers.traefik.tls.certresolver: dns
+    volumes:
+      - ./acme:/acme
+
+  grafana:
+    labels:
+      traefik.http.routers.grafana.tls.certresolver: dns
+
+  prometheus:
+    labels:
+      traefik.http.routers.prometheus.middlewares: traefik-auth
+      traefik.http.routers.prometheus.tls.certresolver: dns
+
+  wordpress:
+    labels:
+      traefik.http.routers.wordpress.tls.certresolver: dns
+      traefik.http.routers.wordpress.tls.domains[0].main: ${DOMAIN_WORDPRESS}
+      traefik.http.routers.wordpress.tls.domains[0].sans: "*.${DOMAIN_WORDPRESS}"

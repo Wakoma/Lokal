@@ -1,0 +1,189 @@
+version: "3.8"
+
+networks:
+  traefik:
+    name: traefik
+  mysql:
+    name: mysql
+  prometheus:
+    name: prometheus
+
+volumes:
+  mysql:
+    name: mysql
+  prometheus:
+    name: prometheus
+  grafana:
+    name: grafana
+  matomo:
+    name: matomo
+  wordpress:
+    name: wordpress
+  resourcespace:
+    name: resourcespace
+
+services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:7.3.7
+    environment:
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_NAME: Main Org.
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_LOG_LEVEL: debug
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.grafana.entrypoints: websecure
+      traefik.http.routers.grafana.rule: Host(`${DOMAIN_GRAFANA}`)
+      traefik.http.routers.grafana.tls: "true"
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+    volumes:
+      - grafana:/var/lib/grafana:rw
+    networks:
+      -  traefik
+    restart: unless-stopped
+
+  netdata:
+    container_name: netdata
+    cap_add:
+      - SYS_PTRACE
+    environment:
+      PGID: ${DOCKER_PGID}
+    hostname: ${DOMAIN_NETDATA}
+    image: netdata/netdata:v1.28.0-amd64
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.netdata.entrypoints: websecure
+      traefik.http.routers.netdata.rule: Host(`${DOMAIN_NETDATA}`)
+      traefik.http.routers.netdata.tls: "true"
+      traefik.http.services.netdata.loadbalancer.server.port: 19999
+    networks:
+      - traefik
+      - prometheus
+    restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.24.1
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.prometheus.entrypoints: websecure
+      traefik.http.routers.prometheus.rule: Host(`${DOMAIN_PROMETHEUS}`)
+      traefik.http.routers.prometheus.tls: "true"
+      traefik.http.services.prometheus.loadbalancer.server.port: 9090
+    networks:
+      - traefik
+      - prometheus
+    restart: unless-stopped
+    volumes:
+      - ./config/services/prometheus:/etc/prometheus
+      - prometheus:/prometheus
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+
+  traefik:
+    container_name: traefik
+    image: traefik:v2.3.6
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.traefik.entrypoints: websecure
+      traefik.http.routers.traefik.rule: Host(`${DOMAIN_TRAEFIK}`)
+      traefik.http.routers.traefik.tls: "true"
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
+    networks:
+      - traefik
+      - prometheus
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  mariadb:
+    container_name: ${MYSQL_HOST}
+    image: mariadb:10.5.8-focal
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - mysql
+      - prometheus
+    restart: unless-stopped
+    volumes:
+      - mysql:/var/lib/mysql
+
+  matomo:
+    container_name: matomo
+    image: matomo:4.1.1-apache
+    restart: unless-stopped
+    volumes:
+      - matomo:/var/www/html
+    environment:
+      MATOMO_DATABASE_HOST: ${MYSQL_HOST}
+      MATOMO_DATABASE_ADAPTER: mysql
+      MATOMO_DATABASE_TABLES_PREFIX: matomo_
+      MATOMO_DATABASE_USERNAME: ${MYSQL_USER_MATOMO}
+      MATOMO_DATABASE_PASSWORD: ${MYSQL_PASSWORD_MATOMO}
+      MATOMO_DATABASE_DBNAME: ${MYSQL_DATABASE_MATOMO}
+    networks:
+      - mysql
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.matomo.entrypoints: websecure
+      traefik.http.routers.matomo.rule: Host(`${DOMAIN_MATOMO}`)
+      traefik.http.routers.matomo.tls: "true"
+      traefik.http.services.matomo.loadbalancer.server.port: 80
+    depends_on:
+      - mariadb
+
+  wordpress:
+    container_name: wordpress
+    depends_on:
+      - mariadb
+    image: wordpress:5.6.0-php7.4-apache
+    environment:
+      WORDPRESS_DB_HOST: ${MYSQL_HOST}
+      WORDPRESS_DB_USER: ${MYSQL_USER_WORDPRESS}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD_WORDPRESS}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE_WORDPRESS}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_ALLOW_MULTISITE', true );
+    networks:
+      - mysql
+      - traefik
+    restart: unless-stopped
+    volumes:
+      - wordpress:/var/www/html
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.wordpress.entrypoints: websecure
+      traefik.http.routers.wordpress.rule: Host(`${DOMAIN_WORDPRESS}`)
+      traefik.http.routers.wordpress.tls: "true"
+      traefik.http.services.wordpress.loadbalancer.server.port: 80
+
+  resourcespace:
+    container_name: resourcespace
+    image: suntorytimed/resourcespace:latest
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    volumes:
+      - resourcespace:/var/www/html
+    networks:
+      - traefik
+      - mysql
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.resourcespace.entrypoints: websecure
+      traefik.http.routers.resourcespace.rule: Host(`${DOMAIN_RESOURCESPACE}`)
+      traefik.http.routers.resourcespace.tls: "true"
+      traefik.http.services.resourcespace.loadbalancer.server.port: 80

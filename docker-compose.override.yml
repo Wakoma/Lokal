@@ -1,0 +1,54 @@
+version: "3.8"
+
+networks:
+  mail:
+    name: mail
+
+services:
+  traefik:
+    command:
+      - --accessLog=true
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --api.debug=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entryPoints.metrics.address=:8082
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --log.level=DEBUG
+      - --metrics.prometheus=true
+      - --metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addServicesLabels=true
+      - --metrics.prometheus.entryPoint=metrics
+      - --providers.docker=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=traefik
+      - --providers.file.directory=/config
+      - --providers.file.watch=true
+    volumes:
+      - ./config/services/traefik/config:/config
+      - ./config/services/traefik/certs:/certs
+
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog:latest
+    networks:
+      - traefik
+      - mail
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mailhog.entrypoints: websecure
+      traefik.http.routers.mailhog.rule: Host(`${DOMAIN_MAILHOG}`)
+      traefik.http.routers.mailhog.tls: "true"
+      traefik.http.services.mailhog.loadbalancer.server.port: 8025
+    restart: unless-stopped
+
+  resourcespace:
+    networks:
+      - mail
+    depends_on:
+      - mailhog
