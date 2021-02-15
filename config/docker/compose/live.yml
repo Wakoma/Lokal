@@ -57,9 +57,9 @@ services:
       - --providers.docker.endpoint=unix:///var/run/docker.sock
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=traefik
-    environment:
-      NAMECHEAP_API_USER: ${NAMECHEAP_API_USER}
-      NAMECHEAP_API_KEY: ${NAMECHEAP_API_KEY}
+    # environment:
+    #   NAMECHEAP_API_USER: ${NAMECHEAP_API_USER}
+    #   NAMECHEAP_API_KEY: ${NAMECHEAP_API_KEY}
     labels:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
       traefik.http.routers.traefik.middlewares: traefik-auth
