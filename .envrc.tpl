@@ -21,14 +21,16 @@ export TRAEFIK_BASICAUTH_USERS=''
 # Container Variables
 export DOCKER_PGID=$(grep docker /etc/group | cut -d ':' -f 3)
 export DOMAIN=vnet.lan
-export DOMAIN_WORDPRESS=${DOMAIN}
-export DOMAIN_TRAEFIK=router.${DOMAIN}
-export DOMAIN_NETDATA=monitor.${DOMAIN}
-export DOMAIN_PROMETHEUS=metrics.${DOMAIN}
-export DOMAIN_GRAFANA=dash.${DOMAIN}
-export DOMAIN_MATOMO=analytics.${DOMAIN}
+export DOMAIN_VNET=${DOMAIN}
+export DOMAIN_WORDPRESS=${DOMAIN_VNET}
+export DOMAIN_WORDPRESS_WWW=www.${DOMAIN_VNET}
+export DOMAIN_TRAEFIK=router.${DOMAIN_VNET}
+export DOMAIN_NETDATA=monitor.${DOMAIN_VNET}
+export DOMAIN_PROMETHEUS=metrics.${DOMAIN_VNET}
+export DOMAIN_GRAFANA=dash.${DOMAIN_VNET}
+export DOMAIN_MATOMO=analytics.${DOMAIN_VNET}
 export DOMAIN_RESOURCESPACE=assets.${DOMAIN}
-export DOMAIN_MAILHOG=mail.${DOMAIN}
+export DOMAIN_MAILHOG=mailhog.${DOMAIN_VNET}
 
 # Application Secrets
 export MYSQL_ROOT_PASSWORD=default
