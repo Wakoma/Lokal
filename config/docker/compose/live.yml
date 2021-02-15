@@ -5,10 +5,6 @@ services:
     labels:
       traefik.http.routers.grafana.tls.certresolver: http
 
-  mailhog:
-    labels:
-      traefik.http.routers.mailhog.tls.certresolver: http
-
   matomo:
     labels:
       traefik.http.routers.matomo.tls.certresolver: http
