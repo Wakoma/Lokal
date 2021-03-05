@@ -3,8 +3,8 @@
     "hcloud_token": "{{env `HCLOUD_TOKEN`}}",
     "hcloud_image": "{{env `HCLOUD_IMAGE`}}",
     "hcloud_location": "{{env `HCLOUD_LOCATION`}}",
-    "cloud_ssh_user": "{{env `CLOUD_SSH_USER`}}",
-    "primary_user": "{{env `PRIMARY_USER`}}"
+    "root_ssh_user": "{{env `ROOT_SSH_USER`}}",
+    "primary_ssh_user": "{{env `PRIMARY_SSH_USER`}}"
   },
   "builders": [
     {
@@ -14,33 +14,33 @@
       "location": "{{user `hcloud_location`}}",
       "server_type": "cx11",
       "snapshot_name": "base",
-      "ssh_username": "{{user `cloud_ssh_user`}}"
+      "ssh_username": "{{user `root_ssh_user`}}"
     }
   ],
   "provisioners": [
     {
       "type": "ansible",
-      "user": "{{user `cloud_ssh_user`}}",
+      "user": "{{user `root_ssh_user`}}",
       "playbook_file": "../ansible/preprovision.playbook.yml",
       "ansible_env_vars": ["ANSIBLE_HOST_KEY_CHECKING=False", "ANSIBLE_FORCE_COLOR=true", "ANSIBLE_VERBOSITY=0"],
-      "extra_arguments": ["-e cloud_ssh_user={{user `cloud_ssh_user`}}", "-e primary_user={{user `primary_user`}}"],
+      "extra_arguments": ["-e root_ssh_user={{user `root_ssh_user`}}", "-e primary_ssh_user={{user `primary_ssh_user`}}"],
       "use_proxy": false,
       "only": ["hcloud"]
     },
     {
       "type": "ansible",
-      "user": "{{user `primary_user`}}",
+      "user": "{{user `primary_ssh_user`}}",
       "playbook_file": "../ansible/base.playbook.yml",
       "ansible_env_vars": ["ANSIBLE_HOST_KEY_CHECKING=False", "ANSIBLE_FORCE_COLOR=true", "ANSIBLE_VERBOSITY=0"],
-      "extra_arguments": ["-e cloud_ssh_user={{user `cloud_ssh_user`}}", "-e primary_user={{user `primary_user`}}"],
+      "extra_arguments": ["-e root_ssh_user={{user `root_ssh_user`}}", "-e primary_ssh_user={{user `primary_ssh_user`}}"],
       "use_proxy": false
     },
     {
       "type": "ansible",
-      "user": "{{user `primary_user`}}",
+      "user": "{{user `primary_ssh_user`}}",
       "playbook_file": "../ansible/postprovision.playbook.yml",
       "ansible_env_vars": ["ANSIBLE_HOST_KEY_CHECKING=False", "ANSIBLE_FORCE_COLOR=true", "ANSIBLE_VERBOSITY=0"],
-      "extra_arguments": ["-e cloud_ssh_user={{user `cloud_ssh_user`}}", "-e primary_user={{user `primary_user`}}"],
+      "extra_arguments": ["-e root_ssh_user={{user `root_ssh_user`}}", "-e primary_ssh_user={{user `primary_ssh_user`}}"],
       "use_proxy": false
     }
   ]

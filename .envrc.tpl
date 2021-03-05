@@ -11,8 +11,8 @@ export VAGRANT_IP=10.180.0.102
 export HCLOUD_IMAGE=ubuntu-20.04
 export HCLOUD_LOCATION=nbg1
 export HCLOUD_SERVER_TYPE=cpx11
-export CLOUD_SSH_USER=root
-export PRIMARY_USER=ubuntu
+export ROOT_SSH_USER=root
+export PRIMARY_SSH_USER=ubuntu
 
 # Container Secrets
 export ACME_EMAIL=
@@ -21,14 +21,16 @@ export TRAEFIK_BASICAUTH_USERS=''
 # Container Variables
 export DOCKER_PGID=$(grep docker /etc/group | cut -d ':' -f 3)
 export DOMAIN=vnet.lan
-export DOMAIN_WORDPRESS=${DOMAIN}
-export DOMAIN_TRAEFIK=router.${DOMAIN}
-export DOMAIN_NETDATA=monitor.${DOMAIN}
-export DOMAIN_PROMETHEUS=metrics.${DOMAIN}
-export DOMAIN_GRAFANA=dash.${DOMAIN}
-export DOMAIN_MATOMO=analytics.${DOMAIN}
+export DOMAIN_VNET=${DOMAIN}
+export DOMAIN_WORDPRESS=${DOMAIN_VNET}
+export DOMAIN_WORDPRESS_WWW=www.${DOMAIN_VNET}
+export DOMAIN_TRAEFIK=router.${DOMAIN_VNET}
+export DOMAIN_NETDATA=monitor.${DOMAIN_VNET}
+export DOMAIN_PROMETHEUS=metrics.${DOMAIN_VNET}
+export DOMAIN_GRAFANA=dash.${DOMAIN_VNET}
+export DOMAIN_MATOMO=analytics.${DOMAIN_VNET}
 export DOMAIN_RESOURCESPACE=assets.${DOMAIN}
-export DOMAIN_MAILHOG=mail.${DOMAIN}
+export DOMAIN_MAILHOG=mailhog.${DOMAIN_VNET}
 
 # Application Secrets
 export MYSQL_ROOT_PASSWORD=default

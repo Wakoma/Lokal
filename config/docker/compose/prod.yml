@@ -1,3 +1,40 @@
 version: "3.8"
 
-services: {}
+networks:
+  mail:
+    name: mail
+
+services:
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog:latest
+    networks:
+      - traefik
+      - mail
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mailhog.entrypoints: websecure
+      traefik.http.routers.mailhog.rule: Host(`${DOMAIN_MAILHOG}`)
+      traefik.http.routers.mailhog.tls: "true"
+      traefik.http.services.mailhog.loadbalancer.server.port: 8025
+      traefik.http.routers.mailhog.tls.certresolver: http
+      traefik.http.routers.mailhog.middlewares: traefik-auth
+    restart: unless-stopped
+
+  matomo:
+    networks:
+      - mail
+    depends_on:
+      - mailhog
+
+  resourcespace:
+    networks:
+      - mail
+    depends_on:
+      - mailhog
+
+  wordpress:
+    networks:
+      - mail
+    depends_on:
+      - mailhog
