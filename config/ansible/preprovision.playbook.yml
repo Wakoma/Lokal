@@ -3,20 +3,20 @@
   hosts: all
   tasks:
 
-    - name: Register cloud provided ssh user's details
+    - name: Register root ssh user's details
       user:
-        name: "{{ cloud_ssh_user }}"
-      register: cloud_ssh_user_params
+        name: "{{ root_ssh_user }}"
+      register: root_ssh_user_params
 
     - name: Ensure primary user is created and added to sudo group
       user:
-        name: "{{ primary_user }}"
+        name: "{{ primary_ssh_user }}"
         shell: /bin/bash
         groups:
           - sudo
         append: yes
         createhome: yes
-      register: primary_user_params
+      register: primary_ssh_user_params
 
     - name: Ensure sudo users can issue commands without specifying password
       copy:
@@ -25,8 +25,8 @@
         mode: 0600
 
     - set_fact:
-        authorized_keys_src: "{{ cloud_ssh_user_params.home }}/.ssh/authorized_keys"
-        authorized_keys_dest: "{{ primary_user_params.home }}/.ssh/authorized_keys"
+        authorized_keys_src: "{{ root_ssh_user_params.home }}/.ssh/authorized_keys"
+        authorized_keys_dest: "{{ primary_ssh_user_params.home }}/.ssh/authorized_keys"
 
     - name: Harden ssh security
       lineinfile: 
@@ -48,18 +48,18 @@
 
     - name: Ensure that the primary user's ssh directory exists
       file:
-        path: "{{ primary_user_params.home }}/.ssh"
+        path: "{{ primary_ssh_user_params.home }}/.ssh"
         state: directory
-        owner: "{{ primary_user }}"
-        group: "{{ primary_user }}"
+        owner: "{{ primary_ssh_user }}"
+        group: "{{ primary_ssh_user }}"
         mode: 0700
 
     - name: Ensure authorized_keys file is initiated for primary user
       copy:
         content: ""
-        dest: "{{ primary_user_params.home }}/.ssh/authorized_keys"
-        group: "{{ primary_user }}"
-        owner: "{{ primary_user }}"
+        dest: "{{ primary_ssh_user_params.home }}/.ssh/authorized_keys"
+        group: "{{ primary_ssh_user }}"
+        owner: "{{ primary_ssh_user }}"
         mode: 0600
 
     - name: Install sync_authorized_keys service unit file

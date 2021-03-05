@@ -25,12 +25,12 @@
 
     - name: Register primary user's details
       user:
-        name: "{{ primary_user }}"
-      register: primary_user_params
+        name: "{{ primary_ssh_user }}"
+      register: primary_ssh_user_params
 
     - name: Hook direnv into primary user's shell
       lineinfile:
-        path: "{{ primary_user_params.home }}/.bashrc"
+        path: "{{ primary_ssh_user_params.home }}/.bashrc"
         insertafter: EOF
         line: eval "$(direnv hook bash)"
 
@@ -59,9 +59,9 @@
   become_user: root
   vars:
     docker_package_state: present
-    docker_package: docker-ce=5:20.10.2~3-0~ubuntu-focal
+    docker_package: docker-ce=5:20.10.5~3-0~ubuntu-focal
     docker_users:
-      - "{{ primary_user }}"
+      - "{{ primary_ssh_user }}"
     docker_install_compose: true
     docker_compose_version: 1.27.4
   roles:

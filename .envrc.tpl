@@ -11,8 +11,8 @@ export VAGRANT_IP=10.180.0.102
 export HCLOUD_IMAGE=ubuntu-20.04
 export HCLOUD_LOCATION=nbg1
 export HCLOUD_SERVER_TYPE=cpx11
-export CLOUD_SSH_USER=root
-export PRIMARY_USER=ubuntu
+export ROOT_SSH_USER=root
+export PRIMARY_SSH_USER=ubuntu
 
 # Container Secrets
 export ACME_EMAIL=

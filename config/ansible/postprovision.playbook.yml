@@ -7,13 +7,13 @@
   tasks:
     - name: Register cloud provided ssh user's details
       user:
-        name: "{{ cloud_ssh_user }}"
-      register: cloud_ssh_user_params
+        name: "{{ root_ssh_user }}"
+      register: root_ssh_user_params
 
     - name: Register primary user's details
       user:
-        name: "{{ primary_user }}"
-      register: primary_user_params
+        name: "{{ primary_ssh_user }}"
+      register: primary_ssh_user_params
 
     - name: Ensure authorized keys are reset for all users
       copy:
@@ -23,7 +23,7 @@
         owner: "{{ item.user }}"
         mode: 0600
       with_items:
-        - user: "{{ cloud_ssh_user }}"
-          home: "{{ cloud_ssh_user_params.home }}"
-        - user: "{{ primary_user }}"
-          home: "{{ primary_user_params.home }}"
+        - user: "{{ root_ssh_user }}"
+          home: "{{ root_ssh_user_params.home }}"
+        - user: "{{ primary_ssh_user }}"
+          home: "{{ primary_ssh_user_params.home }}"
