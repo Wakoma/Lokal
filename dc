@@ -9,6 +9,9 @@ then
 elif [[ "${DEPLOYMENT_ENVIRONMENT}" == "production" ]]
 then
     DC_PREFIX=" -f ${PROJECT_ROOT}/docker-compose.yml -f ${PROJECT_ROOT}/config/docker/compose/live.yml -f ${PROJECT_ROOT}/config/docker/compose/prod.yml"
+elif [[ "${DEPLOYMENT_ENVIRONMENT}" == "local-production" ]]
+then
+    DC_PREFIX=" -f ${PROJECT_ROOT}/docker-compose.yml -f ${PROJECT_ROOT}/config/docker/compose/local-prod.yml"
 else
    >&2 echo "Invalid DEPLOYMENT_ENVIRONMENT=${DEPLOYMENT_ENVIRONMENT}"
    exit 1
