@@ -4,7 +4,7 @@ http:
       redirectRegex:
         regex: .*
         replacement: https://vpuu.org.za/ict4d/v-net-bringing-internet-connectivity-into-low-income-areas
-        permanent: true
+        permanent: false
   routers:
     vnet:
       rule: HostRegexp(`{{ env "DOMAIN_VNET_LOCAL" }}`, `{subdomain:[a-z]+}.{{ env "DOMAIN_VNET_LOCAL" }}`)
