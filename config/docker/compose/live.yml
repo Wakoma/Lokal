@@ -68,7 +68,7 @@ services:
       - ./config/services/traefik/config/live/dynamic.yml:/config/live.yml
       - ./config/services/traefik/config/local/dynamic.yml:/config/local.yml
       - ./acme:/acme
-
+      - ./config/services/traefik/certs:/certs
   wordpress:
     labels:
       traefik.http.routers.wordpress.tls.certresolver: http
