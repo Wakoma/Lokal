@@ -7,7 +7,7 @@ http:
         permanent: true
   routers:
     vnet:
-      rule: Host(`{{ env "DOMAIN_VNET_LOCAL" }}`)
+      rule: HostRegexp(`{{ env "DOMAIN_VNET_LOCAL" }}`, `{subdomain:[a-z]+}.{{ env "DOMAIN_VNET_LOCAL" }}`)
       tls: 
         certresolver: http
       entrypoints:
