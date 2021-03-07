@@ -1,14 +1,13 @@
 http:
-  services:
-    vnet:
-      loadBalancer:
-        servers:
-          - url: https://vpuu.org.za/ict4d/v-net-bringing-internet-connectivity-into-low-income-areas
+  middlewares:
+    vnet-local-redirect:
+      redirectRegex:
+        regex: .*
+        replacement: https://vpuu.org.za/ict4d/v-net-bringing-internet-connectivity-into-low-income-areas
+        permanent: true
   routers:
     vnet:
       rule: Host(`{{ env "DOMAIN_VNET_LOCAL" }}`)
-      tls: 
-        certresolver: http
-      entrypoints:
-        - websecure
-      service: vnet
+      service: noop@internal
+      middlewares:
+        - vnet-local-redirect
