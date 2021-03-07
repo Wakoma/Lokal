@@ -65,7 +65,8 @@ services:
       traefik.http.routers.traefik.middlewares: traefik-auth
       traefik.http.routers.traefik.tls.certresolver: http
     volumes:
-      - ./config/services/traefik/config/live:/config
+      - ./config/services/traefik/config/live/dynamic.yml:/config/live.yml
+      - ./config/services/traefik/config/local/dynamic.yml:/config/local.yml
       - ./acme:/acme
 
   wordpress:

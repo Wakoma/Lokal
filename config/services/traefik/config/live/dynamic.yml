@@ -8,8 +8,9 @@ http:
   routers:
     vnet:
       rule: HostRegexp(`{{ env "DOMAIN_VNET_LOCAL" }}`, `{subdomain:[a-z]+}.{{ env "DOMAIN_VNET_LOCAL" }}`)
+      tls: true
       entrypoints:
-        - web
+        - websecure
       service: noop@internal
       middlewares:
         - vnet-local-redirect
