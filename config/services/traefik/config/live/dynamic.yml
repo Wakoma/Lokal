@@ -8,6 +8,10 @@ http:
   routers:
     vnet:
       rule: Host(`{{ env "DOMAIN_VNET_LOCAL" }}`)
+      tls: 
+        certresolver: http
+      entrypoints:
+        - websecure
       service: noop@internal
       middlewares:
         - vnet-local-redirect
