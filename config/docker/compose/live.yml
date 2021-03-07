@@ -60,6 +60,10 @@ services:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
       traefik.http.routers.traefik.middlewares: traefik-auth
       traefik.http.routers.traefik.tls.certresolver: http
+      traefik.http.routers.vnet.rule: Host(`${DOMAIN_LOCAL}`)
+      traefik.http.routers.vnet.tls: "true"
+      traefik.http.routers.vnet.entrypoints: websecure
+      traefik.http.routers.vnet.service: vnet
     volumes:
       - ./acme:/acme
 
