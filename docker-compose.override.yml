@@ -39,7 +39,7 @@ services:
       - --providers.file.directory=/config
       - --providers.file.watch=true
     volumes:
-      - ./config/services/traefik/config:/config
+      - ./config/services/traefik/config/local:/config
       - ./config/services/traefik/certs:/certs
 
   mailhog:

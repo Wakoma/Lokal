@@ -1,0 +1,13 @@
+http:
+  services:
+    vnet:
+      loadBalancer:
+        servers:
+          - url: http://vpuu.org.za/ict4d/v-net-bringing-internet-connectivity-into-low-income-areas
+  routers:
+    vnet:
+      rule: Host(`{{ env "DOMAIN_VNET_LOCAL" }}`)
+      tls: "true"
+      entrypoints:
+        - websecure
+      service: vnet

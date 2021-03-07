@@ -10,10 +10,3 @@ tls:
       defaultCertificate:
         certFile: /certs/local.crt
         keyFile: /certs/local.key
-
-http:
-  services:
-    vnet:
-      loadBalancer:
-        servers:
-          - url: http://vpuu.org.za/ict4d/v-net-bringing-internet-connectivity-into-low-income-areas

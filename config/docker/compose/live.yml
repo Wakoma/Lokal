@@ -24,6 +24,8 @@ services:
       traefik.http.routers.resourcespace.tls.certresolver: http
 
   traefik:
+    environment:
+      DOMAIN_VNET_LOCAL: ${DOMAIN_VNET_LOCAL}
     command:
       - --accessLog=true
       - --api.insecure=false
@@ -53,6 +55,8 @@ services:
       - --providers.docker.endpoint=unix:///var/run/docker.sock
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=traefik
+      - --providers.file.directory=/config
+      - --providers.file.watch=true
     # environment:
     #   NAMECHEAP_API_USER: ${NAMECHEAP_API_USER}
     #   NAMECHEAP_API_KEY: ${NAMECHEAP_API_KEY}
@@ -60,11 +64,8 @@ services:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
       traefik.http.routers.traefik.middlewares: traefik-auth
       traefik.http.routers.traefik.tls.certresolver: http
-      traefik.http.routers.vnet.rule: Host(`${DOMAIN_LOCAL}`)
-      traefik.http.routers.vnet.tls: "true"
-      traefik.http.routers.vnet.entrypoints: websecure
-      traefik.http.routers.vnet.service: vnet
     volumes:
+      - ./config/services/traefik/config/live:/config
       - ./acme:/acme
 
   wordpress:
