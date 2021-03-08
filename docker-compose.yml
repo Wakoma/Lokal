@@ -164,6 +164,7 @@ services:
       traefik.http.routers.wordpress.entrypoints: websecure
       traefik.http.routers.wordpress.rule: Host(`${DOMAIN_WORDPRESS}`) || Host(`${DOMAIN_WORDPRESS_WWW}`)
       traefik.http.routers.wordpress.tls: "true"
+      traefik.http.routers.wordpress.priority: 2
       traefik.http.services.wordpress.loadbalancer.server.port: 80
 
   resourcespace:
@@ -200,4 +201,5 @@ services:
       traefik.http.routers.kiwix.entrypoints: websecure
       traefik.http.routers.kiwix.rule: Host(`${DOMAIN}`) && Path(`/kiwix`)
       traefik.http.routers.kiwix.tls: "true"
+      traefik.http.routers.kiwix.priority: 1
       traefik.http.services.kiwix.loadbalancer.server.port: 80
