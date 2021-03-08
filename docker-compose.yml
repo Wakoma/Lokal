@@ -198,6 +198,6 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.kiwix.entrypoints: websecure
-      traefik.http.routers.kiwix.rule: Host(`${DOMAIN_VNET}`) && Path(`/kiwix`)
+      traefik.http.routers.kiwix.rule: Host(`${DOMAIN}`) && Path(`/kiwix`)
       traefik.http.routers.kiwix.tls: "true"
       traefik.http.services.kiwix.loadbalancer.server.port: 80
