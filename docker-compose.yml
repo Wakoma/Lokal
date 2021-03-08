@@ -199,7 +199,7 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.kiwix.entrypoints: websecure
-      traefik.http.routers.kiwix.rule: Host(`${DOMAIN}`) && Path(`/kiwix`)
+      traefik.http.routers.kiwix.rule: Host(`${DOMAIN}`) && PathPrefix(`/kiwix`)
       traefik.http.middlewares.stripkiwix.stripprefix.prefixes: /kiwix
       traefik.http.routers.kiwix.middlewares: stripkiwix
       traefik.http.routers.kiwix.tls: "true"
