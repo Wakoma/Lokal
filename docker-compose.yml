@@ -183,3 +183,21 @@ services:
       traefik.http.routers.resourcespace.rule: Host(`${DOMAIN_RESOURCESPACE}`)
       traefik.http.routers.resourcespace.tls: "true"
       traefik.http.services.resourcespace.loadbalancer.server.port: 80
+
+  kiwix:
+    container_name: kiwix
+    image: kiwix/kiwix-serve
+    command:
+      - --library
+      - /data/library.xml
+    restart: unless-stopped
+    volumes:
+      - ${KIWIX_DATA_DIR}:/data
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.kiwix.entrypoints: websecure
+      traefik.http.routers.kiwix.rule: Host(`${DOMAIN_VNET}`) && Path(`/kiwix`)
+      traefik.http.routers.kiwix.tls: "true"
+      traefik.http.services.kiwix.loadbalancer.server.port: 80

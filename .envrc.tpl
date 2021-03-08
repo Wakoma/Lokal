@@ -32,6 +32,7 @@ export DOMAIN_GRAFANA=dash.${DOMAIN_VNET}
 export DOMAIN_MATOMO=analytics.${DOMAIN_VNET}
 export DOMAIN_RESOURCESPACE=assets.${DOMAIN}
 export DOMAIN_MAILHOG=mailhog.${DOMAIN_VNET}
+export KIWIX_DATA_DIR=${PROJECT_ROOT}/config/services/kiwix/data
 
 # Application Secrets
 export MYSQL_ROOT_PASSWORD=default
