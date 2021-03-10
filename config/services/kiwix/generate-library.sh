@@ -13,4 +13,8 @@ docker run --rm -it \
   kiwix/library \
   -c "kiwix-manage ${library_file} add ${zims}"
 
+echo "The following files were added to ${library_file}:"
+echo "${zims}"
+echo "Restarting Kiwix"
+
 dc restart kiwix
