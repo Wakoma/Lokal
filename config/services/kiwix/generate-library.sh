@@ -12,3 +12,5 @@ docker run --rm -it \
   --entrypoint bash \
   kiwix/library \
   -c "kiwix-manage ${library_file} add ${zims}"
+
+dc restart kiwix
