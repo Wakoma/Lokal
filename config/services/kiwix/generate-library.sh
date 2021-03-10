@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euf -o pipefail
 
+# This script is designed to be added to cron or preferably incron
+# e.g. `incrontab -e`:
+# /data/transmission/downloads/complete IN_MOVED_TO /home/ubuntu/v-stack/config/services/kiwix/generate-library.sh
+
 cd "$(dirname "$0")"
 eval "$(direnv export bash)"
 
