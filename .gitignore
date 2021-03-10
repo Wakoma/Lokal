@@ -12,23 +12,25 @@ __pycache__
 .vscode
 
 # kiwix
-services/kiwix/data/
+config/services/kiwix/data/
 library.xml
 .zims
 
 # calibre
-services/calibre/data-calibre-server/
-services/calibre/data-calibre-web/
+config/services/calibre/data-calibre-server/
+config/services/calibre/data-calibre-web/
 
 # nextcloud
-services/nextcloud/config/
-services/nextcloud/data/
+config/services/nextcloud/config/
+config/services/nextcloud/data/
 
 # transmission
-services/transmission/config/
+config/services/transmission/config/
+config/services/transmission/downloads/
+config/services/transmission/watch/
 
 # wordpress
-services/wordpress/html/
+config/services/wordpress/html/
 
 # traefik
 certs
