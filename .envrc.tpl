@@ -46,8 +46,6 @@ export MYSQL_ROOT_PASSWORD=default
 export MYSQL_PASSWORD_WORDPRESS=wordpress
 export MYSQL_PASSWORD_RESOURCESPACE=resourcespace
 export MYSQL_PASSWORD_MATOMO=matoma
-export TRANSMISSION_USER=admin
-export TRANSMISSION_PASS=admin
 
 # Application Variables
 export MYSQL_HOST=mariadb

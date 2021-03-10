@@ -209,8 +209,6 @@ services:
       PUID: ${TRANSMISSION_PUID}
       PGID: ${TRANSMISSION_PGID}
       TZ: ${TRANSMISSION_TZ}
-      USER: ${TRANSMISSION_USER}
-      PASS: ${TRANSMISSION_PASS}
     volumes:
       - ${TRANSMISSION_CONFIG_DIR}:/config
       - ${TRANSMISSION_DOWNLOADS_DIR}:/downloads

@@ -71,6 +71,10 @@ services:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
       traefik.http.routers.traefik.middlewares: traefik-auth
 
+  transmission:
+    labels:
+      traefik.http.routers.transmission.middlewares: traefik-auth
+
   wordpress:
     networks:
       - mail
