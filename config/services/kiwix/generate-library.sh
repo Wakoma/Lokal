@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euf -o pipefail
 
+cd "$(dirname "$0")"
+eval "$(direnv export bash)"
+
 library_file="${KIWIX_DATA_DIR}/library.xml"
 complete_download_dir="${TRANSMISSION_DOWNLOADS_DIR}/complete"
 zims="$(find ${complete_download_dir} -name '*.zim' | xargs)"
