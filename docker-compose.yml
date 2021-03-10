@@ -201,3 +201,31 @@ services:
       traefik.http.routers.kiwix.rule: Host(`${DOMAIN_KIWIX}`)
       traefik.http.routers.kiwix.tls: "true"
       traefik.http.services.kiwix.loadbalancer.server.port: 80
+
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    environment:
+      PUID: ${TRANSMISSION_PUID}
+      PGID: ${TRANSMISSION_PGID}
+      TZ: ${TRANSMISSION_TZ}
+      USER: ${TRANSMISSION_USER}
+      PASS: ${TRANSMISSION_PASS}
+    volumes:
+      - ${TRANSMISSION_CONFIG_DIR}:/config
+      - ${TRANSMISSION_DOWNLOADS_DIR}:/downloads
+      - ${TRANSMISSION_WATCH_DIR}:/watch
+    ports:
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.transmission.entrypoints: websecure
+      traefik.http.routers.transmission.rule: Host(`${DOMAIN_TRANSMISSION}`)
+      traefik.http.routers.transmission.tls: "true"
+      traefik.http.services.transmission.loadbalancer.server.port: 9091

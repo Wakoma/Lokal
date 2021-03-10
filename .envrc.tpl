@@ -20,6 +20,9 @@ export TRAEFIK_BASICAUTH_USERS=''
 
 # Container Variables
 export DOCKER_PGID=$(grep docker /etc/group | cut -d ':' -f 3)
+export TRANSMISSION_PUID=$(id -u)
+export TRANSMISSION_PGID=$(id -g)
+export TRANSMISSION_TZ=Africa/Johannesburg
 export DOMAIN=vnet.lan
 export DOMAIN_VNET=${DOMAIN}
 export DOMAIN_VNET_LOCAL=vnet.lokal.network
@@ -33,13 +36,18 @@ export DOMAIN_MATOMO=analytics.${DOMAIN_VNET}
 export DOMAIN_RESOURCESPACE=assets.${DOMAIN}
 export DOMAIN_MAILHOG=mailhog.${DOMAIN_VNET}
 export DOMAIN_KIWIX=learn.${DOMAIN_VNET}
+export DOMAIN_TRANSMISSION=torrent.${DOMAIN_VNET}
 export KIWIX_DATA_DIR=${PROJECT_ROOT}/config/services/kiwix/data
-
+export TRANSMISSION_CONFIG_DIR=${PROJECT_ROOT}/config/services/transmission/config
+export TRANSMISSION_DOWNLOADS_DIR=${PROJECT_ROOT}/config/services/transmission/downloads
+export TRANSMISSION_WATCH_DIR=${PROJECT_ROOT}/config/services/transmission/watch
 # Application Secrets
 export MYSQL_ROOT_PASSWORD=default
 export MYSQL_PASSWORD_WORDPRESS=wordpress
 export MYSQL_PASSWORD_RESOURCESPACE=resourcespace
 export MYSQL_PASSWORD_MATOMO=matoma
+export TRANSMISSION_USER=admin
+export TRANSMISSION_PASS=admin
 
 # Application Variables
 export MYSQL_HOST=mariadb
