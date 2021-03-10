@@ -46,7 +46,9 @@
       - 22
       - 80
       - 443
-    firewall_allowed_udp_ports: []
+      - 51413
+    firewall_allowed_udp_ports:
+      - 51413
     firewall_disable_ufw: true
     firewall_enable_ipv6: false
   roles:
