@@ -189,10 +189,11 @@ services:
     image: kiwix/kiwix-serve
     command:
       - --library
-      - /data/library.xml
+      - ${KIWIX_DATA_DIR}/library.xml
     restart: unless-stopped
     volumes:
-      - ${KIWIX_DATA_DIR}:/data
+      - ${KIWIX_DATA_DIR}:${KIWIX_DATA_DIR}
+      - ${TRANSMISSION_DOWNLOADS_DIR}:${TRANSMISSION_DOWNLOADS_DIR}
     networks:
       - traefik
     labels:
@@ -213,7 +214,6 @@ services:
       - ${TRANSMISSION_CONFIG_DIR}:/config
       - ${TRANSMISSION_DOWNLOADS_DIR}:/downloads
       - ${TRANSMISSION_WATCH_DIR}:/watch
-      - ${KIWIX_DATA_DIR}/zims:/zims
     ports:
       - 51413:51413
       - 51413:51413/udp
