@@ -213,6 +213,7 @@ services:
       - ${TRANSMISSION_CONFIG_DIR}:/config
       - ${TRANSMISSION_DOWNLOADS_DIR}:/downloads
       - ${TRANSMISSION_WATCH_DIR}:/watch
+      - ${KIWIX_DATA_DIR}/zims:/downloads/zims
     ports:
       - 51413:51413
       - 51413:51413/udp
