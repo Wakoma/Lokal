@@ -41,11 +41,17 @@ export KIWIX_DATA_DIR=${PROJECT_ROOT}/config/services/kiwix/data
 export TRANSMISSION_CONFIG_DIR=${PROJECT_ROOT}/config/services/transmission/config
 export TRANSMISSION_DOWNLOADS_DIR=${PROJECT_ROOT}/config/services/transmission/downloads
 export TRANSMISSION_WATCH_DIR=${PROJECT_ROOT}/config/services/transmission/watch
+
 # Application Secrets
 export MYSQL_ROOT_PASSWORD=default
 export MYSQL_PASSWORD_WORDPRESS=wordpress
 export MYSQL_PASSWORD_RESOURCESPACE=resourcespace
 export MYSQL_PASSWORD_MATOMO=matoma
+export GF_SECURITY_ADMIN_USER=admin
+export GF_SECURITY_ADMIN_PASSWORD=grafana
+export UP_UNIFI_DEFAULT_URL=
+export UP_UNIFI_DEFAULT_USER=
+export UP_UNIFI_DEFAULT_PASS=
 
 # Application Variables
 export MYSQL_HOST=mariadb

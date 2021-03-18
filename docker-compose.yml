@@ -27,7 +27,7 @@ services:
     container_name: grafana
     image: grafana/grafana:7.3.7
     environment:
-      GF_INSTALL_PLUGINS: grafana-piechart-panel
+      GF_INSTALL_PLUGINS: grafana-clock-panel,natel-discrete-panel,grafana-piechart-panel
     labels:
       traefik.enable: "true"
       traefik.http.routers.grafana.entrypoints: websecure
@@ -228,3 +228,15 @@ services:
       traefik.http.routers.transmission.rule: Host(`${DOMAIN_TRANSMISSION}`)
       traefik.http.routers.transmission.tls: "true"
       traefik.http.services.transmission.loadbalancer.server.port: 9091
+
+  unifi-poller:
+    container_name: unifi-poller
+    restart: unless-stopped
+    image: golift/unifi-poller:latest
+    environment:
+      UP_INFLUXDB_DISABLE: "true"
+      UP_UNIFI_DEFAULT_URL: ${UP_UNIFI_DEFAULT_URL}
+      UP_UNIFI_DEFAULT_USER: ${UP_UNIFI_DEFAULT_USER}
+      UP_UNIFI_DEFAULT_PASS: ${UP_UNIFI_DEFAULT_PASS}
+    networks:
+      - prometheus
