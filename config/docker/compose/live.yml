@@ -2,9 +2,6 @@ version: "3.8"
 
 services:
   grafana:
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
-      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}   
     labels:
       traefik.http.routers.grafana.tls.certresolver: http
 
