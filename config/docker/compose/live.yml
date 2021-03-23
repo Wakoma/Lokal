@@ -72,3 +72,13 @@ services:
   wordpress:
     labels:
       traefik.http.routers.wordpress.tls.certresolver: http
+
+  nextcloud:
+    labels:
+      traefik.http.routers.nextcloud.middlewares: traefik-auth
+      traefik.http.routers.nextcloud.tls.certresolver: http
+
+  portainer:
+    labels:
+      traefik.http.routers.portainer.middlewares: traefik-auth
+      traefik.http.routers.portainer.tls.certresolver: http
