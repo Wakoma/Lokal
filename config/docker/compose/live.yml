@@ -80,5 +80,4 @@ services:
 
   portainer:
     labels:
-      traefik.http.routers.portainer.middlewares: traefik-auth
       traefik.http.routers.portainer.tls.certresolver: http
