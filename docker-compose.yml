@@ -21,6 +21,10 @@ volumes:
     name: wordpress
   resourcespace:
     name: resourcespace
+  nextcloud:
+    name: nextcloud
+  portainer:
+    name: portainer
 
 services:
   grafana:
@@ -207,9 +211,9 @@ services:
     image: linuxserver/transmission
     container_name: transmission
     environment:
-      PUID: ${TRANSMISSION_PUID}
-      PGID: ${TRANSMISSION_PGID}
-      TZ: ${TRANSMISSION_TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
     volumes:
       - ${TRANSMISSION_CONFIG_DIR}:/config
       - ${TRANSMISSION_DOWNLOADS_DIR}:/downloads
@@ -240,3 +244,45 @@ services:
       UP_UNIFI_DEFAULT_PASS: ${UP_UNIFI_DEFAULT_PASS}
     networks:
       - prometheus
+
+  nextcloud:
+    image: linuxserver/nextcloud:latest
+    container_name: nextcloud
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${NEXTCLOUD_CONFIG_DIR}:/config
+      - nextcloud:/data
+    restart: unless-stopped
+    networks:
+      - mysql
+      - prometheus
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.nextcloud.entrypoints: websecure
+      traefik.http.routers.nextcloud.rule: Host(`${DOMAIN_NEXTCLOUD}`)
+      traefik.http.routers.nextcloud.tls: "true"
+      traefik.http.services.nextcloud.loadbalancer.server.port: 443
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer:/data
+    networks:
+      - prometheus
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.nextcloud.entrypoints: websecure
+      traefik.http.routers.nextcloud.rule: Host(`${DOMAIN_PORTAINER}`)
+      traefik.http.routers.nextcloud.tls: "true"
+      traefik.http.services.nextcloud.loadbalancer.server.port: 9000

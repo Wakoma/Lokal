@@ -20,9 +20,9 @@ export TRAEFIK_BASICAUTH_USERS=''
 
 # Container Variables
 export DOCKER_PGID=$(grep docker /etc/group | cut -d ':' -f 3)
-export TRANSMISSION_PUID=$(id -u)
-export TRANSMISSION_PGID=$(id -g)
-export TRANSMISSION_TZ=Africa/Johannesburg
+export PUID=$(id -u)
+export PGID=$(id -g)
+export TZ=Africa/Johannesburg
 export DOMAIN=vnet.lan
 export DOMAIN_VNET=${DOMAIN}
 export DOMAIN_VNET_LOCAL=vnet.lokal.network
@@ -37,16 +37,20 @@ export DOMAIN_RESOURCESPACE=assets.${DOMAIN}
 export DOMAIN_MAILHOG=mailhog.${DOMAIN_VNET}
 export DOMAIN_KIWIX=learn.${DOMAIN_VNET}
 export DOMAIN_TRANSMISSION=torrent.${DOMAIN_VNET}
+export DOMAIN_NEXTCLOUD=nextcloud.${DOMAIN}
+export DOMAIN_PORTAINER=portainer.${DOMAIN_VNET}
 export KIWIX_DATA_DIR=${PROJECT_ROOT}/config/services/kiwix/data
 export TRANSMISSION_CONFIG_DIR=${PROJECT_ROOT}/config/services/transmission/config
 export TRANSMISSION_DOWNLOADS_DIR=${PROJECT_ROOT}/config/services/transmission/downloads
 export TRANSMISSION_WATCH_DIR=${PROJECT_ROOT}/config/services/transmission/watch
+export NEXTCLOUD_CONFIG_DIR=${PROJECT_ROOT}/config/services/nextcloud/config
 
 # Application Secrets
 export MYSQL_ROOT_PASSWORD=default
 export MYSQL_PASSWORD_WORDPRESS=wordpress
 export MYSQL_PASSWORD_RESOURCESPACE=resourcespace
 export MYSQL_PASSWORD_MATOMO=matoma
+export MYSQL_PASSWORD_NEXTCLOUD=nextcloud
 export UP_UNIFI_DEFAULT_URL=
 export UP_UNIFI_DEFAULT_USER=
 export UP_UNIFI_DEFAULT_PASS=
@@ -66,3 +70,7 @@ export MYSQL_URL_RESOURCESPACE=mysql://${MYSQL_USER_RESOURCESPACE}:${MYSQL_PASSW
 export MYSQL_USER_MATOMO=matoma
 export MYSQL_DATABASE_MATOMO=matoma
 export MYSQL_URL_MATOMO=mysql://${MYSQL_USER_MATOMO}:${MYSQL_PASSWORD_MATOMO}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_MATOMO}
+
+export MYSQL_USER_NEXTCLOUD=nextcloud
+export MYSQL_DATABASE_NEXTCLOUD=nextcloud
+export MYSQL_URL_NEXTCLOUD=mysql://${MYSQL_USER_NEXTCLOUD}:${MYSQL_PASSWORD_NEXTCLOUD}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_NEXTCLOUD}
