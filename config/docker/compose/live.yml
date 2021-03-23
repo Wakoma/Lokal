@@ -75,7 +75,6 @@ services:
 
   nextcloud:
     labels:
-      traefik.http.routers.nextcloud.middlewares: traefik-auth
       traefik.http.routers.nextcloud.tls.certresolver: http
 
   portainer:
