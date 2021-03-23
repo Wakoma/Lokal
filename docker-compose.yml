@@ -246,15 +246,16 @@ services:
       - prometheus
 
   nextcloud:
-    image: linuxserver/nextcloud:latest
+    image: nextcloud:latest
     container_name: nextcloud
     environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD_NEXTCLOUD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_NEXTCLOUD}
+      MYSQL_USER: ${MYSQL_USER_NEXTCLOUD}
+      MYSQL_HOST: ${MYSQL_HOST}
     volumes:
       - ${NEXTCLOUD_CONFIG_DIR}:/config
-      - nextcloud:/data
+      - nextcloud:/var/www/html
     restart: unless-stopped
     networks:
       - mysql
@@ -265,7 +266,7 @@ services:
       traefik.http.routers.nextcloud.entrypoints: websecure
       traefik.http.routers.nextcloud.rule: Host(`${DOMAIN_NEXTCLOUD}`)
       traefik.http.routers.nextcloud.tls: "true"
-      traefik.http.services.nextcloud.loadbalancer.server.port: 80
+      traefik.http.services.nextcloud.loadbalancer.server.port: 8080
 
   portainer:
     image: portainer/portainer-ce:latest
