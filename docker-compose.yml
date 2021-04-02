@@ -25,6 +25,8 @@ volumes:
     name: nextcloud
   portainer:
     name: portainer
+  unifi-controller:
+    name: unifi-controller
 
 services:
   grafana:
@@ -287,3 +289,32 @@ services:
       traefik.http.routers.portainer.rule: Host(`${DOMAIN_PORTAINER}`)
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
+
+  unifi-controller:
+    image: linuxserver/unifi-controller
+    container_name: unifi-controller
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - unifi-controller:/config
+    ports:
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8080:8080
+      - 1900:1900/udp
+      - 8843:8843
+      - 8880:8880
+      - 6789:6789
+      - 5514:5514/udp
+    restart: unless-stopped
+    networks:
+      - prometheus
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.unifi-controller.entrypoints: websecure
+      traefik.http.routers.unifi-controller.rule: Host(`${DOMAIN_UNIFI_CONTROLLER}`)
+      traefik.http.routers.unifi-controller.tls: "true"
+      traefik.http.services.unifi-controller.loadbalancer.server.scheme: https
+      traefik.http.services.unifi-controller.loadbalancer.server.port: 8443

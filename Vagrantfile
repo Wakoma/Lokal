@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
     subconfig.vm.provision :ansible do |ansible|
       ansible.limit = "all"
       ansible.playbook = "config/ansible/base.playbook.yml"
-      ansible.extra_vars = {primary_user: "vagrant"}
+      ansible.extra_vars = {primary_ssh_user: "vagrant"}
     end
   end
 end

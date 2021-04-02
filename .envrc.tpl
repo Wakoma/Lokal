@@ -39,6 +39,7 @@ export DOMAIN_KIWIX=learn.${DOMAIN_VNET}
 export DOMAIN_TRANSMISSION=torrent.${DOMAIN_VNET}
 export DOMAIN_NEXTCLOUD=nextcloud.${DOMAIN}
 export DOMAIN_PORTAINER=portainer.${DOMAIN_VNET}
+export DOMAIN_UNIFI_CONTROLLER=unifi.${DOMAIN_VNET}
 export KIWIX_DATA_DIR=${PROJECT_ROOT}/config/services/kiwix/data
 export TRANSMISSION_CONFIG_DIR=${PROJECT_ROOT}/config/services/transmission/config
 export TRANSMISSION_DOWNLOADS_DIR=${PROJECT_ROOT}/config/services/transmission/downloads

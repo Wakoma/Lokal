@@ -57,6 +57,7 @@ services:
       - --providers.docker.network=traefik
       - --providers.file.directory=/config
       - --providers.file.watch=true
+      - --serversTransport.insecureSkipVerify=true
     # environment:
     #   NAMECHEAP_API_USER: ${NAMECHEAP_API_USER}
     #   NAMECHEAP_API_KEY: ${NAMECHEAP_API_KEY}
