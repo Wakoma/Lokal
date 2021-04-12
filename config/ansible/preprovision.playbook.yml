@@ -1,6 +1,7 @@
 ---
 - name: Preprovision
   hosts: all
+  # become: yes
   tasks:
 
     - name: Register root ssh user's details
