@@ -151,20 +151,8 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    Suggestions:
    - Name: `vnet-nuc-xx`
    - Server's name: `vnet-nuc-xx`
-   - Username: `ubuntu`
-   - Password: `ubuntu` (password access will be disabled by automation later)
-
-1. Generate OpenVPN client config and transport to NUC/s via USB
-   - For SSH access ask for your public ssh key to be added to authorized keys of VPN server
-   - Once ssh'd in, execute: `sudo ./openvpn-install.sh` and follow prompts
-   - scp .ovpn files created from server and store on USB drive
-   - Modify .ovpn files with content below (just before line containing `<ca>`):
-   ```
-   route-nopull
-   route 10.179.0.0 255.255.255.0
-   route 10.2.0.0 255.255.0.0
-   route 10.10.0.0 255.255.0.0
-   ```
+   - Username: `system`
+   - Password: <autogenerate> (e.g. `pwgen 8 1`)
 
 1. [Optional] Connect NUCS to WiFi if not already connected
    - Unfortunately it is a complicated procedure to install the required wpasupplicant package while offline. So to shortcut this, you will need to temporarily connect to the internet via ethernet (LTE for example) TODO: Provide an offline alternative
@@ -175,7 +163,19 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    - `sudoedit /etc/netplan/00-installer-config.yaml` (see tutorial for content)
    - `sudo netplan apply` (add --debug flag if anything goes wrong)
 
-1. Configure OpenVPN client:
+1. [Optional] Generate OpenVPN client config and transport to NUC/s via USB
+   - For SSH access to the OpenVPN server ask for your dev machine's public ssh key to be added to authorized keys
+   - Once ssh'd in, execute: `sudo ./openvpn-install.sh` and follow prompts
+   - scp .ovpn files created from server and store on USB drive
+   - Modify .ovpn files with content below (just before line containing `<ca>`):
+   ```
+   route-nopull
+   route 10.179.0.0 255.255.255.0
+   route 10.2.0.0 255.255.0.0
+   route 10.10.0.0 255.255.0.0
+   ```
+
+1. [Optional] Configure OpenVPN client:
    - `sudo apt update && sudo apt install -y openvpn`
    - `sudo mount /dev/sdb1 /mnt` (after inserting data USB containing client configs, `lsblk` to confirm present at `sdb1`)
    - `sudo cp /mnt/vnet-nuc-xx.ovpn /etc/openvpn/client/vnet-nuc-xx.ovpn.conf`
@@ -187,6 +187,9 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    - `sudo systemctl enable openvpn-client@vnet-nuc-xx.ovpn`
 
 1. Configure with Ansible:
+   - Temporarily allow root ssh login via ssh key
+     - `sudo -i`
+     - `nano ~/.ssh/authorized_keys` (and copy your dev machine's public ssh key `cat ~/.ssh/id_rsa.pub`)
    - Temporarily modify `config/ansible/hosts.yml` with all the NUCs you want to provision (in parallel, so complete all above steps on each NUC first). Something like this will do, e.g:
    ```
    ungrouped:
@@ -194,30 +197,10 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
        vnet-nuc-02:
          ansible_ssh_host: 10.179.0.6
          ansible_connection: ssh
-         ansible_ssh_pass: ubuntu
-         ansible_sudo_pass: ubuntu
        vnet-nuc-03:
          ansible_ssh_host: 10.179.0.7
          ansible_connection: ssh
-         ansible_ssh_pass: ubuntu
-         ansible_sudo_pass: ubuntu
    ```
-   - Make sure environment variable, `PRIMARY_SSH_USER=ubuntu`
+   - Make sure environment variables, `ROOT_SSH_USER=root`, `PRIMARY_SSH_USER=ubuntu`
    - `./config/ansible/run.sh` (If the kernel was outdated, the playook might fail in which case just reboot each NUC and run the same again)
    - `git checkout config/ansible/hosts.yml` (store a duplicate in a safe location if preferred)
-
-1. Ensure insecure password is not available:
-   - `ssh-keygen`
-   - Copy dev machine's public ssh key, `cat ~/.ssh/id_rsa.pub`
-   - Paste to remote server, `nano ~/.ssh/authorized_keys`
-   - Uncomment `# become: yes` at the top of `config/ansible/preprovision.playbook.yml`
-   - Temporarily comment out the following (last four) sections of `config/ansible/preprovision.playbook.yml`:
-   ```
-    # - name: Ensure that the primary user's ssh directory exists
-    # - name: Ensure authorized_keys file is initiated for primary user
-    # - name: Install sync_authorized_keys service unit file
-    # - name: Start/Enable sync_authorized_keys service unit file
-    ```
-    - Temporarily uncomment commented out ansible run command and comment pre-existing absible run command `config/ansible/run.sh`
-    - `./config/ansible/run.sh`
-    - `git checkout config/ansible/preprovision.playbook.yml config/ansible/run.sh`
