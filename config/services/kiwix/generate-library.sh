@@ -16,8 +16,8 @@ docker run --rm \
   --user "$(id -u):$(id -g)" \
   -v "${TRANSMISSION_DOWNLOADS_DIR}:${TRANSMISSION_DOWNLOADS_DIR}" \
   -v "${KIWIX_DATA_DIR}:${KIWIX_DATA_DIR}" \
-  --entrypoint bash \
-  kiwix/library \
+  --entrypoint ash \
+  kiwix/kiwix-serve \
   -c "kiwix-manage ${library_file} add ${zims}"
 
 echo "The following files were added to ${library_file}:"
