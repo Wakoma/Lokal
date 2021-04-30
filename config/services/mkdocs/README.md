@@ -207,7 +207,7 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    - `cd ~/Lokal`
    - `cp .envrc.tpl .envrc` - once-off
    - Modify .envrc with correct values - once-off
-   - `direnv allow .` - once-off, or every time .envrc is modified
+   - `direnv allow .` - once-off, or every time .envrc is modified (if on NUC, direnv is likely not installed yet... instead just run `source .envrc`
 
 1. [ONLY if self-managed] Configure with Ansible:
    - Install Ansible on the NUC, see dev environment install instructions for summary
