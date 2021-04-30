@@ -6,6 +6,14 @@ development)
 
 1. Install Direnv - once-off
 
+1. Install Ansible - once-off
+   ```
+   $ sudo apt update
+   $ sudo apt install software-properties-common
+   $ sudo apt-add-repository --yes --update ppa:ansible/ansible
+   $ sudo apt install ansible
+   ```
+
 1. `cp .envrc.tpl .envrc` - once-off
 
 1. Modify .envrc with correct values - once-off
@@ -186,10 +194,34 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    - See ip with `ip a`, you should now be able to ssh in from dev machine that is also connected to the VPN, e.g. `ssh ubuntu@10.179.0.x`
    - `sudo systemctl enable openvpn-client@vnet-nuc-xx.ovpn`
 
-1. Configure with Ansible:
+1. [Optional] Clone private repo:
+   Follow these extra steps if you are working from a private fork for example.
+   - e.g. `ssh ubuntu@x.x.x.x` (This should work after previous step)
+   - `ssh-keygen` (enter with defaults)
+   - `cat ~/.ssh/id_rsa.pub`
+   - Add the above as deploy key at Github web frontend of this repo
+   - e.g. `git@github.com:VPUU-V-NET/v-stack.git`
+
+1. Initial steps (On Controller if applicable AND later on each NUC - TODO: Automate so that these steps are included by ansible):
+   - e.g. `git clone git@github.com:Wakoma/Lokal.git`
+   - `cd ~/Lokal`
+   - `cp .envrc.tpl .envrc` - once-off
+   - Modify .envrc with correct values - once-off
+   - `direnv allow .` - once-off, or every time .envrc is modified
+
+1. [ONLY if self-managed] Configure with Ansible:
+   - Install Ansible on the NUC, see dev environment install instructions for summary
+   - Install community supported 'roles' on NUC, see dev environment install instructions for command
+   - `sudo -E ./config/ansible/run.sh` (If the kernel was outdated, the playook might fail in which case just reboot each NUC and run the same again)
+
+1. [ONLY if remotely-managed] Configure with Ansible:
+   - Install Ansible on controller (ideally a Linux system with access to the same network as the NUC), see dev environment install instructions for summary
+   - Install community supported 'roles' on controller, see dev environment install instructions for command
    - Temporarily allow root ssh login via ssh key
-     - `sudo -i`
-     - `nano ~/.ssh/authorized_keys` (and copy your dev machine's public ssh key `cat ~/.ssh/id_rsa.pub`)
+     - On controller machine, `cp ~/.ssh/id_rsa.pub /path/to/usb/id_rsa.pub`
+     - On NUC:
+       - `sudo -i`
+       - `cp /path/to/usb/id_rsa.pub ~/.ssh/authorized_keys`
    - Temporarily modify `config/ansible/hosts.yml` with all the NUCs you want to provision (in parallel, so complete all above steps on each NUC first). Something like this will do, e.g:
    ```
    ungrouped:
@@ -204,18 +236,4 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    - Make sure environment variables, `ROOT_SSH_USER=root`, `PRIMARY_SSH_USER=ubuntu`
    - `./config/ansible/run.sh` (If the kernel was outdated, the playook might fail in which case just reboot each NUC and run the same again)
    - `git checkout config/ansible/hosts.yml` (store a duplicate in a safe location if preferred)
-
-1. [Optional] Clone private repo:
-   Follow these extra steps if you are working from a private fork for example.
-   - e.g. `ssh ubuntu@x.x.x.x` (This should work after previous step)
-   - `ssh-keygen` (enter with defaults)
-   - `cat ~/.ssh/id_rsa.pub`
-   - Add the above as deploy key at Github web frontend of this repo
-   - e.g. `git@github.com:VPUU-V-NET/v-stack.git`
-
-1. Initial steps:
-   - e.g. `git clone git@github.com:VPUU-V-NET/v-stack.git`
-   - `cd ~/v-stack`
-   - `cp .envrc.tpl .envrc` - once-off
-   - Modify .envrc with correct values - once-off
-   - `direnv allow .` - once-off, or every time .envrc is modified
+   - Run the same initial steps as defined in the previous step
