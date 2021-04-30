@@ -8,10 +8,10 @@ development)
 
 1. Install Ansible - once-off
    ```
-   $ sudo apt update
-   $ sudo apt install software-properties-common
-   $ sudo apt-add-repository --yes --update ppa:ansible/ansible
-   $ sudo apt install ansible
+   sudo apt update
+   sudo apt install software-properties-common
+   sudo apt-add-repository --yes --update ppa:ansible/ansible
+   sudo apt install ansible
    ```
 
 1. `cp .envrc.tpl .envrc` - once-off
