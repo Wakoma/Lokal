@@ -204,3 +204,18 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    - Make sure environment variables, `ROOT_SSH_USER=root`, `PRIMARY_SSH_USER=ubuntu`
    - `./config/ansible/run.sh` (If the kernel was outdated, the playook might fail in which case just reboot each NUC and run the same again)
    - `git checkout config/ansible/hosts.yml` (store a duplicate in a safe location if preferred)
+
+1. [Optional] Clone private repo:
+   Follow these extra steps if you are working from a private fork for example.
+   - e.g. `ssh ubuntu@x.x.x.x` (This should work after previous step)
+   - `ssh-keygen` (enter with defaults)
+   - `cat ~/.ssh/id_rsa.pub`
+   - Add the above as deploy key at Github web frontend of this repo
+   - e.g. `git@github.com:VPUU-V-NET/v-stack.git`
+
+1. Initial steps:
+   - e.g. `git clone git@github.com:VPUU-V-NET/v-stack.git`
+   - `cd ~/v-stack`
+   - `cp .envrc.tpl .envrc` - once-off
+   - Modify .envrc with correct values - once-off
+   - `direnv allow .` - once-off, or every time .envrc is modified
