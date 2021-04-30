@@ -213,6 +213,7 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    - Install Ansible on the NUC, see dev environment install instructions for summary
    - Install community supported 'roles' on NUC, see dev environment install instructions for command
    - `sudo -E ./config/ansible/run.sh` (If the kernel was outdated, the playook might fail in which case just reboot each NUC and run the same again)
+   - `direnv allow .`
 
 1. [ONLY if remotely-managed] Configure with Ansible:
    - Install Ansible on controller (ideally a Linux system with access to the same network as the NUC), see dev environment install instructions for summary
@@ -237,3 +238,12 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    - `./config/ansible/run.sh` (If the kernel was outdated, the playook might fail in which case just reboot each NUC and run the same again)
    - `git checkout config/ansible/hosts.yml` (store a duplicate in a safe location if preferred)
    - Run the same initial steps as defined in the previous step
+
+1. For seperation of concerns, a new user, password and database is created for each service.
+  Upon initial run:
+  - `dc up -d mariadb` (wait long enough for system to become ready)
+  - `dc logs -f mariadb` (If log output says it is ready to accept connections, continue)
+  - `config/services/mariadb/scripts/init-databases.sh`
+
+1. Up all services
+   - `dc up -d`
