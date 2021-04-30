@@ -203,7 +203,7 @@ Assumptions are that the NUC will be provisioned off-site and once the work is d
    - e.g. `git@github.com:VPUU-V-NET/v-stack.git`
 
 1. Initial steps (On Controller if applicable AND later on each NUC - TODO: Automate so that these steps are included by ansible):
-   - e.g. `git clone git@github.com:Wakoma/Lokal.git`
+   - e.g. `git clone https://github.com/Wakoma/Lokal.git`
    - `cd ~/Lokal`
    - `cp .envrc.tpl .envrc` - once-off
    - Modify .envrc with correct values - once-off
