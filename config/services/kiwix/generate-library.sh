@@ -10,6 +10,7 @@ eval "$(direnv export bash)"
 
 library_file="${KIWIX_DATA_DIR}/library.xml"
 complete_download_dir="${TRANSMISSION_DOWNLOADS_DIR}/complete"
+mkdir -p ${complete_download_dir}
 zims="$(find ${complete_download_dir} -name '*.zim' | xargs)"
 
 docker run --rm \
