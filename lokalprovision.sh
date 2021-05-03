@@ -12,9 +12,9 @@ apt install --yes software-properties-common unzip
 apt-add-repository --yes --update ppa:ansible/ansible
 apt install --yes ansible
 
-repo_owner=Wakoma
-repo_name=Lokal
-repo_branch=main
+export repo_owner=Wakoma
+export repo_name=Lokal
+export repo_branch=main
 
 temp_file=$(mktemp --dry-run)
 temp_dir=$(mktemp --directory)
@@ -32,10 +32,4 @@ export ROOT_SSH_USER=root
 export PRIMARY_SSH_USER=ubuntu
 ${src}/config/ansible/run.sh
 
-PRIMARY_SSH_USER_HOME=$(getent passwd ${PRIMARY_SSH_USER} | cut -d: -f6)
-sudo -u ${PRIMARY_SSH_USER} git clone https://github.com/${repo_owner}/${repo_name}.git ${PRIMARY_SSH_USER_HOME}/${repo_name}
-new_src=${PRIMARY_SSH_USER_HOME}/${repo_name}
-sudo -u ${PRIMARY_SSH_USER} cp ${new_src}/.envrc.tpl ${new_src}/.envrc
-sudo -u ${PRIMARY_SSH_USER} direnv allow ${new_src}/.envrc
-sudo -u ${PRIMARY_SSH_USER} direnv exec ${new_src} dc config
-sudo -u ${PRIMARY_SSH_USER} direnv exec ${new_src} dc up -d
+rm -rf ${temp_dir}

@@ -1,0 +1,34 @@
+---
+- name: Deploy Services
+  hosts: all
+  tasks:
+
+    - name: Register primary user's details
+      user:
+        name: "{{ primary_ssh_user }}"
+      register: primary_ssh_user_params
+
+    - name: Set facts
+      set_fact:
+        git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
+
+    - name: Checkout git repo instance to main branch and pull
+      git:
+        repo: "{{ git_repo }}"
+        dest: "{{ git_dest }}"
+        version: "{{ git_version }}"
+      vars:
+        git_repo: "https://github.com/{{ repo_owner }}/{{ repo_name }}.git"
+        git_version: "{{ repo_branch }}"
+
+    - name: Copy .envrc template
+      shell: "cp {{ git_dest }}/.envrc.tpl {{ git_dest }}/.envrc"
+
+    - name: Allow new .envrc
+      shell: "direnv allow {{ git_dest }}"
+
+    - name: Docker-compose pull
+      shell: "direnv exec {{ git_dest }} dc pull"
+
+    - name: Docker-compose up
+      shell: "direnv exec {{ git_dest }} dc up -d"
