@@ -28,7 +28,7 @@
       shell: "direnv exec {{ git_dest }} dc pull"
 
     - name: Generate Kiwix Library file
-      shell: "direnv exec {{ git_dest }} config/services/kiwix/generate-library.sh"
+      shell: "direnv exec {{ git_dest }} {{ git_dest }}/config/services/kiwix/generate-library.sh"
 
     - name: Docker-compose up mariadb
       shell: "direnv exec {{ git_dest }} dc up -d mariadb"
