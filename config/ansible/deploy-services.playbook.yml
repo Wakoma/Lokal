@@ -36,7 +36,7 @@
       shell: "direnv exec {{ git_dest }} dc up -d mariadb"
 
     - name: Wait for Mariadb to be ready
-      shell: "direnv exec {{ git_dest }} ( dc logs -f mariadb & ) | grep -q 'ready for connections'"
+      shell: "( docker logs -f mariadb 2>&1 ) | grep -q 'ready for connections'"
 
     - name: Docker-compose up mariadb
       shell: "direnv exec {{ git_dest }} {{ git_dest }}/config/services/mariadb/scripts/init-databases.sh"
