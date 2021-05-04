@@ -28,6 +28,6 @@ else
   echo "The following files were added to ${library_file}:"
   echo "${zims}"
   echo "Restarting Kiwix"
-fi
 
-dc restart kiwix
+  dc restart kiwix
+fi
