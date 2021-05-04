@@ -22,7 +22,9 @@
         git_version: "{{ repo_branch }}"
 
     - name: Copy .envrc template
-      shell: "cp {{ git_dest }}/.envrc.tpl {{ git_dest }}/.envrc"
+      ansible.builtin.copy:
+        src: "{{ git_dest }}/.envrc.tpl"
+        dest: "{{ git_dest }}/.envrc"
 
     - name: Docker-compose pull
       shell: "direnv exec {{ git_dest }} dc pull"
