@@ -26,6 +26,9 @@
         src: "{{ git_dest }}/.envrc.tpl"
         dest: "{{ git_dest }}/.envrc"
 
+    - name: Change current working directory
+      shell: "direnv exec {{ git_dest }} cd {{ git_dest }}"
+
     - name: Docker-compose pull
       shell: "direnv exec {{ git_dest }} dc pull"
 
@@ -34,9 +37,6 @@
 
     - name: Docker-compose up mariadb
       shell: "direnv exec {{ git_dest }} dc up -d mariadb"
-
-    - name: Wait for Mariadb to be ready
-      shell: "( docker logs -f mariadb 2>&1 ) | grep -q 'ready for connections'"
 
     - name: Init databases
       shell: "direnv exec {{ git_dest }} bash {{ git_dest }}/config/services/mariadb/scripts/init-databases.sh"
