@@ -20,11 +20,6 @@ ansible-playbook \
 ansible-playbook \
   --user ${PRIMARY_SSH_USER} \
   -e primary_ssh_user=${PRIMARY_SSH_USER} \
-  -i ${PROJECT_ROOT}/config/ansible/hosts.yml \
-  ${PROJECT_ROOT}/config/ansible/base.playbook.yml
-ansible-playbook \
-  --user ${PRIMARY_SSH_USER} \
-  -e primary_ssh_user=${PRIMARY_SSH_USER} \
   -e repo_owner=${repo_owner} \
   -e repo_name=${repo_name} \
   -e repo_branch=${repo_branch} \
