@@ -26,20 +26,27 @@
         src: "{{ git_dest }}/.envrc.tpl"
         dest: "{{ git_dest }}/.envrc"
 
-    - name: Change current working directory
-      shell: "direnv exec {{ git_dest }} cd {{ git_dest }}"
-
     - name: Docker-compose pull
-      shell: "direnv exec {{ git_dest }} dc pull"
+      shell: "direnv exec . dc pull"
+      args:
+        chdir: "{{ git_dest }}"
 
     - name: Generate Kiwix Library file
-      shell: "direnv exec {{ git_dest }} {{ git_dest }}/config/services/kiwix/generate-library.sh"
+      shell: "direnv exec . ./config/services/kiwix/generate-library.sh"
+      args:
+        chdir: "{{ git_dest }}"
 
     - name: Docker-compose up mariadb
-      shell: "direnv exec {{ git_dest }} dc up -d mariadb"
+      shell: "direnv exec . dc up -d mariadb"
+      args:
+        chdir: "{{ git_dest }}"
 
     - name: Init databases
-      shell: "direnv exec {{ git_dest }} bash {{ git_dest }}/config/services/mariadb/scripts/init-databases.sh"
+      shell: "direnv exec . bash ./config/services/mariadb/scripts/init-databases.sh"
+      args:
+        chdir: "{{ git_dest }}"
 
     - name: Docker-compose up
-      shell: "direnv exec {{ git_dest }} dc up -d"
+      shell: "direnv exec . dc up -d"
+      args:
+        chdir: "{{ git_dest }}"

@@ -1,8 +1,4 @@
-until dc exec -T mariadb mysqladmin ping -p${MYSQL_ROOT_PASSWORD}
-do
-  echo "Waiting for database connection..."
-  sleep 5
-done
+docker exec mariadb bash -c "until mysqladmin ping -p${MYSQL_ROOT_PASSWORD} --quiet; do echo 'Waiting for database connection...'; sleep 5; done"
 printf "\
 CREATE USER IF NOT EXISTS '${MYSQL_USER_WORDPRESS}'@'%%' IDENTIFIED BY '${MYSQL_PASSWORD_WORDPRESS}';\n\
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE_WORDPRESS};\n\
