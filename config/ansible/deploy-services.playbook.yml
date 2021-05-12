@@ -29,6 +29,11 @@
         src: "{{ git_dest }}/.envrc.tpl"
         dest: "{{ git_dest }}/.envrc"
 
+    - name: Allow .envrc
+      shell: "direnv allow ."
+      args:
+        chdir: "{{ git_dest }}"
+
     - name: Docker-compose pull
       shell: "direnv exec . dc pull"
       args:
