@@ -40,11 +40,14 @@ export DOMAIN_TRANSMISSION=torrent.${DOMAIN_VNET}
 export DOMAIN_NEXTCLOUD=nextcloud.${DOMAIN}
 export DOMAIN_PORTAINER=portainer.${DOMAIN_VNET}
 export DOMAIN_UNIFI_CONTROLLER=unifi.${DOMAIN_VNET}
+export DOMAIN_JELLYFIN=video.${DOMAIN_VNET}
 export KIWIX_DATA_DIR=${PROJECT_ROOT}/config/services/kiwix/data
 export TRANSMISSION_CONFIG_DIR=${PROJECT_ROOT}/config/services/transmission/config
 export TRANSMISSION_DOWNLOADS_DIR=${PROJECT_ROOT}/config/services/transmission/downloads
 export TRANSMISSION_WATCH_DIR=${PROJECT_ROOT}/config/services/transmission/watch
 export NEXTCLOUD_CONFIG_DIR=${PROJECT_ROOT}/config/services/nextcloud/config
+export JELLYFIN_CONFIG_DIR=${PROJECT_ROOT}/config/services/jellyfin/config
+export JELLYFIN_DATA_DIR=${PROJECT_ROOT}/config/services/jellyfin/data
 
 # Application Secrets
 export MYSQL_ROOT_PASSWORD=default

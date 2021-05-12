@@ -57,6 +57,7 @@
       - 10001
       - 1900
       - 5514
+      - 7359
     firewall_disable_ufw: true
     firewall_enable_ipv6: false
   roles:
