@@ -1,5 +1,8 @@
 ---
 - name: Deploy Services
+  become: yes
+  become_method: sudo
+  become_user: "{{ primary_ssh_user }}"
   hosts: all
   tasks:
 
