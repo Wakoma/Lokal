@@ -36,6 +36,11 @@
         dest: "{{ primary_ssh_user_params.home }}"
         remote_src: yes
 
+    - name: Make a backup of original docker-compose file
+      ansible.builtin.copy:
+        src: "{{ jitsi_dest }}/docker-compose.yml"
+        dest: "{{ jitsi_dest }}/docker-compose.yml.bak"
+
     - name: Copy .envrc from template
       ansible.builtin.template:
         src: "{{ project_root }}/config/services/jitsi/.env.j2"
