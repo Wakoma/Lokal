@@ -23,11 +23,11 @@
 
     - name: Set passwords
       set_fact:
-        jicofo_auth_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
-        jvb_auth_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
-        jigasi_xmpp_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
-        jibri_recorder_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
-        jibri_xmpp_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
+        jicofo_auth_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jicofo_auth_password length=16 chars=ascii_letters') }}"
+        jvb_auth_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jvb_auth_password length=16 chars=ascii_letters') }}"
+        jigasi_xmpp_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jigasi_xmpp_password length=16 chars=ascii_letters') }}"
+        jibri_recorder_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jibri_recorder_password length=16 chars=ascii_letters') }}"
+        jibri_xmpp_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jibri_xmpp_password length=16 chars=ascii_letters') }}"
 
     - name: Unarchive latest jitsi source
       ansible.builtin.unarchive:
