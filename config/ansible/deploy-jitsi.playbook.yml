@@ -16,6 +16,7 @@
         jitsi_project: "docker-jitsi-meet"
         jitsi_release: "stable-5870"
         project_root: "{{ lookup('env', 'PROJECT_ROOT') }}"
+        domain_jitsit: "meet.vnet.lan"
 
     - name: Set more facts
       set_fact:
