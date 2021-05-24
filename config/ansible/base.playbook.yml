@@ -77,6 +77,7 @@
       - "{{ primary_ssh_user }}"
     docker_install_compose: true
     docker_compose_version: 1.27.4
+    docker_service_state: restarted
   roles:
     - geerlingguy.docker
 
