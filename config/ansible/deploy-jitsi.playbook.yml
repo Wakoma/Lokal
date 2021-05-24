@@ -16,15 +16,18 @@
         jitsi_project: "docker-jitsi-meet"
         jitsi_release: "stable-5870"
         project_root: "{{ lookup('env', 'PROJECT_ROOT') }}"
-        jicofo_auth_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
-        jvb_auth_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
-        jigasi_xmpp_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
-        jibri_recorder_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
-        jibri_xmpp_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
 
     - name: Set more facts
       set_fact:
         jitsi_dest: "{{ primary_ssh_user_params.home }}/{{ jitsi_project }}-{{ jitsi_release }}"
+
+    - name: Set passwords
+      set_fact:
+        jicofo_auth_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
+        jvb_auth_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
+        jigasi_xmpp_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
+        jibri_recorder_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
+        jibri_xmpp_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass length=16 chars=ascii_letters') }}"
 
     - name: Unarchive latest jitsi source
       ansible.builtin.unarchive:
