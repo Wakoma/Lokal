@@ -1,0 +1,43 @@
+---
+- name: Deploy Services
+  become: yes
+  become_method: sudo
+  become_user: "{{ primary_ssh_user }}"
+  hosts: all
+  tasks:
+
+    - name: Register primary user's details
+      user:
+        name: "{{ primary_ssh_user }}"
+      register: primary_ssh_user_params
+
+    - name: Set facts
+      set_fact:
+        jitsi_project: "docker-jitsi-meet"
+        jitsi_release: "stable-5870"
+        project_root: "{{ lookup('env', 'PROJECT_ROOT') }}"
+        jicofo_auth_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
+        jvb_auth_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
+        jigasi_xmpp_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
+        jibri_recorder_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
+        jibri_xmpp_password: "{{ lookup('password', 'length=16 chars=ascii_letters') }}"
+
+    - name: Set more facts
+      set_fact:
+        jitsi_dest: "{{ primary_ssh_user_params.home }}/{{ jitsi_project }}-{{ jitsi_release }}"
+
+    - name: Unarchive latest jitsi source
+      ansible.builtin.unarchive:
+        src: https://github.com/jitsi/{{ jitsi_project }}/archive/refs/tags/{{ jitsi_release }}.zip
+        dest: "{{ primary_ssh_user_params.home }}"
+        remote_src: yes
+
+    - name: Copy .envrc from template
+      ansible.builtin.template:
+        src: "{{ project_root }}/config/services/jitsi/.env.j2"
+        dest: "{{ jitsi_dest }}/.env"
+
+    - name: Copy docker-compose.yml from template
+      ansible.builtin.template:
+        src: "{{ project_root }}/config/services/jitsi/docker-compose.yml.j2"
+        dest: "{{ jitsi_dest }}/docker-compose.yml"

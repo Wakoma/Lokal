@@ -25,3 +25,7 @@ ansible-playbook \
   -e repo_branch=${repo_branch} \
   -i ${PROJECT_ROOT}/config/ansible/hosts.yml \
   ${PROJECT_ROOT}/config/ansible/deploy-services.playbook.yml
+ansible-playbook \
+  -e primary_ssh_user=${PRIMARY_SSH_USER} \
+  -i ${PROJECT_ROOT}/config/ansible/hosts.yml \
+  ${PROJECT_ROOT}/config/ansible/deploy-jitsi.playbook.yml
