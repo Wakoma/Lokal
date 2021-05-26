@@ -38,5 +38,6 @@ su ${PRIMARY_SSH_USER} -c "\
 su ${PRIMARY_SSH_USER} -c "\
   ansible-playbook \
     -e primary_ssh_user=${PRIMARY_SSH_USER} \
+    -e repo_name=${repo_name} \
     -i config/ansible/hosts.yml \
     config/ansible/deploy-jitsi.playbook.yml"

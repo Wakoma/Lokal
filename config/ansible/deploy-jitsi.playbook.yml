@@ -17,6 +17,7 @@
     - name: Set more facts
       set_fact:
         jitsi_dest: "{{ primary_ssh_user_params.home }}/{{ jitsi_project }}-{{ jitsi_release }}"
+        git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
 
     - name: Set passwords
       set_fact:
@@ -39,12 +40,12 @@
 
     - name: Copy .envrc from template
       ansible.builtin.template:
-        src: "config/services/jitsi/.env.j2"
+        src: "{{ git_dest }}/config/services/jitsi/.env.j2"
         dest: "{{ jitsi_dest }}/.env"
 
     - name: Copy docker-compose.yml from template
       ansible.builtin.template:
-        src: "config/services/jitsi/docker-compose.yml.j2"
+        src: "{{ git_dest }}/config/services/jitsi/docker-compose.yml.j2"
         dest: "{{ jitsi_dest }}/docker-compose.yml"
 
     - name: Get .env content
