@@ -19,6 +19,7 @@ export repo_branch=main
 temp_file=$(mktemp --dry-run)
 temp_dir=$(mktemp --directory)
 
+chmod -R 777 ${temp_dir}
 wget https://github.com/${repo_owner}/${repo_name}/archive/${repo_branch}.zip -O ${temp_file}
 unzip ${temp_file} -d ${temp_dir}
 rm ${temp_file}
