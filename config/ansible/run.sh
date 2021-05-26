@@ -12,6 +12,8 @@ ansible-playbook \
   -i ${PROJECT_ROOT}/config/ansible/hosts.yml \
   ${PROJECT_ROOT}/config/ansible/preprovision.playbook.yml
 
+chown -R ${PRIMARY_SSH_USER}:${PRIMARY_SSH_USER} ${PROJECT_ROOT}
+
 su ${PRIMARY_SSH_USER} -c "\
   ansible-playbook \
     -e primary_ssh_user=${PRIMARY_SSH_USER} \
