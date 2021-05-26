@@ -38,7 +38,7 @@
         src: "{{ jitsi_dest }}/docker-compose.yml"
         dest: "{{ jitsi_dest }}/docker-compose.yml.bak"
 
-    - name: Copy .envrc from template
+    - name: Copy .env from template
       ansible.builtin.template:
         src: "{{ git_dest }}/config/services/jitsi/.env.j2"
         dest: "{{ jitsi_dest }}/.env"
@@ -48,14 +48,13 @@
         src: "{{ git_dest }}/config/services/jitsi/docker-compose.yml.j2"
         dest: "{{ jitsi_dest }}/docker-compose.yml"
 
-    - name: Get .env content
-      slurp:
-        src: "{{ jitsi_dest }}/.env"
-      register: env_file_content
+    - name: Get .env file content
+      shell: . {{ jitsi_dest }}/.env && env
+      register: env_file_result
 
     - name: Parse environment
       set_fact:
-        env_vars: "{{ ('{' + (env_file_content.content | b64decode).split('\n') | select | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
+        env_vars: "{{ ('{' + env_file_result.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
 
     - name: Display environment variables
       command: env
