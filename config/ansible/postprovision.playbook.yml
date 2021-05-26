@@ -2,8 +2,6 @@
 - name: Extra tasks for when provisioning a machine image
   hosts: all
   become: yes
-  become_method: sudo
-  become_user: root
   tasks:
     - name: Register cloud provided ssh user's details
       user:
@@ -27,3 +25,4 @@
           home: "{{ root_ssh_user_params.home }}"
         - user: "{{ primary_ssh_user }}"
           home: "{{ primary_ssh_user_params.home }}"
+      become: yes

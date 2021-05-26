@@ -2,8 +2,6 @@
 - name: Ensure system is ready and up-to-date
   hosts: all
   become: yes
-  become_method: sudo
-  become_user: root
   tasks:
 
     - name: Wait for apt list lock (Known to cause issues sometimes)
@@ -37,8 +35,6 @@
 - name: Ensure firewall is set up
   hosts: all
   become: yes
-  become_method: sudo
-  become_user: root
   vars:
     firewall_state: started
     firewall_enabled_at_boot: true
@@ -68,8 +64,6 @@
 - name: Ensure Docker is installed
   hosts: all
   become: yes
-  become_method: sudo
-  become_user: root
   vars:
     docker_package_state: present
     docker_package: docker-ce=5:20.10.6~3-0~ubuntu-focal
@@ -84,8 +78,6 @@
 - name: Ensure Docker Python library is installed
   hosts: all
   become: yes
-  become_method: sudo
-  become_user: root
   vars:
     pip_executable: pip3
     pip_package: python3-pip
