@@ -6,19 +6,25 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 export ANSIBLE_FORCE_COLOR=true
 export ANSIBLE_VERBOSITY=0
 
+ROOT_SSH_USER=root
+PRIMARY_SSH_USER=ubuntu
+
 ansible-playbook \
   -e root_ssh_user=${ROOT_SSH_USER} \
   -e primary_ssh_user=${PRIMARY_SSH_USER} \
-  -i ${PROJECT_ROOT}/config/ansible/hosts.yml \
-  ${PROJECT_ROOT}/config/ansible/preprovision.playbook.yml
+  -i config/ansible/hosts.yml \
+  config/ansible/preprovision.playbook.yml
 
-chown -R ${PRIMARY_SSH_USER}:${PRIMARY_SSH_USER} ${PROJECT_ROOT}
+chown -R ${PRIMARY_SSH_USER}:${PRIMARY_SSH_USER} .
+
+su ${PRIMARY_SSH_USER} -c "ansible-galaxy install -r config/ansible/requirements.yml"
+
 
 su ${PRIMARY_SSH_USER} -c "\
   ansible-playbook \
     -e primary_ssh_user=${PRIMARY_SSH_USER} \
-    -i ${PROJECT_ROOT}/config/ansible/hosts.yml \
-    ${PROJECT_ROOT}/config/ansible/base.playbook.yml"
+    -i config/ansible/hosts.yml \
+    config/ansible/base.playbook.yml"
 
 su ${PRIMARY_SSH_USER} -c "\
   ansible-playbook \
@@ -26,11 +32,11 @@ su ${PRIMARY_SSH_USER} -c "\
     -e repo_owner=${repo_owner} \
     -e repo_name=${repo_name} \
     -e repo_branch=${repo_branch} \
-    -i ${PROJECT_ROOT}/config/ansible/hosts.yml \
-    ${PROJECT_ROOT}/config/ansible/deploy-services.playbook.yml"
+    -i config/ansible/hosts.yml \
+    config/ansible/deploy-services.playbook.yml"
 
 su ${PRIMARY_SSH_USER} -c "\
   ansible-playbook \
     -e primary_ssh_user=${PRIMARY_SSH_USER} \
-    -i ${PROJECT_ROOT}/config/ansible/hosts.yml \
-    ${PROJECT_ROOT}/config/ansible/deploy-jitsi.playbook.yml"
+    -i config/ansible/hosts.yml \
+    config/ansible/deploy-jitsi.playbook.yml"

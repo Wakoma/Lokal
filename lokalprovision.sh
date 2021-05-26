@@ -23,13 +23,7 @@ wget https://github.com/${repo_owner}/${repo_name}/archive/${repo_branch}.zip -O
 unzip ${temp_file} -d ${temp_dir}
 rm ${temp_file}
 
-src=${temp_dir}/${repo_name}-${repo_branch}
-
-ansible-galaxy install -r ${src}/config/ansible/requirements.yml
-
-export PROJECT_ROOT=${src}
-export ROOT_SSH_USER=root
-export PRIMARY_SSH_USER=ubuntu
-${src}/config/ansible/run.sh
+cd ${temp_dir}/${repo_name}-${repo_branch}
+config/ansible/run.sh
 
 rm -rf ${temp_dir}
