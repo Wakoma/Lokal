@@ -32,6 +32,10 @@ config/services/transmission/watch/
 # wordpress
 config/services/wordpress/html/
 
+# jellyfin
+config/services/jellyfin/config/
+config/services/jellyfin/data/
+
 # traefik
 certs
 acme
