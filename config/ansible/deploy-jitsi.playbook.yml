@@ -12,7 +12,7 @@
       set_fact:
         jitsi_project: "docker-jitsi-meet"
         jitsi_release: "stable-5870"
-        domain_jitsi: "meet.vnet.lan"
+        domain_jitsi: "meet.{{ env.DOMAIN }}"
 
     - name: Set more facts
       set_fact:
