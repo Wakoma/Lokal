@@ -37,7 +37,7 @@
         chdir: "{{ git_dest }}"
 
     - name: Generate Kiwix Library file
-      shell: "direnv exec . ./config/services/kiwix/generate-library.sh"
+      shell: "direnv exec . config/services/kiwix/generate-library.sh"
       args:
         chdir: "{{ git_dest }}"
 
@@ -47,7 +47,7 @@
         chdir: "{{ git_dest }}"
 
     - name: Init databases
-      shell: "direnv exec . bash ./config/services/mariadb/scripts/init-databases.sh"
+      shell: "direnv exec . config/services/mariadb/scripts/init-databases.sh"
       args:
         chdir: "{{ git_dest }}"
 

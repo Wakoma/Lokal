@@ -12,7 +12,6 @@
       set_fact:
         jitsi_project: "docker-jitsi-meet"
         jitsi_release: "stable-5870"
-        project_root: "{{ lookup('env', 'PROJECT_ROOT') }}"
         domain_jitsi: "meet.vnet.lan"
 
     - name: Set more facts
@@ -40,12 +39,12 @@
 
     - name: Copy .envrc from template
       ansible.builtin.template:
-        src: "{{ project_root }}/config/services/jitsi/.env.j2"
+        src: "config/services/jitsi/.env.j2"
         dest: "{{ jitsi_dest }}/.env"
 
     - name: Copy docker-compose.yml from template
       ansible.builtin.template:
-        src: "{{ project_root }}/config/services/jitsi/docker-compose.yml.j2"
+        src: "config/services/jitsi/docker-compose.yml.j2"
         dest: "{{ jitsi_dest }}/docker-compose.yml"
 
     - name: Get .env content
