@@ -69,3 +69,8 @@
         - jvb
         - jigasi
         - jibri
+
+    - name: Docker-compose up
+      shell: "docker-compose up -d"
+      args:
+        chdir: "{{ jitsi_dest }}"
