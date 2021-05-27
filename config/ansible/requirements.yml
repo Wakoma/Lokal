@@ -12,3 +12,7 @@ roles:
   - name: geerlingguy.firewall
     version: 2.5.0
     source: https://galaxy.ansible.com
+
+  - name: markuman.nextcloud
+    version: 3.0.2
+    source: https://galaxy.ansible.com

@@ -1,6 +1,12 @@
 ---
 - name: Deploy Services
   hosts: all
+  vars_prompt:
+    - name: nextcloud_user
+      prompt: Enter your Nextcloud username
+      private: no
+    - name: nextcloud_api_token
+      prompt: Enter your Nextcloud API token
   tasks:
 
     - name: Register primary user's details
@@ -21,10 +27,15 @@
         git_repo: "https://github.com/{{ repo_owner }}/{{ repo_name }}.git"
         git_version: "{{ repo_branch }}"
 
-    - name: Copy .envrc template
-      ansible.builtin.copy:
-        src: "{{ git_dest }}/.envrc.tpl"
+    - name: fetch file .env from nextcloud
+      markuman.nextcloud.file:
+        mode: get
+        src: .envrc.tpl
         dest: "{{ git_dest }}/.envrc"
+        overwritten: different
+        host: drive.wakoma.net
+        user: "{{ nextcloud_user }}"
+        api_token: "{{ nextcloud_api_token }}"
 
     - name: Allow .envrc
       shell: "direnv allow ."
