@@ -17,8 +17,8 @@ ansible-playbook \
 
 chown -R ${PRIMARY_SSH_USER}:${PRIMARY_SSH_USER} .
 
-su ${PRIMARY_SSH_USER} -c "ansible-galaxy install -r config/ansible/requirements.yml"
-
+su ${PRIMARY_SSH_USER} -c "ansible-galaxy role install -r config/ansible/requirements.yml"
+su ${PRIMARY_SSH_USER} -c "ansible-galaxy collection install -r config/ansible/requirements.yml"
 
 su ${PRIMARY_SSH_USER} -c "\
   ansible-playbook \
