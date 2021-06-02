@@ -66,7 +66,7 @@ services:
       - --providers.file.watch=true
     volumes:
       - ./config/services/traefik/config/local:/config
-      - ${ACME_CERTS_DIR}/${ACME_DOMAIN}.crt:/certs/lokal.crt
+      - ${ACME_CERTS_DIR}/${ACME_DOMAIN}.cer:/certs/lokal.cer
       - ${ACME_CERTS_DIR}/${ACME_DOMAIN}.key:/certs/lokal.key
     labels:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
