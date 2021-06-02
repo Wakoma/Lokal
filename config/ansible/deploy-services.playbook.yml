@@ -61,7 +61,7 @@
         user: "{{ nextcloud_user }}"
         api_token: "{{ nextcloud_api_token }}"
       with_items:
-        - "{{ updated_envrc.ACME_DOMAIN }}.cert"
+        - "{{ updated_envrc.ACME_DOMAIN }}.cer"
         - "{{ updated_envrc.ACME_DOMAIN }}.key"
 
     - name: Allow .envrc
