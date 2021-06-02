@@ -30,8 +30,32 @@
     - name: fetch file .env from nextcloud
       markuman.nextcloud.file:
         mode: get
-        src: .envrc.tpl
+        src: .envrc
         dest: "{{ git_dest }}/.envrc"
+        overwritten: different
+        host: drive.wakoma.net
+        user: "{{ nextcloud_user }}"
+        api_token: "{{ nextcloud_api_token }}"
+
+    - name: Get .envrc file content
+      shell: . {{ git_dest }}/.envrc && env
+      register: updated_envrc_out
+
+    - name: Parse environment
+      set_fact:
+        updated_envrc: "{{ ('{' + updated_envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
+    
+
+    - name: Make acme certs directory if it does not yet exist
+      file:
+        path: "{{ updated_envrc.ACME_CERTS_DIR }}"
+        state: directory
+
+    - name: fetch file certs from nextcloud (TODO In future we want to mount nextcloud drive so that certs can be updated)
+      markuman.nextcloud.file:
+        mode: get
+        src: "{{ updated_envrc.ACME_DOMAIN }}"
+        dest: "{{ updated_envrc.ACME_CERTS_DIR }}"
         overwritten: different
         host: drive.wakoma.net
         user: "{{ nextcloud_user }}"
