@@ -73,37 +73,32 @@ development)
 
 ## Seting up Services
 
-## Wordpress backup and restore
+# Wordpress
 
-1. Backup MYSQL Database
+1. Backup Wordpress database and volumes, `config/services/wordpress/scripts/backup.sh`
 
-   `dc exec -T mariadb mysqldump -u ${MYSQL_USER} -p${MYSQL_PASSWORD} --routines --triggers ${MYSQL_DATABASE} | gzip -9 > /tmp/lokal.$(date '+%Y%m%d-%H%M').mysql.dump.sql.gzip`
-
+<!-- Todo automate this more potentially -->
 1. Restore MYSQL Database (to same subdomain)
 
-   `gunzip < /tmp/lokal.XXX.mysql.dump.sql.gzip | dc exec -T mariadb mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -A -D${MYSQL_DATABASE}`
+   `gunzip < local/backups/wordpress/XXX.mysql.dump.sql.gzip | dc exec -T mariadb mysql -u ${MYSQL_USER_WORDPRESS} -p${MYSQL_PASSWORD_WORDPRESS} -A -D${MYSQL_DATABASE_WORDPRESS}`
 
 1. Restore MYSQL Database (To alternate subdomain)
 
-   Be sure to modify `old.domain.example` in the example command below
+   Be sure to modify `old|new.domain.example` in the example command below:
 
-   `gunzip < /tmp/lokal.XXX.mysql.dump.sql.gzip | sed 's/old.domain.example/${DOMAIN_WORDPRESS}/g' | dc exec -T mariadb mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -A -D${MYSQL_DATABASE}`
+   `gunzip < local/backups/wordpress/XXX.mysql.dump.sql.gzip | sed 's/old.domain.example/new.domain.example/g' | dc exec -T mariadb mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -A -D${MYSQL_DATABASE}`
 
 1. Check Database has correct subdomain
 
-   `dc exec mariadb mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE}`
+   `dc exec mariadb mysql -u ${MYSQL_USER_WORDPRESS} -p${MYSQL_PASSWORD_WORDPRESS} ${MYSQL_DATABASE_WORDPRESS}`
 
    ```
    select option_value from wp_options where option_name = 'home';
    select option_value from wp_options where option_name = 'siteurl';
    ```
 
-1. Backup wordpress volume
-
-   `dc exec -T wordpress tar cf - /var/www/html | gzip -9 > /tmp/lokal.$(date '+%Y%m%d-%H%M').wordpress.vol.tar.gzip`
-
 1. Restore wordpress volume
-   `gunzip < /tmp/lokal.XXX.wordpress.vol.tar.gzip | docker-compose run -T --rm wordpress tar -C / -xf -`
+   `gunzip < local/backups/wordpress/XXX.wordpress.vol.tar.gzip | docker-compose run -T --rm wordpress tar -C / -xf -`
 
 1. Modify `wp-config.php` (only if subdomain or database credentials have changed)
 
@@ -116,17 +111,17 @@ development)
 
    ```
    /** The name of the database for WordPress */
-   define( 'DB_NAME', 'lms-test');
+   define( 'DB_NAME', '${MYSQL_DATABASE_WORDPRESS}');
 
    /** MySQL database username */
-   define( 'DB_USER', 'lms-test');
+   define( 'DB_USER', '${MYSQL_USER_WORDPRESS}');
 
    /** MySQL database password */
-   define( 'DB_PASSWORD', 'lms-test');
+   define( 'DB_PASSWORD', '${MYSQL_PASSWORD_WORDPRESS}');
 
    ...
 
-   define('DOMAIN_CURRENT_SITE', 'lokal-test.wakoma.net');
+   define('DOMAIN_CURRENT_SITE', '${DOMAIN_WORDPRESS}');
    ```
 
 1. Full services can now be started
