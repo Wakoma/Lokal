@@ -12,7 +12,9 @@
       set_fact:
         jitsi_project: "docker-jitsi-meet"
         jitsi_release: "stable-5870"
-        domain_jitsi: "meet.{{ lookup('env', 'DOMAIN') }}"
+        # TODO: Avoid hardcoding
+        # domain_jitsi: "meet.{{ lookup('env', 'DOMAIN') }}"
+        domain_jitsi: "meet.lokal.network"
 
     - name: Set more facts
       set_fact:
