@@ -54,12 +54,15 @@
     - name: fetch file certs from nextcloud (TODO In future we want to mount nextcloud drive so that certs can be updated)
       markuman.nextcloud.file:
         mode: get
-        src: "{{ updated_envrc.ACME_DOMAIN }}"
-        dest: "{{ updated_envrc.ACME_CERTS_DIR }}"
+        src: "{{ updated_envrc.ACME_DOMAIN }}/{{ item }}"
+        dest: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
         overwritten: different
         host: drive.wakoma.net
         user: "{{ nextcloud_user }}"
         api_token: "{{ nextcloud_api_token }}"
+      with_items:
+        - "{{ updated_envrc.ACME_DOMAIN }}.cert"
+        - "{{ updated_envrc.ACME_DOMAIN }}.key"
 
     - name: Allow .envrc
       shell: "direnv allow ."
