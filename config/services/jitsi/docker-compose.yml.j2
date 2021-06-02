@@ -111,6 +111,8 @@ services:
             traefik.http.routers.jitsi.entrypoints: websecure
             traefik.http.routers.jitsi.rule: Host(`${DOMAIN_JITSI}`)
             traefik.http.routers.jitsi.tls: "true"
+            # TODO: Will be needed when installed live
+            # traefik.http.routers.jitsi.tls.certresolver: http
             traefik.http.services.jitsi.loadbalancer.server.port: 80
 
     # XMPP server
