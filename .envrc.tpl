@@ -49,6 +49,9 @@ export NEXTCLOUD_CONFIG_DIR=${PROJECT_ROOT}/config/services/nextcloud/config
 export JELLYFIN_CONFIG_DIR=${PROJECT_ROOT}/config/services/jellyfin/config
 export JELLYFIN_DATA_DIR=${PROJECT_ROOT}/config/services/jellyfin/data
 
+export ACME_DOMAIN=${DOMAIN}
+export ACME_CERTS_DIR=/media/certs/${ACME_DOMAIN}
+
 # Application Secrets
 export MYSQL_ROOT_PASSWORD=default
 export MYSQL_PASSWORD_WORDPRESS=wordpress
