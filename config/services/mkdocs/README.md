@@ -75,7 +75,7 @@ development)
 
 # Wordpress
 
-1. Backup Wordpress database and volumes, `config/services/wordpress/scripts/backup.sh`
+1. Backups are automated nightly and synced with Nextcloud (TODO: add more docs here)
 
 <!-- Todo automate this more potentially -->
 1. Restore MYSQL Database (to same subdomain)
@@ -86,7 +86,7 @@ development)
 
    Be sure to modify `old|new.domain.example` in the example command below:
 
-   `gunzip < local/backups/wordpress/XXX.mysql.dump.sql.gzip | sed 's/old.domain.example/new.domain.example/g' | dc exec -T mariadb mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -A -D${MYSQL_DATABASE}`
+   `gunzip < local/backups/wordpress/XXX.mysql.dump.sql.gzip | sed 's/old.domain.example/new.domain.example/g' | dc exec -T mariadb mysql -u ${MYSQL_USER_WORDPRESS} -p${MYSQL_PASSWORD_WORDPRESS} -A -D${MYSQL_DATABASE_WORDPRESS}`
 
 1. Check Database has correct subdomain
 
@@ -98,7 +98,7 @@ development)
    ```
 
 1. Restore wordpress volume
-   `gunzip < local/backups/wordpress/XXX.wordpress.vol.tar.gzip | docker-compose run -T --rm wordpress tar -C / -xf -`
+   `gunzip -c local/backups/wordpress/XXX.wordpress.vol.tar.gzip | dc run --rm -v wordpress:/volumes/wordpress wordpress tar -C / -xf - volumes/wordpress`
 
 1. Modify `wp-config.php` (only if subdomain or database credentials have changed)
 
