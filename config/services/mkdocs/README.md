@@ -75,7 +75,7 @@ development)
 
 # Wordpress
 
-1. Backup Wordpress database and volumes, `config/services/wordpress/scripts/backup.sh`
+1. Backups are automated nightly and synced with Nextcloud (TODO: add more docs here)
 
 <!-- Todo automate this more potentially -->
 1. Restore MYSQL Database (to same subdomain)
