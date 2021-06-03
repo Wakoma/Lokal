@@ -86,7 +86,7 @@ development)
 
    Be sure to modify `old|new.domain.example` in the example command below:
 
-   `gunzip < local/backups/wordpress/XXX.mysql.dump.sql.gzip | sed 's/old.domain.example/new.domain.example/g' | dc exec -T mariadb mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -A -D${MYSQL_DATABASE}`
+   `gunzip < local/backups/wordpress/XXX.mysql.dump.sql.gzip | sed 's/old.domain.example/new.domain.example/g' | dc exec -T mariadb mysql -u ${MYSQL_USER_WORDPRESS} -p${MYSQL_PASSWORD_WORDPRESS} -A -D${MYSQL_DATABASE_WORDPRESS}`
 
 1. Check Database has correct subdomain
 
