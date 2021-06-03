@@ -98,7 +98,7 @@ development)
    ```
 
 1. Restore wordpress volume
-   `gunzip < local/backups/wordpress/XXX.wordpress.vol.tar.gzip | docker-compose run -T --rm wordpress tar -C / -xf -`
+   `gunzip -c local/backups/wordpress/XXX.wordpress.vol.tar.gzip | dc run --rm -v wordpress:/volumes/wordpress wordpress tar -C / -xf - volumes/wordpress`
 
 1. Modify `wp-config.php` (only if subdomain or database credentials have changed)
 
