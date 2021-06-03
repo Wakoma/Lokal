@@ -66,11 +66,9 @@
   become: yes
   vars:
     docker_package_state: present
-    docker_package: docker-ce=5:20.10.6~3-0~ubuntu-focal
     docker_users:
       - "{{ primary_ssh_user }}"
     docker_install_compose: true
-    docker_compose_version: 1.27.4
     docker_service_state: restarted
   roles:
     - geerlingguy.docker
