@@ -50,6 +50,7 @@
       file:
         path: "{{ updated_envrc.ACME_CERTS_DIR }}"
         state: directory
+      when: not updated_envrc.SERVER_IS_LIVE
 
     - name: fetch file certs from nextcloud (TODO In future we want to mount nextcloud drive so that certs can be updated)
       markuman.nextcloud.file:
@@ -63,6 +64,7 @@
       with_items:
         - "{{ updated_envrc.ACME_DOMAIN }}.cer"
         - "{{ updated_envrc.ACME_DOMAIN }}.key"
+      when: not updated_envrc.SERVER_IS_LIVE
 
     - name: Allow .envrc
       shell: "direnv allow ."
