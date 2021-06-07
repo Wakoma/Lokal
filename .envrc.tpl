@@ -13,6 +13,9 @@ export HCLOUD_LOCATION=nbg1
 export HCLOUD_SERVER_TYPE=cpx11
 export ROOT_SSH_USER=root
 export PRIMARY_SSH_USER=ubuntu
+export SERVER_IS_LIVE=false
+export DNS_PROVIDER=namecheap
+export CERT_RESOLVER=dns
 
 # Container Secrets
 export ACME_EMAIL=

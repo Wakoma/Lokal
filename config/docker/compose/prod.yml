@@ -17,7 +17,7 @@ services:
       traefik.http.routers.mailhog.rule: Host(`${DOMAIN_MAILHOG}`)
       traefik.http.routers.mailhog.tls: "true"
       traefik.http.services.mailhog.loadbalancer.server.port: 8025
-      traefik.http.routers.mailhog.tls.certresolver: http
+      traefik.http.routers.mailhog.tls.certresolver: ${CERT_RESOLVER}
       traefik.http.routers.mailhog.middlewares: traefik-auth
     restart: unless-stopped
 
