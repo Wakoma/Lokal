@@ -92,6 +92,16 @@ curl -u${NEXTCLOUD_USER}:${NEXTCLOUD_APIKEY} ${NEXTCLOUD_USER_URL}/${FILEPATH} -
 ```
 
 <!-- Todo automate this more potentially -->
+
+1. At this stage, new mariadb container with database init script run:
+   ```
+   dc stop wordpress mariadb
+   dc rm wordpress mariadb
+   docker volume rm wordpress mysql
+   dc up -d mariadb
+   config/services/mariadb/scripts/init-databases.sh
+   ```
+
 1. Restore MYSQL Database (to same subdomain)
 
    `gunzip < local/backups/wordpress/XXX.mysql.dump.sql.gzip | dc exec -T mariadb mysql -u ${MYSQL_USER_WORDPRESS} -p${MYSQL_PASSWORD_WORDPRESS} -A -D${MYSQL_DATABASE_WORDPRESS}`
