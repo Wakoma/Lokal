@@ -171,6 +171,7 @@ services:
       traefik.http.routers.wordpress.rule: HostRegexp(`${DOMAIN_WORDPRESS}`, `{subdomain:[a-z]+}.${DOMAIN_WORDPRESS}`)
       traefik.http.routers.wordpress.tls: "true"
       traefik.http.services.wordpress.loadbalancer.server.port: 80
+      traefik.http.routers.wordpress.priority: 1
 
   resourcespace:
     container_name: resourcespace
