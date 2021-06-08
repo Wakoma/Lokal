@@ -75,7 +75,21 @@ development)
 
 # Wordpress
 
-1. Backups are automated nightly and synced with Nextcloud (TODO: add more docs here)
+1. Backups are automated nightly and synced with Nextcloud (TODO: In future backups might exist on a mounted drive making these steps redundent)
+
+```
+NEXTCLOUD_USER=example
+NEXTCLOUD_APIKEY=example
+NEXTCLOUD_USER_URL=https://drive.wakoma.net/remote.php/dav/files/${NEXTCLOUD_USER}
+
+FILENAME=2021-06-01_02-00-01.mysql.dump.sql.gzip
+FILEPATH=2021-06-01_02-00-01/${FILENAME}
+curl -u${NEXTCLOUD_USER}:${NEXTCLOUD_APIKEY} ${NEXTCLOUD_USER_URL}/${FILEPATH} --output ${FILENAME}
+
+FILENAME=2021-06-01_02-00-01.volumes.tar.gzip
+FILEPATH=2021-06-01_02-00-01/${FILENAME}
+curl -u${NEXTCLOUD_USER}:${NEXTCLOUD_APIKEY} ${NEXTCLOUD_USER_URL}/${FILEPATH} --output ${FILENAME}
+```
 
 <!-- Todo automate this more potentially -->
 1. Restore MYSQL Database (to same subdomain)
