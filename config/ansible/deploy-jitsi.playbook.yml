@@ -10,11 +10,24 @@
 
     - name: Set facts
       set_fact:
+        git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
+
+    - name: Get .envrc file content
+      shell: . {{ git_dest }}/.envrc && env
+      register: updated_envrc_out
+
+    - name: Parse environment
+      set_fact:
+        updated_envrc: "{{ ('{' + updated_envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
+
+    - name: Set facts
+      set_fact:
         jitsi_project: "docker-jitsi-meet"
         jitsi_release: "stable-5870"
-        # TODO: Avoid hardcoding
-        # domain_jitsi: "meet.{{ lookup('env', 'DOMAIN') }}"
-        domain_jitsi: "meet.lokal.network"
+        domain_jitsi: "meet.{{ updated_envrc.DOMAIN }}"
+        tz: "{{ updated_envrc.TZ }}"
+        cert_resolver: "{{ updated_envrc.CERT_RESOLVER }}"
+        server_is_live: "{{ updated_envrc.SERVER_IS_LIVE }}"
 
     - name: Set more facts
       set_fact:

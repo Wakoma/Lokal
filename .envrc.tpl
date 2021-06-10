@@ -13,10 +13,15 @@ export HCLOUD_LOCATION=nbg1
 export HCLOUD_SERVER_TYPE=cpx11
 export ROOT_SSH_USER=root
 export PRIMARY_SSH_USER=ubuntu
+export SERVER_IS_LIVE=false
+export DNS_PROVIDER=namecheap
+export CERT_RESOLVER=dns
 
 # Container Secrets
 export ACME_EMAIL=
 export TRAEFIK_BASICAUTH_USERS=''
+export NAMECHEAP_API_USER=
+export NAMECHEAP_API_KEY=
 
 # Container Variables
 export DOCKER_PGID=$(grep docker /etc/group | cut -d ':' -f 3)

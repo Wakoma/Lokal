@@ -3,38 +3,36 @@ version: "3.8"
 services:
   grafana:
     labels:
-      traefik.http.routers.grafana.tls.certresolver: http
+      traefik.http.routers.grafana.tls.certresolver: ${CERT_RESOLVER}
 
   matomo:
     labels:
-      traefik.http.routers.matomo.tls.certresolver: http
+      traefik.http.routers.matomo.tls.certresolver: ${CERT_RESOLVER}
 
   netdata:
     labels:
       traefik.http.routers.netdata.middlewares: traefik-auth
-      traefik.http.routers.netdata.tls.certresolver: http
+      traefik.http.routers.netdata.tls.certresolver: ${CERT_RESOLVER}
 
   prometheus:
     labels:
       traefik.http.routers.prometheus.middlewares: traefik-auth
-      traefik.http.routers.prometheus.tls.certresolver: http
+      traefik.http.routers.prometheus.tls.certresolver: ${CERT_RESOLVER}
 
   resourcespace:
     labels:
-      traefik.http.routers.resourcespace.tls.certresolver: http
+      traefik.http.routers.resourcespace.tls.certresolver: ${CERT_RESOLVER}
 
   traefik:
-    environment:
-      DOMAIN_VNET_LOCAL: ${DOMAIN_VNET_LOCAL}
     command:
       - --accessLog=true
       - --api.insecure=false
       - --api.dashboard=true
       - --api.debug=false
-      # - --certificatesResolvers.dns.acme.dnsChallenge.delayBeforeCheck=60
-      # - --certificatesResolvers.dns.acme.dnsChallenge.provider=namecheap
-      # - --certificatesResolvers.dns.acme.email=${ACME_EMAIL}
-      # - --certificatesResolvers.dns.acme.storage=/acme/acme.json
+      - --certificatesResolvers.dns.acme.dnsChallenge.delayBeforeCheck=60
+      - --certificatesResolvers.dns.acme.dnsChallenge.provider=${DNS_PROVIDER}
+      - --certificatesResolvers.dns.acme.email=${ACME_EMAIL}
+      - --certificatesResolvers.dns.acme.storage=/acme/acme.json
       - --certificatesresolvers.http.acme.httpchallenge=true
       - --certificatesresolvers.http.acme.httpchallenge.entrypoint=web
       - --certificatesresolvers.http.acme.email=${ACME_EMAIL}
@@ -58,13 +56,13 @@ services:
       - --providers.file.directory=/config
       - --providers.file.watch=true
       - --serversTransport.insecureSkipVerify=true
-    # environment:
-    #   NAMECHEAP_API_USER: ${NAMECHEAP_API_USER}
-    #   NAMECHEAP_API_KEY: ${NAMECHEAP_API_KEY}
+    environment:
+      - NAMECHEAP_API_USER
+      - NAMECHEAP_API_KEY
     labels:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
       traefik.http.routers.traefik.middlewares: traefik-auth
-      traefik.http.routers.traefik.tls.certresolver: http
+      traefik.http.routers.traefik.tls.certresolver: ${CERT_RESOLVER}
     volumes:
       - ./config/services/traefik/config/live/dynamic.yml:/config/live.yml
       - ./config/services/traefik/config/local/dynamic.yml:/config/local.yml
@@ -72,12 +70,14 @@ services:
       - ./config/services/traefik/certs:/certs
   wordpress:
     labels:
-      traefik.http.routers.wordpress.tls.certresolver: http
+      traefik.http.routers.wordpress.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.wordpress.tls.domains[1].main: ${DOMAIN_WORDPRESS}
+      traefik.http.routers.wordpress.tls.domains[1].sans: '*.${DOMAIN_WORDPRESS}'
 
   nextcloud:
     labels:
-      traefik.http.routers.nextcloud.tls.certresolver: http
+      traefik.http.routers.nextcloud.tls.certresolver: ${CERT_RESOLVER}
 
   portainer:
     labels:
-      traefik.http.routers.portainer.tls.certresolver: http
+      traefik.http.routers.portainer.tls.certresolver: ${CERT_RESOLVER}
