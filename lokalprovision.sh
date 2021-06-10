@@ -14,7 +14,7 @@ apt install --yes ansible
 
 export repo_owner=Wakoma
 export repo_name=Lokal
-export repo_branch=support-live-local
+export repo_branch=main
 
 temp_file=$(mktemp --dry-run)
 temp_dir=$(mktemp --directory)
