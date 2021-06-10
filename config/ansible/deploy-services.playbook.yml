@@ -45,12 +45,15 @@
       set_fact:
         updated_envrc: "{{ ('{' + updated_envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
     
+    - name: Set facts
+      set_fact:
+        server_is_live: "{{ updated_envrc.SERVER_IS_LIVE | default(false) }}"
 
     - name: Make acme certs directory if it does not yet exist
       file:
         path: "{{ updated_envrc.ACME_CERTS_DIR }}"
         state: directory
-      when: not updated_envrc.SERVER_IS_LIVE
+      when: not server_is_live
 
     - name: fetch file certs from nextcloud (TODO In future we want to mount nextcloud drive so that certs can be updated)
       markuman.nextcloud.file:
@@ -64,7 +67,7 @@
       with_items:
         - "{{ updated_envrc.ACME_DOMAIN }}.cer"
         - "{{ updated_envrc.ACME_DOMAIN }}.key"
-      when: not updated_envrc.SERVER_IS_LIVE
+      when: not server_is_live
 
     - name: Allow .envrc
       shell: "direnv allow ."
