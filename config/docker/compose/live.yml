@@ -71,6 +71,8 @@ services:
   wordpress:
     labels:
       traefik.http.routers.wordpress.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.wordpress.tls.domains[1].main: ${DOMAIN_WORDPRESS}
+      traefik.http.routers.wordpress.tls.domains[1].sans: '*.${DOMAIN_WORDPRESS}'
 
   nextcloud:
     labels:
