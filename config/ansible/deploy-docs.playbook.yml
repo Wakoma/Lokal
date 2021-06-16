@@ -49,7 +49,7 @@
         dest: "{{ docs_dir }}/docker-compose.yml"
 
     - name: Get .env file content
-      shell: set -o allexport && . {{ jitsi_dest }}/.env && env && set +o allexport
+      shell: set -o allexport && . {{ docs_dir }}/.env && env && set +o allexport
       register: env_out
 
     - name: Parse environment
