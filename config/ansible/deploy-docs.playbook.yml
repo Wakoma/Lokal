@@ -61,14 +61,14 @@
       args:
         chdir: "{{ docs_dir }}"
 
-    - name: Install rebuild automation upon source code change
-      vars:
-        incron_user_tables:
-          - username: "{{ primary_ssh_user }}"
-            lines:
-              - name: Rebuild Docs
-                path: "{{ docs_dir }}/src"
-                mask: IN_CREATE,IN_DELETE,IN_MODIFY
-                command: "(cd {{ docs_dir }} && docker-compose up -d --build)"
-      roles:
-        - vkill.incron
+    # - name: Install rebuild automation upon source code change
+    #   vars:
+    #     incron_user_tables:
+    #       - username: "{{ primary_ssh_user }}"
+    #         lines:
+    #           - name: Rebuild Docs
+    #             path: "{{ docs_dir }}/src"
+    #             mask: IN_CREATE,IN_DELETE,IN_MODIFY
+    #             command: "(cd {{ docs_dir }} && docker-compose up -d --build)"
+    #   roles:
+    #     - vkill.incron
