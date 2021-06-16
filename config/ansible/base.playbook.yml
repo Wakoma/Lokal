@@ -22,6 +22,14 @@
           - direnv
           - incron
 
+    - name: Configure allow list for icron
+      copy:
+        dest: /etc/incron.allow
+        owner: root
+        group: incron
+        mode: 0640
+        content: "{{ primary_ssh_user }}"
+
     - name: Register primary user's details
       user:
         name: "{{ primary_ssh_user }}"
