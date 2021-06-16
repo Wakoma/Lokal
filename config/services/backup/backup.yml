@@ -1,0 +1,27 @@
+version: "3.8"
+
+volumes:
+  mysql:
+    name: mysql
+    external: true
+  prometheus:
+    name: prometheus
+    external: true
+  grafana:
+    name: grafana
+    external: true
+  wordpress:
+    name: wordpress
+    external: true
+
+services:
+  backup:
+    container_name: backup
+    image: ubuntu
+    volumes:
+      - wordpress:/volumes/wordpress
+      - grafana:/volumes/grafana
+      - prometheus:/volumes/prometheus
+      - mysql:/volumes/mysql
+      - ${THIS_BACKUP_DIR}:${THIS_BACKUP_DIR}
+    command: ["/bin/sh", "-c", "tar cf - /volumes | gzip -9 > ${THIS_BACKUP_DIR}/${TIMESTAMP}.volumes.tar.gzip"]
