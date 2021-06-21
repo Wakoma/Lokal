@@ -1,0 +1,54 @@
+---
+- name: Deploy Azuracast
+  hosts: all
+  tasks:
+
+    - name: Register primary user's details
+      user:
+        name: "{{ primary_ssh_user }}"
+      register: primary_ssh_user_params
+
+    - name: Set facts
+      set_fact:
+        lokal_dir: "{{ primary_ssh_user_params.home }}/Lokal"
+        azuracast_dir: "{{ primary_ssh_user_params.home }}/azuracast"
+
+    - name: Make Azuracast installation directory
+      file:
+        path: "{{ azuracast_dir }}"
+        state: directory
+
+    - name: Download Azuracast Docker wrapper
+      uri:
+        url: https://raw.githubusercontent.com/AzuraCast/AzuraCast/main/docker.sh
+        dest: "{{ azuracast_dir }}/docker.sh"
+        mode: a+x
+
+    - name: Get .envrc file content
+      shell: . {{ lokal_dir }}/.envrc && env
+      register: envrc_out
+
+    - name: Parse environment
+      set_fact:
+        envrc: "{{ ('{' + envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
+
+    - name: Set facts
+      set_fact:
+        domain_azuracast: "radio.{{ envrc.DOMAIN }}"
+        cert_resolver: "{{ envrc.CERT_RESOLVER | default('dns') }}"
+        server_is_live: "{{ envrc.SERVER_IS_LIVE | default(false) }}"
+
+    - name: Copy .env from template
+      ansible.builtin.template:
+        src: "{{ lokal_dir }}/config/services/azuracast/.env.j2"
+        dest: "{{ azuracast_dir }}/.env"
+
+    - name: Copy azuracast.env from template
+      ansible.builtin.template:
+        src: "{{ lokal_dir }}/config/services/azuracast/azuracast.env.j2"
+        dest: "{{ azuracast_dir }}/azuracast.env"
+
+    - name: Copy docker-compose.override.yml from template
+      ansible.builtin.template:
+        src: "{{ lokal_dir }}/config/services/azuracast/docker-compose.override.yml.j2"
+        dest: "{{ azuracast_dir }}/docker-compose.override.yml"
