@@ -47,3 +47,9 @@ su ${PRIMARY_SSH_USER} -c "\
     -e primary_ssh_user=${PRIMARY_SSH_USER} \
     -i config/ansible/hosts.yml \
     config/ansible/deploy-docs.playbook.yml"
+
+su ${PRIMARY_SSH_USER} -c "\
+  ansible-playbook \
+    -e primary_ssh_user=${PRIMARY_SSH_USER} \
+    -i config/ansible/hosts.yml \
+    config/ansible/deploy-azuracast.playbook.yml"

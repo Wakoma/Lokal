@@ -55,3 +55,13 @@
         src: "{{ lokal_dir }}/config/services/azuracast/docker-compose.override.yml.j2"
         dest: "{{ azuracast_dir }}/docker-compose.override.yml"
         mode: "0600"
+
+    - name: "Setup Azuracast for stable releases"
+      shell: bash -c "yes 'Y' | ./docker.sh setup-release"
+      args:
+        chdir: "{{ azuracast_dir }}"
+
+    - name: "Basic Azuracast install"
+      shell: bash -c "yes '' | ./docker.sh install"
+      args:
+        chdir: "{{ azuracast_dir }}"
