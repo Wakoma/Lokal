@@ -42,13 +42,16 @@
       ansible.builtin.template:
         src: "{{ lokal_dir }}/config/services/azuracast/.env.j2"
         dest: "{{ azuracast_dir }}/.env"
+        mode: "0600"
 
     - name: Copy azuracast.env from template
       ansible.builtin.template:
         src: "{{ lokal_dir }}/config/services/azuracast/azuracast.env.j2"
         dest: "{{ azuracast_dir }}/azuracast.env"
+        mode: "0600"
 
     - name: Copy docker-compose.override.yml from template
       ansible.builtin.template:
         src: "{{ lokal_dir }}/config/services/azuracast/docker-compose.override.yml.j2"
         dest: "{{ azuracast_dir }}/docker-compose.override.yml"
+        mode: "0600"
