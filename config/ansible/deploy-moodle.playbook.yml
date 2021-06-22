@@ -44,7 +44,7 @@
         dest: "{{ moodle_dir }}/docker-compose.yml"
         mode: "0600"
 
-    - name: "Setup Moodle for stable releases"
-      shell: "docker-compose up -d"
+    - name: Docker-compose up
+      shell: "docker-compose up --quiet-pull -d"
       args:
         chdir: "{{ moodle_dir }}"
