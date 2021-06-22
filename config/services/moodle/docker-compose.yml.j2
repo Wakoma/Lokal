@@ -3,6 +3,7 @@ services:
 
   mariadb:
     image: docker.io/bitnami/mariadb:10.5
+    container: moodledatabase
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - MARIADB_USER=bn_moodle
@@ -11,11 +12,13 @@ services:
       - MARIADB_COLLATE=utf8mb4_unicode_ci
     volumes:
       - 'mariadb_data:/bitnami/mariadb'
+    networks:
+      - moodledatabase
 
   moodle:
     image: docker.io/bitnami/moodle:3
     environment:
-      - MOODLE_DATABASE_HOST=mariadb
+      - MOODLE_DATABASE_HOST=moodledatabase
       - MOODLE_DATABASE_PORT_NUMBER=3306
       - MOODLE_DATABASE_USER=bn_moodle
       - MOODLE_DATABASE_NAME=bitnami_moodle
@@ -35,6 +38,7 @@ services:
 {% endif %}
       traefik.http.services.moodle.loadbalancer.server.port: 80
     networks:
+      - moodledatabase
       - traefik
 
 volumes:
@@ -48,3 +52,5 @@ volumes:
 networks:
   traefik:
     external: true
+  moodledatabase:
+    name: moodledatabase
