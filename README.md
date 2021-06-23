@@ -38,6 +38,8 @@ You can find the full list of services here: https://wakoma.co/lokal/#services
 
 * [Nextcloud](https://nextcloud.com/) - The self-hosted productivity platform that keeps you in control.
 
+* [Jitsi](jitsi.org) - More secure, more flexible, and completely free video conferencing
+
 * [Element](https://element.io/) - All-in-one secure chat app for teams, friends and organisations.
 
 * [Wordpress](https://wordpress.org/) - WordPress is open source software you can use to create a beautiful website, blog, or app.
