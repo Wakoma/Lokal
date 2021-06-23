@@ -75,6 +75,7 @@ open-source monitoring solution.
 
 ### Upcoming Services
 
+* [F-Droid](https://f-droid.org/en/) - An installable catalogue of FOSS (Free and Open Source Software) applications for the Android platform.
 
 * [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) - MediaWiki is a collaboration and documentation platform brought to you by a vibrant community.
 
