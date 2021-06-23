@@ -63,8 +63,11 @@ open-source monitoring solution.
 
 * [ResourceSpace](https://www.resourcespace.com/) - ResourceSpace open source Digital Asset Management software is the simple, fast, & free way to organise your digital assets.
 
-
 * [OpenVPN](https://openvpn.net/) - Free and full-featured VPN client to connect to OpenVPN Cloud, Access Server or any OpenVPN protocol compatible server.
+
+* [AzuraCast](https://www.azuracast.com/) - azuracast is a free and open-source self hosted web radio management suite.
+
+* [Moodle](https://moodle.com/) - a flexible, open source LMS.
 
 
 
@@ -72,8 +75,6 @@ open-source monitoring solution.
 
 
 * [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) - MediaWiki is a collaboration and documentation platform brought to you by a vibrant community.
-
-* [AzuraCast](https://www.azuracast.com/) - azuracast is a free and open-source self hosted web radio management suite.
 
 * [Etherpad](https://etherpad.org/) - Etherpad is a highly customizable open source online editor providing collaborative editing in really real-time.
 
@@ -88,6 +89,9 @@ open-source monitoring solution.
 * [DokuWiki](https://www.dokuwiki.org/dokuwiki) - DokuWiki is a simple to use and highly versatile Open Source wiki software that doesn’t require a database.
 
 * [Piwigo](https://piwigo.org/) - Piwigo is open source photo gallery software for the web. Designed for organisations, teams and individuals.
+
+* [Kolibri](https://learningequality.org/kolibri/) - An education content library for easy access to Khan Academy and more. 
+
 
 
 
