@@ -50,12 +50,19 @@
         server_is_live: "{{ updated_envrc.SERVER_IS_LIVE | default(false) }}"
 
     - name: Make acme certs directory if it does not yet exist
+      become: yes
+      become_user: root
       file:
         path: "{{ updated_envrc.ACME_CERTS_DIR }}"
         state: directory
+        user: root
+        group: root
+        mode: 0700
       when: not server_is_live
 
     - name: fetch file certs from nextcloud (TODO In future we want to mount nextcloud drive so that certs can be updated)
+      become: yes
+      become_user: root
       markuman.nextcloud.file:
         mode: get
         src: "{{ updated_envrc.ACME_DOMAIN }}/{{ item }}"
@@ -64,6 +71,19 @@
         host: drive.wakoma.net
         user: "{{ nextcloud_user }}"
         api_token: "{{ nextcloud_api_token }}"
+      with_items:
+        - "{{ updated_envrc.ACME_DOMAIN }}.cer"
+        - "{{ updated_envrc.ACME_DOMAIN }}.key"
+      when: not server_is_live
+
+    - name: Change file ownership, group and permissions
+      become: yes
+      become_user: root
+      ansible.builtin.file:
+        path: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
+        user: root
+        group: root
+        mode: 0600
       with_items:
         - "{{ updated_envrc.ACME_DOMAIN }}.cer"
         - "{{ updated_envrc.ACME_DOMAIN }}.key"
