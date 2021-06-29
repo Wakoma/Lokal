@@ -55,7 +55,7 @@
       file:
         path: "{{ updated_envrc.ACME_CERTS_DIR }}"
         state: directory
-        user: root
+        owner: root
         group: root
         mode: 0700
       when: not server_is_live
@@ -81,7 +81,7 @@
       become_user: root
       ansible.builtin.file:
         path: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
-        user: root
+        owner: root
         group: root
         mode: 0600
       with_items:
