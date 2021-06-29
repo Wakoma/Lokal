@@ -38,6 +38,8 @@ You can find the full list of services here: https://wakoma.co/lokal/#services
 
 * [Nextcloud](https://nextcloud.com/) - The self-hosted productivity platform that keeps you in control.
 
+* [Jitsi](jitsi.org) - More secure, more flexible, and completely free video conferencing
+
 * [Element](https://element.io/) - All-in-one secure chat app for teams, friends and organisations.
 
 * [Wordpress](https://wordpress.org/) - WordPress is open source software you can use to create a beautiful website, blog, or app.
@@ -63,17 +65,19 @@ open-source monitoring solution.
 
 * [ResourceSpace](https://www.resourcespace.com/) - ResourceSpace open source Digital Asset Management software is the simple, fast, & free way to organise your digital assets.
 
-
 * [OpenVPN](https://openvpn.net/) - Free and full-featured VPN client to connect to OpenVPN Cloud, Access Server or any OpenVPN protocol compatible server.
+
+* [AzuraCast](https://www.azuracast.com/) - azuracast is a free and open-source self hosted web radio management suite.
+
+* [Moodle](https://moodle.com/) - a flexible, open source LMS.
 
 
 
 ### Upcoming Services
 
+* [F-Droid](https://f-droid.org/en/) - An installable catalogue of FOSS (Free and Open Source Software) applications for the Android platform.
 
 * [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) - MediaWiki is a collaboration and documentation platform brought to you by a vibrant community.
-
-* [AzuraCast](https://www.azuracast.com/) - azuracast is a free and open-source self hosted web radio management suite.
 
 * [Etherpad](https://etherpad.org/) - Etherpad is a highly customizable open source online editor providing collaborative editing in really real-time.
 
@@ -88,6 +92,9 @@ open-source monitoring solution.
 * [DokuWiki](https://www.dokuwiki.org/dokuwiki) - DokuWiki is a simple to use and highly versatile Open Source wiki software that doesn’t require a database.
 
 * [Piwigo](https://piwigo.org/) - Piwigo is open source photo gallery software for the web. Designed for organisations, teams and individuals.
+
+* [Kolibri](https://learningequality.org/kolibri/) - An education content library for easy access to Khan Academy and more. 
+
 
 
 
