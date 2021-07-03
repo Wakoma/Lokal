@@ -27,6 +27,8 @@ volumes:
     name: portainer
   unifi-controller:
     name: unifi-controller
+  kolibri:
+    name: kolibri
 
 services:
   grafana:
@@ -343,5 +345,22 @@ services:
       traefik.http.routers.jellyfin.rule: Host(`${DOMAIN_JELLYFIN}`)
       traefik.http.routers.jellyfin.tls: "true"
       traefik.http.services.jellyfin.loadbalancer.server.port: 8096
+    networks:
+      - traefik
+
+  kolibri:
+    image: neethumohan1212/kolibri
+    container_name: kolibri
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - kolibri:/root:rw
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.kolibri.entrypoints: websecure
+      traefik.http.routers.kolibri.rule: Host(`${DOMAIN_KOLIBRI}`)
+      traefik.http.routers.kolibri.tls: "true"
+      traefik.http.services.kolibri.loadbalancer.server.port: 8080
     networks:
       - traefik
