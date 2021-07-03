@@ -30,5 +30,7 @@ else
   echo "${zims}"
   echo "Restarting Kiwix"
 
-  dc restart kiwix
+  if [ "$(docker ps -q -f name=kiwix)" ]; then
+    dc restart kiwix
+  fi
 fi
