@@ -241,6 +241,5 @@
     pip_install_packages:
       - name: docker
         state: present
-        version: 4.4.0
   roles:
     - geerlingguy.pip
