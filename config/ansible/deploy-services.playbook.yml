@@ -89,6 +89,41 @@
         - "{{ updated_envrc.ACME_DOMAIN }}.key"
       when: not server_is_live
 
+    - name: fetch file wg0-client.conf from nextcloud
+      become: yes
+      markuman.nextcloud.file:
+        mode: get
+        src: wg0-client.conf
+        dest: /etc/wireguard/wg0-client.conf
+        overwritten: different
+        host: drive.wakoma.net
+        user: "{{ nextcloud_user }}"
+        api_token: "{{ nextcloud_api_token }}"
+      register: wg_client_config_output
+      failed_when: wg_client_config_output.rc | default(0) != 0 and 'does not exist' not in wg_client_config_output.exception | default('')
+
+    - name: Decide if wireguard should be configured
+      set_fact:
+        configure_wireguard: "{{ wg_client_config_output.rc | default(0) == 0 }}"
+
+    - name: Change file ownership, group and permissions of wg0-client.conf
+      become: yes
+      become_user: root
+      ansible.builtin.file:
+        path: /etc/wireguard/wg0-client.conf
+        owner: root
+        group: root
+        mode: 0600
+      when: configure_wireguard
+
+    - name: Create and enable a systemctl config for wireguard
+      become: yes
+      systemd:
+        name: wg-quick@wg0-client.service
+        enabled: yes
+        state: started
+      when: configure_wireguard
+
     - name: Allow .envrc
       shell: "direnv allow ."
       args:
