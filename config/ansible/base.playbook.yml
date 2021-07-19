@@ -21,7 +21,6 @@
           - git
           - direnv
           - incron
-          - wireguard-tools
 
     - name: Configure allow list for icron
       copy:
