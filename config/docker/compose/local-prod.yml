@@ -64,6 +64,7 @@ services:
       - --providers.docker.network=traefik
       - --providers.file.directory=/config
       - --providers.file.watch=true
+      - --serversTransport.insecureSkipVerify=true
     volumes:
       - ./config/services/traefik/config/local:/config
       - ${ACME_CERTS_DIR}/${ACME_DOMAIN}.cer:/certs/lokal.cer
