@@ -131,7 +131,7 @@ curl -u${NEXTCLOUD_USER}:${NEXTCLOUD_APIKEY} ${NEXTCLOUD_USER_URL}/${FILEPATH} -
    `dc run --rm wordpress bash`
 
    ```
-   apt update && apt install -f nano
+   apt update && apt install -y nano
    nano wp-config.php
    ```
 
@@ -150,9 +150,12 @@ curl -u${NEXTCLOUD_USER}:${NEXTCLOUD_APIKEY} ${NEXTCLOUD_USER_URL}/${FILEPATH} -
    define('DOMAIN_CURRENT_SITE', '${DOMAIN_WORDPRESS}');
    ```
 
+1. Search and replace all references to old domain (this is very possible in badly formulated CSS)
+   `find . -type f -exec sed -i 's/old.domain.example/new.domain.example/g' {} +`
+
 1. Full services can now be started
 
-   `dc up -d`
+   `dc up -d mariadb wordpress`
 
 # ResourceSpace
 
