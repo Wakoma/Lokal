@@ -8,21 +8,23 @@ export ANSIBLE_VERBOSITY=0
 
 export repo_owner=Wakoma
 export repo_name=Lokal
-export repo_branch=main
+export repo_branch=custom_install
 
 ROOT_SSH_USER=root
 PRIMARY_SSH_USER=ubuntu
 
-ansible-playbook -e "ansible_user=${ROOT_SSH_USER}" -e "setup_ssh=true" \
-  -e root_ssh_user=${ROOT_SSH_USER} \
-  -e primary_ssh_user=${PRIMARY_SSH_USER} \
-  -i config/ansible/hosts.yml \
-  config/ansible/preprovision.playbook.yml
+# ansible-playbook -e "ansible_user=${ROOT_SSH_USER}" -e "setup_ssh=true" \
+#   -e root_ssh_user=${ROOT_SSH_USER} \
+#   -e primary_ssh_user=${PRIMARY_SSH_USER} \
+#   -i config/ansible/hosts.yml \
+#   config/ansible/preprovision.playbook.yml
 
-ansible-playbook \
-    -e primary_ssh_user=${PRIMARY_SSH_USER} \
-    -i config/ansible/hosts.yml \
-    config/ansible/base.playbook.yml
+# ansible-playbook \
+#     -e primary_ssh_user=${PRIMARY_SSH_USER} \
+#     -i config/ansible/hosts.yml \
+#     config/ansible/base.playbook.yml
+
+read -rsp $'Setup server .envrc files, then press any key to continue...\n' -n1 key
 
 ansible-playbook \
     -e primary_ssh_user=${PRIMARY_SSH_USER} \
