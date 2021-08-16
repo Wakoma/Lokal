@@ -13,7 +13,7 @@ export repo_branch=main
 ROOT_SSH_USER=root
 PRIMARY_SSH_USER=ubuntu
 
-ansible-playbook \
+ansible-playbook --become-user ${ROOT_SSH_USER} \
   -e root_ssh_user=${ROOT_SSH_USER} \
   -e primary_ssh_user=${PRIMARY_SSH_USER} \
   -i config/ansible/hosts.yml \
