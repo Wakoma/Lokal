@@ -112,7 +112,7 @@ curl -u${NEXTCLOUD_USER}:${NEXTCLOUD_APIKEY} ${NEXTCLOUD_USER_URL}/${FILEPATH} -
 
    `gunzip < local/backups/wordpress/XXX.mysql.dump.sql.gzip | sed 's/old.domain.example/new.domain.example/g' | dc exec -T mariadb mysql -u ${MYSQL_USER_WORDPRESS} -p${MYSQL_PASSWORD_WORDPRESS} -A -D${MYSQL_DATABASE_WORDPRESS}`
    
-   NOTE: In the example of nightly backups `old.domain.example` == `lokal.wakoma.net`
+   NOTE: In the example of nightly backups `old.domain.example` == `lokal.network`
 
 1. Check Database has correct subdomain
 
