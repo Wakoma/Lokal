@@ -34,33 +34,36 @@
         jitsi_dest: "{{ primary_ssh_user_params.home }}/{{ jitsi_project }}-{{ jitsi_release }}"
         git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
 
-    - name: Set passwords
-      set_fact:
-        jicofo_auth_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jicofo_auth_password length=16 chars=ascii_letters') }}"
-        jvb_auth_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jvb_auth_password length=16 chars=ascii_letters') }}"
-        jigasi_xmpp_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jigasi_xmpp_password length=16 chars=ascii_letters') }}"
-        jibri_recorder_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jibri_recorder_password length=16 chars=ascii_letters') }}"
-        jibri_xmpp_password: "{{ lookup('password', '{{ jitsi_dest }}/.ansible.pass/jibri_xmpp_password length=16 chars=ascii_letters') }}"
-
     - name: Unarchive latest jitsi source
       ansible.builtin.unarchive:
         src: https://github.com/jitsi/{{ jitsi_project }}/archive/refs/tags/{{ jitsi_release }}.zip
         dest: "{{ primary_ssh_user_params.home }}"
         remote_src: yes
 
+    - name: Set passwords
+      become: yes
+      become_user: root
+      set_fact:
+        jicofo_auth_password: "{{ lookup('password', '~/.ansible.pass/jicofo_auth_password length=16 chars=ascii_letters') }}"
+        jvb_auth_password: "{{ lookup('password', '~/.ansible.pass/jvb_auth_password length=16 chars=ascii_letters') }}"
+        jigasi_xmpp_password: "{{ lookup('password', '~/.ansible.pass/jigasi_xmpp_password length=16 chars=ascii_letters') }}"
+        jibri_recorder_password: "{{ lookup('password', '~/.ansible.pass/jibri_recorder_password length=16 chars=ascii_letters') }}"
+        jibri_xmpp_password: "{{ lookup('password', '~/.ansible.pass/jibri_xmpp_password length=16 chars=ascii_letters') }}"
+
     - name: Make a backup of original docker-compose file
       ansible.builtin.copy:
+        remote_src: true
         src: "{{ jitsi_dest }}/docker-compose.yml"
         dest: "{{ jitsi_dest }}/docker-compose.yml.bak"
 
     - name: Copy .env from template
       ansible.builtin.template:
-        src: "{{ git_dest }}/config/services/jitsi/.env.j2"
+        src: "../services/jitsi/.env.j2"
         dest: "{{ jitsi_dest }}/.env"
 
     - name: Copy docker-compose.yml from template
       ansible.builtin.template:
-        src: "{{ git_dest }}/config/services/jitsi/docker-compose.yml.j2"
+        src: "../services/jitsi/docker-compose.yml.j2"
         dest: "{{ jitsi_dest }}/docker-compose.yml"
 
     - name: Get .env file content

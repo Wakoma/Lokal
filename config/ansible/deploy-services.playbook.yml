@@ -57,8 +57,10 @@
     - name: Change file ownership, group and permissions
       become: yes
       become_user: root
-      ansible.builtin.file:
-        path: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
+      ansible.builtin.copy:
+        remote_src: True
+        src: "/tmp/{{ updated_envrc.ACME_DOMAIN }}/{{ item }}"
+        dest: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
         owner: root
         group: root
         mode: 0600
