@@ -48,10 +48,30 @@
     firewall_state: started
     firewall_enabled_at_boot: true
     firewall_allowed_tcp_ports:
+      # ssh
       - 22
+      # web
       - 80
       - 443
-    firewall_allowed_udp_ports: []
+      # unifi-controller
+      - 8080
+      - 6789
+      # transmission
+      - 51413
+      # jitsi
+      - 4443
+    firewall_allowed_udp_ports:
+      # unifi-controller
+      - 3478
+      - 10001
+      - 1900
+      - 5514
+      # jellyfin
+      - 7359
+      # transmission
+      - 51413
+      # jitsi
+      - 10000
     firewall_disable_ufw: true
     firewall_enable_ipv6: false
   roles:
