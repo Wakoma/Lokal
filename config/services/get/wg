@@ -114,9 +114,7 @@ function downloadWakomaConf() {
     chmod 0600 /etc/wireguard/${CLIENT_WG_CONF}.conf  /root/.ssh/authorized_keys
 }
 
-function installWireGuard() {
-    installPackage
-    downloadWakomaConf
+function enableWireGuard() {
     sysctl --system
     systemctl start "wg-quick@${CLIENT_WG_CONF}"
     systemctl enable "wg-quick@${CLIENT_WG_CONF}"
@@ -132,12 +130,20 @@ function installWireGuard() {
     fi
 }
 
+function installWireGuard() {
+    installPackage
+    downloadWakomaConf
+    enableWireGuard
+}
+
 # Check for root, virt, OS...
 initialCheck
 
 # Check if WireGuard is already installed and load params
 if [[ -e /etc/wireguard/params ]]; then
-    echo "It looks like WireGuard is already installed."
+    echo "It looks like WireGuard package is already installed, skipping this step."
+    downloadWakomaConf
+    enableWireGuard
 else
     installWireGuard
 fi
