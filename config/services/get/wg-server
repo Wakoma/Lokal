@@ -89,7 +89,7 @@ function installQuestions() {
     done
 
     until [[ ${SERVER_WG_IPV4} =~ ^([0-9]{1,3}\.){3} ]]; do
-        read -rp "Server's WireGuard IPv4: " -e -i 10.179.0.1 SERVER_WG_IPV4
+        read -rp "Server's WireGuard IPv4: " -e -i 10.178.0.1 SERVER_WG_IPV4
     done
 
     until [[ ${SERVER_WG_IPV6} =~ ^([a-f0-9]{1,4}:){3,4}: ]]; do
@@ -177,7 +177,7 @@ CLIENT_DNS_2=${CLIENT_DNS_2}" >/etc/wireguard/params
 
     # Add server interface
     echo "[Interface]
-Address = ${SERVER_WG_IPV4}/24,${SERVER_WG_IPV6}/64
+Address = ${SERVER_WG_IPV4}/16,${SERVER_WG_IPV6}/32
 ListenPort = ${SERVER_PORT}
 PrivateKey = ${SERVER_PRIV_KEY}" >"/etc/wireguard/${SERVER_WG_NIC}.conf"
 
@@ -304,7 +304,7 @@ DNS = ${CLIENT_DNS_1},${CLIENT_DNS_2}
 PublicKey = ${SERVER_PUB_KEY}
 PresharedKey = ${CLIENT_PRE_SHARED_KEY}
 Endpoint = ${ENDPOINT}
-AllowedIPs = ${SERVER_WG_IPV4}/24,${SERVER_WG_IPV6}/64" >>"${HOME_DIR}/${SERVER_WG_NIC}-client-${CLIENT_NAME}.conf"
+AllowedIPs = ${SERVER_WG_IPV4}/16,${SERVER_WG_IPV6}/32" >>"${HOME_DIR}/${SERVER_WG_NIC}-client-${CLIENT_NAME}.conf"
 
     # Add the client as a peer to the server
     echo -e "\n### Client ${CLIENT_NAME}
