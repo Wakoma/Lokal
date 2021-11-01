@@ -36,7 +36,7 @@
       set_fact:
         domain_azuracast: "radio.{{ envrc.DOMAIN }}"
         cert_resolver: "{{ envrc.CERT_RESOLVER | default('dns') }}"
-        server_is_live: "{{ envrc.SERVER_IS_LIVE | default(false) }}"
+        server_is_public: "{{ envrc.SERVER_IS_PUBLIC | default(false) }}"
 
     - name: Copy .env from template
       ansible.builtin.template:

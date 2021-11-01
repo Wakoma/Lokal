@@ -25,7 +25,7 @@
       set_fact:
         domain_mkdocs: "docs.{{ envrc.DOMAIN }}"
         cert_resolver: "{{ envrc.CERT_RESOLVER | default('dns') }}"
-        server_is_live: "{{ envrc.SERVER_IS_LIVE | default(false) }}"
+        server_is_public: "{{ envrc.SERVER_IS_PUBLIC | default(false) }}"
 
     - name: Checkout latest docs to ~/docs
       git:
@@ -35,17 +35,17 @@
 
     - name: Copy .env from template
       ansible.builtin.template:
-        src: "{{ lokal_dir }}/config/services/mkdocs/.env.j2"
+        src: "../services/mkdocs/.env.j2"
         dest: "{{ docs_dir }}/.env"
 
     - name: Copy dockerfile from template
       ansible.builtin.template:
-        src: "{{ lokal_dir }}/config/services/mkdocs/Dockerfile.j2"
+        src: "../services/mkdocs/Dockerfile.j2"
         dest: "{{ docs_dir }}/Dockerfile"
 
     - name: Copy docker-compose.yml from template
       ansible.builtin.template:
-        src: "{{ lokal_dir }}/config/services/mkdocs/docker-compose.yml.j2"
+        src: "../services/mkdocs/docker-compose.yml.j2"
         dest: "{{ docs_dir }}/docker-compose.yml"
 
     - name: Get .env file content

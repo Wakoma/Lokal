@@ -106,8 +106,8 @@ services:
       - traefik
       - prometheus
     ports:
-      - 80:80
-      - 443:443
+      - ${LOKAL_SERVER_IP}:80:80
+      - ${LOKAL_SERVER_IP}:443:443
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
