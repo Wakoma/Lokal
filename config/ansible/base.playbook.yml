@@ -46,7 +46,9 @@
   become: yes
   pre_tasks:
     - name: Get .envrc file content
-      raw: . ../../.envrc.quickstart && env
+      ansible.builtin.shell: . ../../.envrc.quickstart && env
+      args:
+        executable: /bin/bash
       register: updated_envrc_out
 
     - name: Parse environment
