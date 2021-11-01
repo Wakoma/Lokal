@@ -46,7 +46,7 @@
   become: yes
   pre_tasks:
     - name: Get .envrc file content
-      ansible.builtin.shell: . ../../.envrc.quickstart && env
+      ansible.builtin.shell: . ../../.envrc.quickstart && env 2> /dev/null
       args:
         executable: /bin/bash
       register: updated_envrc_out

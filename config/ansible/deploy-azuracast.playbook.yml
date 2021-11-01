@@ -25,9 +25,9 @@
         mode: a+x
 
     - name: Get .envrc file content
-      ansible.builtin.shell: . {{ lokal_dir }}/.envrc && env
+      ansible.builtin.shell: direnv exec . env 2> /dev/null
       args:
-        executable: /bin/bash
+        chdir: "{{ lokal_dir }}"
       register: envrc_out
 
     - name: Parse environment

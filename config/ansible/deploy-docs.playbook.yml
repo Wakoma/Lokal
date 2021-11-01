@@ -14,9 +14,9 @@
         docs_dir: "{{ primary_ssh_user_params.home }}/docs"
 
     - name: Get .envrc file content
-      ansible.builtin.shell: . {{ lokal_dir }}/.envrc && env
+      ansible.builtin.shell: direnv exec . env 2> /dev/null
       args:
-        executable: /bin/bash
+        chdir: "{{ lokal_dir }}"
       register: envrc_out
 
     - name: Parse environment
@@ -51,7 +51,7 @@
         dest: "{{ docs_dir }}/docker-compose.yml"
 
     - name: Get .env file content
-      shell: set -o allexport && . {{ docs_dir }}/.env && env && set +o allexport
+      shell: set -o allexport && . {{ docs_dir }}/.env && env 2> /dev/null && set +o allexport
       register: env_out
 
     - name: Parse environment

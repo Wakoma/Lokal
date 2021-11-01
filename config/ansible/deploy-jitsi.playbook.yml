@@ -13,9 +13,9 @@
         git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
 
     - name: Get .envrc file content
-      ansible.builtin.shell: . {{ git_dest }}/.envrc && env
+      ansible.builtin.shell: direnv exec . env 2> /dev/null
       args:
-        executable: /bin/bash
+        chdir: "{{ git_dest }}"
       register: updated_envrc_out
 
     - name: Parse environment
@@ -67,7 +67,7 @@
         dest: "{{ jitsi_dest }}/docker-compose.yml"
 
     - name: Get .env file content
-      shell: set -o allexport && . {{ jitsi_dest }}/.env && env && set +o allexport
+      shell: set -o allexport && . {{ jitsi_dest }}/.env && env 2> /dev/null && set +o allexport
       register: updated_env_out
 
     - name: Parse environment

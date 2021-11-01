@@ -12,7 +12,7 @@
       set_fact:
         git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
 
-    - name: Checkout git repo instance to main branch and pull
+    - name: Checkout git repo
       git:
         repo: "{{ git_repo }}"
         dest: "{{ git_dest }}"
@@ -36,7 +36,7 @@
         chdir: "{{ git_dest }}"
 
     - name: resolve direnv environment
-      ansible.builtin.shell: direnv exec . env
+      ansible.builtin.shell: direnv exec . env 2> /dev/null
       args:
         chdir: "{{ git_dest }}"
       register: updated_envrc_out
