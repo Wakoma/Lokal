@@ -13,10 +13,10 @@
         lokal_dir: "{{ primary_ssh_user_params.home }}/Lokal"
         docs_dir: "{{ primary_ssh_user_params.home }}/docs"
 
-    - name: Get .envrc file content
-      ansible.builtin.shell: direnv exec . env 2> /dev/null
+    - name: resolve .envrc.quickstart variables
+      ansible.builtin.shell: . ../../.envrc.quickstart && env 2> /dev/null
       args:
-        chdir: "{{ lokal_dir }}"
+        executable: /bin/bash
       register: envrc_out
 
     - name: Parse environment

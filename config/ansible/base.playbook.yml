@@ -49,11 +49,11 @@
       ansible.builtin.shell: . ../../.envrc.quickstart && env 2> /dev/null
       args:
         executable: /bin/bash
-      register: updated_envrc_out
+      register: envrc_out
 
     - name: Parse environment
       set_fact:
-        updated_envrc: "{{ ('{' + updated_envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
+        updated_envrc: "{{ ('{' + envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
     
     - name: Set facts
       set_fact:

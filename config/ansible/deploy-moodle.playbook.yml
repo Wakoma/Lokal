@@ -18,10 +18,10 @@
         path: "{{ moodle_dir }}"
         state: directory
 
-    - name: Get .envrc file content
-      ansible.builtin.shell: direnv exec . env 2> /dev/null
+    - name: resolve .envrc.quickstart variables
+      ansible.builtin.shell: . ../../.envrc.quickstart && env 2> /dev/null
       args:
-        chdir: "{{ lokal_dir }}"
+        executable: /bin/bash
       register: envrc_out
 
     - name: Parse environment
