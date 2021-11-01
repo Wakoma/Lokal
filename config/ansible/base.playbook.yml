@@ -46,7 +46,7 @@
   become: yes
   pre_tasks:
     - name: Get .envrc file content
-      shell: . ../../.envrc.quickstart && env
+      raw: . ../../.envrc.quickstart && env
       register: updated_envrc_out
 
     - name: Parse environment
