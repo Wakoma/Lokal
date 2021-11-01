@@ -39,7 +39,7 @@
     - name: Parse environment
       set_fact:
         updated_envrc: "{{ ('{' + updated_envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
-    
+
     - name: Set facts
       set_fact:
         server_is_public: "{{ updated_envrc.SERVER_IS_PUBLIC | default(false) }}"
