@@ -31,7 +31,9 @@
         mode: 0600
 
     - name: Get .envrc file content
-      shell: . {{ git_dest }}/.envrc && env
+      ansible.builtin.shell: . {{ git_dest }}/.envrc && env
+      args:
+        executable: /bin/bash
       register: updated_envrc_out
 
     - name: Parse environment

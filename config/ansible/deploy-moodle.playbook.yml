@@ -19,7 +19,9 @@
         state: directory
 
     - name: Get .envrc file content
-      shell: . {{ lokal_dir }}/.envrc && env
+      ansible.builtin.shell: . {{ lokal_dir }}/.envrc && env
+      args:
+        executable: /bin/bash
       register: envrc_out
 
     - name: Parse environment
