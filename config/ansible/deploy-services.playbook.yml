@@ -30,16 +30,21 @@
         group: ubuntu
         mode: 0600
 
-    - name: Get .envrc file content
-      ansible.builtin.shell: . {{ git_dest }}/.envrc && env
+    - name: Allow .envrc
+      shell: "direnv allow ."
       args:
-        executable: /bin/bash
+        chdir: "{{ git_dest }}"
+
+    - name: resolve direnv environment
+      ansible.builtin.shell: direnv exec . env
+      args:
+        chdir: "{{ git_dest }}"
       register: updated_envrc_out
 
     - name: Parse environment
       set_fact:
         updated_envrc: "{{ ('{' + updated_envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
-
+    
     - name: Set facts
       set_fact:
         server_is_public: "{{ updated_envrc.SERVER_IS_PUBLIC | default(false) }}"
@@ -54,11 +59,6 @@
         group: root
         mode: 0700
       when: not server_is_public
-
-    - name: Allow .envrc
-      shell: "direnv allow ."
-      args:
-        chdir: "{{ git_dest }}"
 
     - name: Docker-compose pull
       shell: "direnv exec . dc pull"
