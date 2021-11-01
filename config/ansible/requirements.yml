@@ -13,6 +13,10 @@ roles:
     version: 2.5.0
     source: https://galaxy.ansible.com
 
+  - name: mrlesmithjr.netplan
+    version: v0.3.0
+    source: https://galaxy.ansible.com
+
 collections:
   - name: markuman.nextcloud
     version: 3.0.2
