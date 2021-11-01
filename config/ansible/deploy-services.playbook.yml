@@ -12,6 +12,7 @@
       set_fact:
         server_is_public: "{{ lookup('env', 'SERVER_IS_PUBLIC') | default(false, true) }}"
         git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
+        acme_certs_dir: "{{ lookup('env', 'ACME_CERTS_DIR') | default(false, true) }}"
 
     - name: Checkout git repo
       git:
@@ -40,7 +41,7 @@
       become: yes
       become_user: root
       file:
-        path: "{{ updated_envrc.ACME_CERTS_DIR }}"
+        path: "{{ acme_certs_dir }}"
         state: directory
         owner: root
         group: root

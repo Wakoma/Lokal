@@ -18,16 +18,6 @@
         path: "{{ moodle_dir }}"
         state: directory
 
-    - name: resolve .envrc.quickstart variables
-      ansible.builtin.shell: . ../../.envrc.quickstart && env 2> /dev/null
-      args:
-        executable: /bin/bash
-      register: envrc_out
-
-    - name: Parse environment
-      set_fact:
-        envrc: "{{ ('{' + envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
-
     - name: Set facts
       set_fact:
         domain_moodle: "moodle.{{ lookup('env', 'DOMAIN') }}"
