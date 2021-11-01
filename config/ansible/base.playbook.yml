@@ -45,20 +45,10 @@
   hosts: all
   become: yes
   pre_tasks:
-    - name: Get .envrc file content
-      ansible.builtin.shell: . ../../.envrc.quickstart && env 2> /dev/null
-      args:
-        executable: /bin/bash
-      register: envrc_out
-
-    - name: Parse environment
-      set_fact:
-        updated_envrc: "{{ ('{' + envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
-    
     - name: Set facts
       set_fact:
-        lokal_server_gateway: "{{ updated_envrc.LOKAL_SERVER_GATEWAY }}"
-        lokal_server_ip: "{{ updated_envrc.LOKAL_SERVER_IP }}"
+        lokal_server_gateway: "{{ lookup('env', 'LOKAL_SERVER_GATEWAY') }}"
+        lokal_server_ip: "{{ lookup('env', 'LOKAL_SERVER_IP') }}"
   roles:
     - role: mrlesmithjr.netplan
       netplan_enabled: true

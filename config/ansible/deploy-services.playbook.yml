@@ -10,6 +10,7 @@
 
     - name: Set facts
       set_fact:
+        server_is_public: "{{ lookup('env', 'SERVER_IS_PUBLIC') | default(false, true) }}"
         git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
 
     - name: Checkout git repo
@@ -34,20 +35,6 @@
       shell: "direnv allow ."
       args:
         chdir: "{{ git_dest }}"
-
-    - name: resolve .envrc.quickstart variables
-      ansible.builtin.shell: . ../../.envrc.quickstart && env 2> /dev/null
-      args:
-        executable: /bin/bash
-      register: envrc_out
-
-    - name: Parse environment
-      set_fact:
-        updated_envrc: "{{ ('{' + envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
-    
-    - name: Set facts
-      set_fact:
-        server_is_public: "{{ updated_envrc.SERVER_IS_PUBLIC | default(false) }}"
 
     - name: Make acme certs directory if it does not yet exist
       become: yes
