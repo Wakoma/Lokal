@@ -47,22 +47,32 @@
   pre_tasks:
     - name: Set facts
       set_fact:
+        lokal_server_interface: "{{ lookup('env', 'LOKAL_SERVER_INTERFACE') }}"
         lokal_server_gateway: "{{ lookup('env', 'LOKAL_SERVER_GATEWAY') }}"
         lokal_server_ip: "{{ lookup('env', 'LOKAL_SERVER_IP') }}"
   roles:
     - role: mrlesmithjr.netplan
       netplan_enabled: true
-      netplan_config_file: /etc/netplan/lokal.yaml
+      netplan_config_file: /etc/netplan/lokal-{{ lokal_server_gateway }}.yaml
       netplan_renderer: networkd
       netplan_configuration:
         network:
           ethernets:
-            enp0s3:
-              dhcp4: no
+            "{{ lokal_server_interface }}":
               addresses: ["{{ lokal_server_ip }}/24"]
               gateway4: "{{ lokal_server_gateway }}"
               nameservers:
                 addresses: [1.1.1.1, 1.0.0.1]
+          version: 2
+    - role: mrlesmithjr.netplan
+      netplan_enabled: true
+      netplan_config_file: /etc/netplan/lokal-dhcp.yaml
+      netplan_renderer: networkd
+      netplan_configuration:
+        network:
+          ethernets:
+            "{{ lokal_server_interface }}":
+            dhcp: true
           version: 2
 
 - name: Ensure firewall is set up

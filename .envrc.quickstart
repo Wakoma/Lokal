@@ -2,6 +2,7 @@ export PROJECT_NAME=quickstart
 export DEPLOYMENT_ENVIRONMENT=local-production
 export PROJECT_ROOT=${PWD}
 export PATH="${PROJECT_ROOT}:${PATH}"
+export LOKAL_SERVER_INTERFACE=$(ip route show 0.0.0.0/0 | cut -d\  -f5 | uniq)
 export LOKAL_SERVER_GATEWAY=$(ip route show 0.0.0.0/0 | cut -d\  -f3 | uniq)
 export LOKAL_SERVER_IP=$(readarray -d . -t ip <<< ${LOKAL_SERVER_GATEWAY}; echo ${ip[0]}.${ip[1]}.${ip[2]}.242)
 
