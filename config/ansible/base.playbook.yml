@@ -72,7 +72,7 @@
         network:
           ethernets:
             "{{ lokal_server_interface }}":
-            dhcp: true
+            dhcp4: true
           version: 2
 
 - name: Ensure firewall is set up
