@@ -55,7 +55,7 @@
       netplan_enabled: true
       netplan_config_file: /etc/netplan/lokal-{{ lokal_server_gateway }}.yaml
       netplan_renderer: networkd
-      netplan_configuration: {
+      netplan_configuration: '{
         "network": {
           "ethernets": {
             "{{ lokal_server_interface }}": {
@@ -67,12 +67,12 @@
             }
           }
         }
-      }
+      }'
     - role: mrlesmithjr.netplan
       netplan_enabled: true
       netplan_config_file: /etc/netplan/lokal-dhcp.yaml
       netplan_renderer: networkd
-      netplan_configuration: {
+      netplan_configuration: '{
         "network": {
           "ethernets": {
             "{{ lokal_server_interface }}": {
@@ -83,7 +83,7 @@
             }
           }
         }
-      }
+      }'
 
 - name: Ensure firewall is set up
   hosts: all
