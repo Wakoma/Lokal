@@ -64,22 +64,7 @@
               "nameservers": {
                 "addresses": ["1.1.1.1", "1.0.0.1"]
               }
-            }
-          }
-        }
-      }'
-    - role: mrlesmithjr.netplan
-      netplan_enabled: true
-      netplan_config_file: /etc/netplan/lokal-dhcp.yaml
-      netplan_renderer: networkd
-      netplan_configuration: '{
-        "network": {
-          "ethernets": {
-            "{{ lokal_server_interface }}": {
               "dhcp4": true,
-              "nameservers": {
-                "addresses": ["1.1.1.1", "1.0.0.1"]
-              }
             }
           }
         }
