@@ -63,8 +63,8 @@
               "gateway4": "{{ lokal_server_gateway }}",
               "nameservers": {
                 "addresses": ["1.1.1.1", "1.0.0.1"]
-              }
-              "dhcp4": true,
+              },
+              "dhcp4": true
             }
           }
         }
