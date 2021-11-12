@@ -332,8 +332,13 @@ services:
       JELLYFIN_PublishedServerUrl: https://${DOMAIN_JELLYFIN}
     volumes:
       - jellyfin:/config
-      - ${JELLYFIN_DATA_DIR}/tvshows:/data/tvshows
       - ${JELLYFIN_DATA_DIR}/movies:/data/movies
+      - ${JELLYFIN_DATA_DIR}/music:/data/music
+      - ${JELLYFIN_DATA_DIR}/shows:/data/shows
+      - ${JELLYFIN_DATA_DIR}/books:/data/books
+      - ${JELLYFIN_DATA_DIR}/photos:/data/photos
+      - ${JELLYFIN_DATA_DIR}/music-videos:/data/music-videos
+      - ${JELLYFIN_DATA_DIR}/other:/data/other
       - ${TRANSMISSION_DOWNLOADS_DIR}:${TRANSMISSION_DOWNLOADS_DIR}
     ports:
       - 7359:7359/udp
