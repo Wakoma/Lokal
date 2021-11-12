@@ -29,6 +29,8 @@ volumes:
     name: unifi-controller
   kolibri:
     name: kolibri
+  jellyfin:
+    name: jellyfin
 
 services:
   grafana:
@@ -329,7 +331,7 @@ services:
       TZ: ${TZ}
       JELLYFIN_PublishedServerUrl: https://${DOMAIN_JELLYFIN}
     volumes:
-      - ${JELLYFIN_CONFIG_DIR}:/config
+      - jellyfin:/config
       - ${JELLYFIN_DATA_DIR}/tvshows:/data/tvshows
       - ${JELLYFIN_DATA_DIR}/movies:/data/movies
       - ${TRANSMISSION_DOWNLOADS_DIR}:${TRANSMISSION_DOWNLOADS_DIR}
