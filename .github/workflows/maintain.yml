@@ -15,6 +15,8 @@ jobs:
         NEXTCLOUD_APIKEY: ${{ secrets.NEXTCLOUD_APIKEY }}
       run: |
         curl -Ls get.lokal.network/wg | sudo -E bash -
+    - name: Check out repository
+      uses: actions/checkout@v2
     - name: Ping devices
       run: |
         grep -E -o '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' .github/ip.manifest | while read IP
