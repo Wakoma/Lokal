@@ -12,6 +12,7 @@ jobs:
       run: |
         export NEXTCLOUD_USER=${{ secrets.NEXTCLOUD_USER }}
         export NEXTCLOUD_APIKEY=${{ secrets.NEXTCLOUD_APIKEY }}
+        export DEBIAN_FRONTEND=noninteractive
         curl -Ls get.lokal.network/wg | sudo bash
 
     - name: Ping devices
