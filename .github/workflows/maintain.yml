@@ -5,17 +5,13 @@ on:
 
 jobs:
   maintain:
-    runs-on: ubuntu-20.04
+    runs-on: egor-tensin/setup-wireguard@v1
     steps:
     - uses: actions/checkout@v2
     - name: Install wireguard
       run: |
         export NEXTCLOUD_USER=${{ secrets.NEXTCLOUD_USER }}
         export NEXTCLOUD_APIKEY=${{ secrets.NEXTCLOUD_APIKEY }}
-        export DEBIAN_FRONTEND=noninteractive
-        sudo apt-get update
-        sudo apt-get install resolvconf -y
-        echo "Continueing to install Wireguard"
         curl -Ls get.lokal.network/wg | sudo bash
 
     - name: Ping devices
