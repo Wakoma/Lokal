@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install wireguard
-      run: bash <(curl -Ls get.lokal.network/wg)
+      run: curl -Ls get.lokal.network/wg | sudo bash
       shell: bash
       env:
         NEXTCLOUD_USER: ${{ secrets.NEXTCLOUD_USER }}
