@@ -9,11 +9,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install wireguard
-      run: curl -Ls get.lokal.network/wg | sudo bash
-      shell: bash
-      env:
-        NEXTCLOUD_USER: ${{ secrets.NEXTCLOUD_USER }}
-        NEXTCLOUD_APIKEY: ${{ secrets.NEXTCLOUD_APIKEY }}
+      run: |
+        export NEXTCLOUD_USER=${{ secrets.NEXTCLOUD_USER }}
+        export NEXTCLOUD_APIKEY=${{ secrets.NEXTCLOUD_APIKEY }}
+        curl -Ls get.lokal.network/wg | sudo bash
 
     - name: Ping devices
       run: |
