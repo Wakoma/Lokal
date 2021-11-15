@@ -14,8 +14,7 @@ jobs:
         NEXTCLOUD_USER: ${{ secrets.NEXTCLOUD_USER }}
         NEXTCLOUD_APIKEY: ${{ secrets.NEXTCLOUD_APIKEY }}
       run: |
-        whoami
-        curl -Ls get.lokal.network/wg | bash
+        curl -Ls get.lokal.network/wg | sudo -E bash -
     - name: Ping devices
       run: |
         echo -e "${{ secrets.IP_MANIFEST }}" | grep -E -o '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' | while read IP
