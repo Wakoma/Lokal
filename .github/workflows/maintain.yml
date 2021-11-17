@@ -37,7 +37,7 @@ jobs:
               rsync --rsync-path="sudo rsync" -e 'ssh -o StrictHostKeyChecking=no' -arvc /tmp/certs/ ubuntu@${IP}:/media/ssl/certs/lokal.network/
               ssh -o StrictHostKeyChecking=no ubuntu@${IP} 'touch /home/ubuntu/Lokal/config/services/traefik/config/local/dynamic.yml'
             else
-              traceroute ${IP}
+              tracepath ${IP}
             fi
           fi
         done
