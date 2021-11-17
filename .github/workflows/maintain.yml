@@ -36,7 +36,7 @@ jobs:
           if [ "${PING_SUCCESS}" -eq 0 ]
           then
             echo --- ${IP} is UP | sed 's/\./·/g'
-            ssh -o StrictHostKeyChecking=no ubuntu@${IP} 'echo --- $HOSTNAME IS accessible by ssh'
+            ssh -n -o StrictHostKeyChecking=no ubuntu@${IP} 'echo --- $HOSTNAME IS accessible by ssh'
             SSH_SUCCESS=$?
             if [ "${SSH_SUCCESS}" -eq 0 ]
             then
