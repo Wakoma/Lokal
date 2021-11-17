@@ -31,16 +31,16 @@ jobs:
           do ping -c 1 "${IP}" > /dev/null
           if [ $? -eq 0 ]
           then
-            echo --- ${IP} is UP | sed 's/./-/g'
+            echo --- ${IP} is UP | sed 's/\./·/g'
             ssh -o StrictHostKeyChecking=no ubuntu@${IP} 'echo --- $HOSTNAME IS accessible by ssh'
             if [ $? -eq 0 ]
             then
               rsync --rsync-path="sudo rsync" -e 'ssh -o StrictHostKeyChecking=no' -arvc /tmp/certs/ ubuntu@${IP}:/media/ssl/certs/lokal.network/
               ssh -o StrictHostKeyChecking=no ubuntu@${IP} 'touch /home/ubuntu/Lokal/config/services/traefik/config/local/dynamic.yml'
             else
-              echo --- ${IP} is NOT accessible by ssh
+              echo --- ${IP} is NOT accessible by ssh | sed 's/\./·/g'
             fi
           else
-            echo --- ${IP} is DOWN | sed 's/./-/g'
+            echo --- ${IP} is DOWN | sed 's/\./·/g'
           fi
         done
