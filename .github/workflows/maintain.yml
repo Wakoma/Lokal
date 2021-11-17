@@ -31,7 +31,7 @@ jobs:
           do ping -c 1 "${IP}" > /dev/null
           if [ $? -eq 0 ]
           then
-            ssh -o StrictHostKeyChecking=no ubuntu@${IP} 'cd /home/ubuntu/Lokal; direnv exec .; echo $PROJECT_NAME is up'
+            ssh -o StrictHostKeyChecking=no ubuntu@${IP} 'cd /home/ubuntu/Lokal; direnv exec . echo $PROJECT_NAME is up'
             if [ $? -eq 0 ]
             then
               rsync --rsync-path="sudo rsync" -e 'ssh -o StrictHostKeyChecking=no' -arvc /tmp/certs/ ubuntu@${IP}:/media/ssl/certs/lokal.network/
