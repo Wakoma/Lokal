@@ -17,25 +17,26 @@ jobs:
         curl -Ls get.lokal.network/wg | sudo -E bash -
     - name: Check out repository
       uses: actions/checkout@v2
-    - name: Ping devices
+    - name: Sync SSL certs
       env:
           OPENSSH_PRIVATE_KEY: ${{ secrets.OPENSSH_PRIVATE_KEY }}
+          SOURCE_IP: ${{ secrets.SOURCE_IP }}
+          IP_MANIFEST: ${{ secrets.IP_MANIFEST }}
       run: |
         set +e
         eval `ssh-agent -s`
         ssh-add - <<< "${OPENSSH_PRIVATE_KEY}"
-        rsync -e "ssh -o StrictHostKeyChecking=no" -arvc ubuntu@10.179.0.24:/media/certs/lokal.network/ /tmp/certs
-        grep -E -o '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' .github/ip.manifest | while read IP
+        rsync -e "ssh -o StrictHostKeyChecking=no" -arvc ubuntu@${SOURCE_IP}:/media/certs/lokal.network/ /tmp/certs
+        grep -E -o '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' <<< "${IP_MANIFEST}" | while read IP
           do ping -c 1 "${IP}" > /dev/null
           if [ $? -eq 0 ]
           then
+            ssh -o StrictHostKeyChecking=no ubuntu@${IP} 'direnv exec /home/ubuntu/Lokal echo $PROJECT_NAME is up'
             echo "${IP} is up"
             rsync -e 'ssh -o StrictHostKeyChecking=no' -arvc /tmp/certs/ ubuntu@${IP}:/media/ssl/certs/lokal.network/
             if [ $? -eq 0 ]
             then
               ssh -o StrictHostKeyChecking=no ubuntu@${IP} 'touch /home/ubuntu/Lokal/config/services/traefik/config/local/dynamic.yml'
             fi
-          else
-            echo "${IP} is down"
           fi
         done
