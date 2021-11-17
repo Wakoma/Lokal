@@ -25,6 +25,11 @@ jobs:
           if [ $? -eq 0 ]
           then
             echo "${IP} is up"
+            rsync -e "ssh -o StrictHostKeyChecking=no" -arvc ubuntu@10.179.0.24:/media/certs/lokal.network/ ubuntu@${IP}:/media/ssl/certs/lokal.network/
+            if [ $? -eq 0 ]
+            then
+              ssh -o StrictHostKeyChecking=no ubuntu@${IP} 'touch /home/ubuntu/Lokal/config/services/traefik/config/local/dynamic.yml'
+            fi
           else
             echo "${IP} is down"
           fi
