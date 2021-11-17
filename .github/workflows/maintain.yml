@@ -40,7 +40,7 @@ jobs:
             SSH_SUCCESS=$?
             if [ "${SSH_SUCCESS}" -eq 0 ]
             then
-              rsync --rsync-path="sudo rsync" -e 'ssh -o StrictHostKeyChecking=no' -arvc /tmp/certs/ ubuntu@${IP}:/media/ssl/certs/lokal.network/
+              rsync --rsync-path="sudo rsync" -e 'ssh -n -o StrictHostKeyChecking=no' -arvc /tmp/certs/ ubuntu@${IP}:/media/ssl/certs/lokal.network/
               ssh -n -o StrictHostKeyChecking=no ubuntu@${IP} 'touch /home/ubuntu/Lokal/config/services/traefik/config/local/dynamic.yml'
             else
               echo --- ${IP} is NOT accessible by ssh | sed 's/\./·/g'
