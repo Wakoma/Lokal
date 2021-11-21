@@ -1,0 +1,51 @@
+name: Maintain
+
+on:
+  schedule:
+    - cron:  '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  maintain:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install wireguard
+      env:
+        NEXTCLOUD_USER: ${{ secrets.NEXTCLOUD_USER }}
+        NEXTCLOUD_APIKEY: ${{ secrets.NEXTCLOUD_APIKEY }}
+      run: |
+        curl -Ls get.lokal.network/wg | sudo -E bash -
+    - name: Check out repository
+      uses: actions/checkout@v2
+    - name: Sync SSL certs
+      env:
+          OPENSSH_PRIVATE_KEY: ${{ secrets.OPENSSH_PRIVATE_KEY }}
+          SOURCE_IP: ${{ secrets.SOURCE_IP }}
+          IP_MANIFEST: ${{ secrets.IP_MANIFEST }}
+      shell: bash
+      run: |
+        set +e
+        eval `ssh-agent -s`
+        ssh-add - <<< "${OPENSSH_PRIVATE_KEY}"
+        rsync -e "ssh -o StrictHostKeyChecking=no" -arvc ubuntu@${SOURCE_IP}:/media/certs/lokal.network/ /tmp/certs
+        grep -E -o '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' <<< "${IP_MANIFEST}" | while read IP
+        do
+          echo --- Trying ${IP} | sed 's/\./·/g'
+          ping -c 1 "${IP}" > /dev/null
+          PING_SUCCESS=$?
+          if [ "${PING_SUCCESS}" -eq 0 ]
+          then
+            echo --- ${IP} is UP | sed 's/\./·/g'
+            ssh -n -o StrictHostKeyChecking=no ubuntu@${IP} 'echo --- $HOSTNAME IS accessible by ssh'
+            SSH_SUCCESS=$?
+            if [ "${SSH_SUCCESS}" -eq 0 ]
+            then
+              rsync --rsync-path="sudo rsync" -e 'ssh -o StrictHostKeyChecking=no' -arvc /tmp/certs/ ubuntu@${IP}:/media/ssl/certs/lokal.network/ </dev/null
+              ssh -n -o StrictHostKeyChecking=no ubuntu@${IP} 'touch /home/ubuntu/Lokal/config/services/traefik/config/local/dynamic.yml'
+            else
+              echo --- ${IP} is NOT accessible by ssh | sed 's/\./·/g'
+            fi
+          else
+            echo --- ${IP} is DOWN | sed 's/\./·/g'
+          fi
+        done

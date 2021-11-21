@@ -172,10 +172,9 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.wordpress.entrypoints: websecure
-      traefik.http.routers.wordpress.rule: HostRegexp(`${DOMAIN_WORDPRESS}`, `{subdomain:[a-z]+}.${DOMAIN_WORDPRESS}`)
+      traefik.http.routers.wordpress.rule: HostRegexp(`${DOMAIN_WORDPRESS}`)
       traefik.http.routers.wordpress.tls: "true"
       traefik.http.services.wordpress.loadbalancer.server.port: 80
-      traefik.http.routers.wordpress.priority: 1
 
   resourcespace:
     container_name: resourcespace
@@ -333,7 +332,7 @@ services:
     volumes:
       - jellyfin:/config
       - ${JELLYFIN_DATA_DIR}:/data
-      - ${TRANSMISSION_DOWNLOADS_DIR}:${TRANSMISSION_DOWNLOADS_DIR}
+      - ${TRANSMISSION_DOWNLOADS_DIR}:/downloads
     ports:
       - 7359:7359/udp
       # - 1900:1900/udp  # Can't be used at 1900 because that clashes with unif-controller
