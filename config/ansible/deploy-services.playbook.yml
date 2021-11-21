@@ -1,12 +1,6 @@
 ---
 - name: Deploy Services
   hosts: all
-  vars_prompt:
-    - name: nextcloud_user
-      prompt: Enter your Nextcloud username
-      private: no
-    - name: nextcloud_api_token
-      prompt: Enter your Nextcloud API token
   tasks:
 
     - name: Register primary user's details
@@ -27,15 +21,15 @@
         git_repo: "https://github.com/{{ repo_owner }}/{{ repo_name }}.git"
         git_version: "{{ repo_branch }}"
 
-    - name: fetch file .env from nextcloud
-      markuman.nextcloud.file:
-        mode: get
-        src: .envrc
+    # Temporary step, to avoid nextcloud fetch in playbook
+    - name: Move prepared /tmp/.envrc file to git location
+      ansible.builtin.copy:
+        remote_src: True
+        src: /tmp/.envrc
         dest: "{{ git_dest }}/.envrc"
-        overwritten: different
-        host: drive.wakoma.net
-        user: "{{ nextcloud_user }}"
-        api_token: "{{ nextcloud_api_token }}"
+        owner: ubuntu
+        group: ubuntu
+        mode: 0600
 
     - name: Get .envrc file content
       shell: . {{ git_dest }}/.envrc && env
@@ -60,27 +54,13 @@
         mode: 0700
       when: not server_is_live
 
-    - name: fetch file certs from nextcloud (TODO In future we want to mount nextcloud drive so that certs can be updated)
-      become: yes
-      become_user: root
-      markuman.nextcloud.file:
-        mode: get
-        src: "{{ updated_envrc.ACME_DOMAIN }}/{{ item }}"
-        dest: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
-        overwritten: different
-        host: drive.wakoma.net
-        user: "{{ nextcloud_user }}"
-        api_token: "{{ nextcloud_api_token }}"
-      with_items:
-        - "{{ updated_envrc.ACME_DOMAIN }}.cer"
-        - "{{ updated_envrc.ACME_DOMAIN }}.key"
-      when: not server_is_live
-
     - name: Change file ownership, group and permissions
       become: yes
       become_user: root
-      ansible.builtin.file:
-        path: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
+      ansible.builtin.copy:
+        remote_src: True
+        src: "/tmp/{{ updated_envrc.ACME_DOMAIN }}/{{ item }}"
+        dest: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
         owner: root
         group: root
         mode: 0600
@@ -95,12 +75,7 @@
         chdir: "{{ git_dest }}"
 
     - name: Docker-compose pull
-      shell: "direnv exec . dc pull"
-      args:
-        chdir: "{{ git_dest }}"
-
-    - name: Generate Kiwix Library file
-      shell: "direnv exec . config/services/kiwix/generate-library.sh"
+      shell: "direnv exec . dc pull traefik grafana netdata prometheus portainer wordpress matomo transmission unifi-poller unifi-controller jellyfin"
       args:
         chdir: "{{ git_dest }}"
 
@@ -115,6 +90,6 @@
         chdir: "{{ git_dest }}"
 
     - name: Docker-compose up
-      shell: "direnv exec . dc up -d"
+      shell: "direnv exec . dc up -d  traefik grafana netdata prometheus portainer wordpress matomo transmission unifi-poller unifi-controller jellyfin"
       args:
         chdir: "{{ git_dest }}"

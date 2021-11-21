@@ -35,17 +35,17 @@
 
     - name: Copy .env from template
       ansible.builtin.template:
-        src: "{{ lokal_dir }}/config/services/mkdocs/.env.j2"
+        src: "../services/mkdocs/.env.j2"
         dest: "{{ docs_dir }}/.env"
 
     - name: Copy dockerfile from template
       ansible.builtin.template:
-        src: "{{ lokal_dir }}/config/services/mkdocs/Dockerfile.j2"
+        src: "../services/mkdocs/Dockerfile.j2"
         dest: "{{ docs_dir }}/Dockerfile"
 
     - name: Copy docker-compose.yml from template
       ansible.builtin.template:
-        src: "{{ lokal_dir }}/config/services/mkdocs/docker-compose.yml.j2"
+        src: "../services/mkdocs/docker-compose.yml.j2"
         dest: "{{ docs_dir }}/docker-compose.yml"
 
     - name: Get .env file content
