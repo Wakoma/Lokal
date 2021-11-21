@@ -20,7 +20,12 @@ PRIMARY_SSH_USER=ubuntu
 #  -i config/ansible/hosts.yml \
 #  config/ansible/preprovision.playbook.yml
 
-ansible-playbook \
+su ${PRIMARY_SSH_USER} -c "ansible-galaxy role install -r config/ansible/requirements.yml"
+
+. .envrc.quickstart
+
+su ${PRIMARY_SSH_USER} -c "\
+  ansible-playbook \
     -e primary_ssh_user=${PRIMARY_SSH_USER} \
     -i config/ansible/hosts.yml \
     config/ansible/base.playbook.yml

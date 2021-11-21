@@ -10,9 +10,11 @@
 
     - name: Set facts
       set_fact:
+        server_is_public: "{{ lookup('env', 'SERVER_IS_PUBLIC') | default(false, true) }}"
         git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
+        acme_certs_dir: "{{ lookup('env', 'ACME_CERTS_DIR') | default(false, true) }}"
 
-    - name: Checkout git repo instance to main branch and pull
+    - name: Checkout git repo
       git:
         repo: "{{ git_repo }}"
         dest: "{{ git_dest }}"
@@ -21,58 +23,30 @@
         git_repo: "https://github.com/{{ repo_owner }}/{{ repo_name }}.git"
         git_version: "{{ repo_branch }}"
 
-    # Temporary step, to avoid nextcloud fetch in playbook
-    - name: Move prepared /tmp/.envrc file to git location
+    - name: Copy .envrc.quickstart in place
       ansible.builtin.copy:
-        remote_src: True
-        src: /tmp/.envrc
+        remote_src: true
+        src: "{{ git_dest }}/.envrc.quickstart"
         dest: "{{ git_dest }}/.envrc"
         owner: ubuntu
         group: ubuntu
         mode: 0600
 
-    - name: Get .envrc file content
-      shell: . {{ git_dest }}/.envrc && env
-      register: updated_envrc_out
-
-    - name: Parse environment
-      set_fact:
-        updated_envrc: "{{ ('{' + updated_envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
-    
-    - name: Set facts
-      set_fact:
-        server_is_live: "{{ updated_envrc.SERVER_IS_LIVE | default(false) }}"
+    - name: Allow .envrc
+      shell: "direnv allow ."
+      args:
+        chdir: "{{ git_dest }}"
 
     - name: Make acme certs directory if it does not yet exist
       become: yes
       become_user: root
       file:
-        path: "{{ updated_envrc.ACME_CERTS_DIR }}"
+        path: "{{ acme_certs_dir }}"
         state: directory
         owner: root
         group: root
         mode: 0700
-      when: not server_is_live
-
-    - name: Change file ownership, group and permissions
-      become: yes
-      become_user: root
-      ansible.builtin.copy:
-        remote_src: True
-        src: "/tmp/{{ updated_envrc.ACME_DOMAIN }}/{{ item }}"
-        dest: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
-        owner: root
-        group: root
-        mode: 0600
-      with_items:
-        - "{{ updated_envrc.ACME_DOMAIN }}.cer"
-        - "{{ updated_envrc.ACME_DOMAIN }}.key"
-      when: not server_is_live
-
-    - name: Allow .envrc
-      shell: "direnv allow ."
-      args:
-        chdir: "{{ git_dest }}"
+      when: not server_is_public
 
     - name: Docker-compose pull
       shell: "direnv exec . dc pull traefik grafana netdata prometheus portainer wordpress matomo transmission unifi-poller unifi-controller jellyfin"

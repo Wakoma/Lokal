@@ -1,4 +1,4 @@
-export PROJECT_NAME=vnet
+export PROJECT_NAME=
 export DEPLOYMENT_ENVIRONMENT=develop  # develop, staging, production
 export PROJECT_ROOT=${PWD}
 export PATH="${PROJECT_ROOT}:${PATH}"
@@ -13,7 +13,7 @@ export HCLOUD_LOCATION=nbg1
 export HCLOUD_SERVER_TYPE=cpx11
 export ROOT_SSH_USER=root
 export PRIMARY_SSH_USER=ubuntu
-export SERVER_IS_LIVE=false
+export SERVER_IS_PUBLIC=false
 export DNS_PROVIDER=namecheap
 export CERT_RESOLVER=dns
 

@@ -33,7 +33,7 @@ services:
       traefik.http.routers.moodle.entrypoints: websecure
       traefik.http.routers.moodle.rule: Host(`${DOMAIN_MOODLE}`)
       traefik.http.routers.moodle.tls: "true"
-{% if server_is_live %}
+{% if server_is_public %}
       traefik.http.routers.moodle.tls.certresolver: ${CERT_RESOLVER}
 {% endif %}
       traefik.http.services.moodle.loadbalancer.server.port: 80

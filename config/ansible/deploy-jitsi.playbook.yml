@@ -11,23 +11,12 @@
     - name: Set facts
       set_fact:
         git_dest: "{{ primary_ssh_user_params.home }}/{{ repo_name }}"
-
-    - name: Get .envrc file content
-      shell: . {{ git_dest }}/.envrc && env
-      register: updated_envrc_out
-
-    - name: Parse environment
-      set_fact:
-        updated_envrc: "{{ ('{' + updated_envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
-
-    - name: Set facts
-      set_fact:
         jitsi_project: "docker-jitsi-meet"
         jitsi_release: "stable-5870"
-        domain_jitsi: "meet.{{ updated_envrc.DOMAIN }}"
-        tz: "{{ updated_envrc.TZ }}"
-        cert_resolver: "{{ updated_envrc.CERT_RESOLVER | default('dns') }}"
-        server_is_live: "{{ updated_envrc.SERVER_IS_LIVE | default(false) }}"
+        domain_jitsi: "meet.{{ lookup('env', 'DOMAIN') }}"
+        tz: "{{ lookup('env', 'TZ') }}"
+        cert_resolver: "{{ lookup('env', 'CERT_RESOLVER') | default('dns', true) }}"
+        server_is_public: "{{ lookup('env', 'SERVER_IS_PUBLIC') | default(false, true) }}"
 
     - name: Set more facts
       set_fact:
@@ -67,7 +56,7 @@
         dest: "{{ jitsi_dest }}/docker-compose.yml"
 
     - name: Get .env file content
-      shell: set -o allexport && . {{ jitsi_dest }}/.env && env && set +o allexport
+      shell: set -o allexport && . {{ jitsi_dest }}/.env && env 2> /dev/null && set +o allexport
       register: updated_env_out
 
     - name: Parse environment

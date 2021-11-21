@@ -1,0 +1,80 @@
+export PROJECT_NAME=quickstart
+export DEPLOYMENT_ENVIRONMENT=local-production
+export PROJECT_ROOT=${PWD}
+export PATH="${PROJECT_ROOT}:${PATH}"
+export LOKAL_SERVER_INTERFACE=$(ip route show 0.0.0.0/0 | cut -d\  -f5 | uniq)
+export LOKAL_SERVER_GATEWAY=$(ip route show 0.0.0.0/0 | cut -d\  -f3 | uniq)
+export LOKAL_SERVER_IP=$(readarray -d . -t ip <<< ${LOKAL_SERVER_GATEWAY}; echo ${ip[0]}.${ip[1]}.${ip[2]}.242)
+
+export ROOT_SSH_USER=root
+export PRIMARY_SSH_USER=ubuntu
+export SERVER_IS_PUBLIC=false
+export DNS_PROVIDER=
+export CERT_RESOLVER=
+
+# Container Secrets
+export ACME_EMAIL=
+export TRAEFIK_BASICAUTH_USERS='admin:$2y$05$wO1BFHFC/XcxynqgnCfuceB40zVOof3iTwGOgWzdN1TI3yS8YJUR6'  # 'admin:quickstart' is the username:password for traefik dashboard
+
+# Container Variables
+export DOCKER_PGID=$(grep docker /etc/group | cut -d ':' -f 3)
+export PUID=$(id -u)
+export PGID=$(id -g)
+export TZ=$(realpath /etc/localtime | grep -oP "^/usr/share/zoneinfo/\K.*")
+export DOMAIN=our.lokal.network
+export DOMAIN_WORDPRESS=${DOMAIN}
+export DOMAIN_WORDPRESS_WWW=www.${DOMAIN}
+export DOMAIN_TRAEFIK=router.${DOMAIN}
+export DOMAIN_NETDATA=monitor.${DOMAIN}
+export DOMAIN_PROMETHEUS=metrics.${DOMAIN}
+export DOMAIN_GRAFANA=dash.${DOMAIN}
+export DOMAIN_MATOMO=analytics.${DOMAIN}
+export DOMAIN_RESOURCESPACE=assets.${DOMAIN}
+export DOMAIN_MAILHOG=mailhog.${DOMAIN}
+export DOMAIN_KIWIX=learn.${DOMAIN}
+export DOMAIN_TRANSMISSION=torrent.${DOMAIN}
+export DOMAIN_NEXTCLOUD=nextcloud.${DOMAIN}
+export DOMAIN_PORTAINER=portainer.${DOMAIN}
+export DOMAIN_UNIFI_CONTROLLER=unifi.${DOMAIN}
+export DOMAIN_JELLYFIN=video.${DOMAIN}
+export DOMAIN_KOLIBRI=edu.${DOMAIN}
+export KIWIX_DATA_DIR=${HOME}/data/kiwix
+export TRANSMISSION_CONFIG_DIR=${HOME}/data/transmission/config
+export TRANSMISSION_DOWNLOADS_DIR=${HOME}/data/transmission/downloads
+export TRANSMISSION_WATCH_DIR=${HOME}/data/transmission/watch
+export NEXTCLOUD_CONFIG_DIR=${HOME}/data/nextcloud/config
+export JELLYFIN_CONFIG_DIR=${HOME}/data/jellyfin/config
+export JELLYFIN_DATA_DIR=${HOME}/data/jellyfin/data
+
+export ACME_DOMAIN=${DOMAIN}
+export ACME_CERTS_DIR=/media/ssl/certs/${ACME_DOMAIN}
+
+# Application Secrets
+export MYSQL_ROOT_PASSWORD=quickstart
+export MYSQL_PASSWORD_WORDPRESS=quickstart
+export MYSQL_PASSWORD_RESOURCESPACE=quickstart
+export MYSQL_PASSWORD_MATOMO=quickstart
+export MYSQL_PASSWORD_NEXTCLOUD=quickstart
+export UP_UNIFI_DEFAULT_URL=
+export UP_UNIFI_DEFAULT_USER=
+export UP_UNIFI_DEFAULT_PASS=
+
+# Application Variables
+export MYSQL_HOST=mariadb
+export MYSQL_PORT=3601
+
+export MYSQL_USER_WORDPRESS=wordpress
+export MYSQL_DATABASE_WORDPRESS=wordpress
+export MYSQL_URL_WORDPRESS=mysql://${MYSQL_USER_WORDPRESS}:${MYSQL_PASSWORD_WORDPRESS}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_WORDPRESS}
+
+export MYSQL_USER_RESOURCESPACE=resourcespace
+export MYSQL_DATABASE_RESOURCESPACE=resourcespace
+export MYSQL_URL_RESOURCESPACE=mysql://${MYSQL_USER_RESOURCESPACE}:${MYSQL_PASSWORD_RESOURCESPACE}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_RESOURCESPACE}
+
+export MYSQL_USER_MATOMO=matoma
+export MYSQL_DATABASE_MATOMO=matoma
+export MYSQL_URL_MATOMO=mysql://${MYSQL_USER_MATOMO}:${MYSQL_PASSWORD_MATOMO}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_MATOMO}
+
+export MYSQL_USER_NEXTCLOUD=nextcloud
+export MYSQL_DATABASE_NEXTCLOUD=nextcloud
+export MYSQL_URL_NEXTCLOUD=mysql://${MYSQL_USER_NEXTCLOUD}:${MYSQL_PASSWORD_NEXTCLOUD}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_NEXTCLOUD}

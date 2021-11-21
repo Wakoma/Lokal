@@ -9,7 +9,7 @@ services:
       traefik.http.routers.docs.entrypoints: websecure
       traefik.http.routers.docs.rule: Host(`${DOMAIN_MKDOCS}`)
       traefik.http.routers.docs.tls: "true"
-{% if server_is_live %}
+{% if server_is_public %}
       traefik.http.routers.docs.tls.certresolver: ${CERT_RESOLVER}
 {% endif %}
       traefik.http.services.docs.loadbalancer.server.port: 80

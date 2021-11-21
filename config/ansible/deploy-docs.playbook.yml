@@ -12,20 +12,9 @@
       set_fact:
         lokal_dir: "{{ primary_ssh_user_params.home }}/Lokal"
         docs_dir: "{{ primary_ssh_user_params.home }}/docs"
-
-    - name: Get .envrc file content
-      shell: . {{ lokal_dir }}/.envrc && env
-      register: envrc_out
-
-    - name: Parse environment
-      set_fact:
-        envrc: "{{ ('{' + envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
-
-    - name: Set facts
-      set_fact:
-        domain_mkdocs: "docs.{{ envrc.DOMAIN }}"
-        cert_resolver: "{{ envrc.CERT_RESOLVER | default('dns') }}"
-        server_is_live: "{{ envrc.SERVER_IS_LIVE | default(false) }}"
+        domain_mkdocs: "docs.{{ lookup('env', 'DOMAIN') }}"
+        cert_resolver: "{{ lookup('env', 'CERT_RESOLVER') | default('dns', true) }}"
+        server_is_public: "{{ lookup('env', 'SERVER_IS_PUBLIC') | default(false, true) }}"
 
     - name: Checkout latest docs to ~/docs
       git:
@@ -49,7 +38,7 @@
         dest: "{{ docs_dir }}/docker-compose.yml"
 
     - name: Get .env file content
-      shell: set -o allexport && . {{ docs_dir }}/.env && env && set +o allexport
+      shell: set -o allexport && . {{ docs_dir }}/.env && env 2> /dev/null && set +o allexport
       register: env_out
 
     - name: Parse environment
