@@ -128,6 +128,7 @@ services:
 
   matomo:
     container_name: matomo
+    hostname: ${DOMAIN_MATOMO}
     image: matomo:4.1.1-apache
     restart: unless-stopped
     volumes:
