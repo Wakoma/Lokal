@@ -23,7 +23,7 @@
     - name: Set facts
       set_fact:
         jitsi_project: "docker-jitsi-meet"
-        jitsi_release: "stable-5870"
+        jitsi_release: "stable-6865"
         domain_jitsi: "meet.{{ updated_envrc.DOMAIN }}"
         tz: "{{ updated_envrc.TZ }}"
         cert_resolver: "{{ updated_envrc.CERT_RESOLVER | default('dns') }}"
