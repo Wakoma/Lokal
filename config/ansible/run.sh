@@ -8,7 +8,7 @@ export ANSIBLE_VERBOSITY=0
 
 export repo_owner=Wakoma
 export repo_name=Lokal
-export repo_branch=custom_install_dnwt
+export repo_branch=main
 
 ROOT_SSH_USER=root
 PRIMARY_SSH_USER=ubuntu
