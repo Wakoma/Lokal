@@ -31,6 +31,8 @@ volumes:
     name: kolibri
   jellyfin:
     name: jellyfin
+  homeassistant:
+    name: homeassistant
 
 services:
   grafana:
@@ -363,3 +365,19 @@ services:
       traefik.http.services.kolibri.loadbalancer.server.port: 8080
     networks:
       - traefik
+
+  homeassistant:
+    image: homeassistant/home-assistant
+    container_name: homeassistant
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - homeassistant:/config
+    labels:
+      - traefik.enable: "true"
+      - traefik.http.routers.homeassistant.entrypoints: websecure
+      - traefik.http.routers.homeassistant.rule: Host(`${DOMAIN_HOMEASSISTANT}`)
+      - traefik.http.routers.homeassistant.tls: "true"
+      - traefik.http.services.homeassistant.loadbalancer.server.port: 8123
+
