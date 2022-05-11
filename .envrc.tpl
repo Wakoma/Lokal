@@ -47,6 +47,7 @@ export DOMAIN_PORTAINER=portainer.${DOMAIN_VNET}
 export DOMAIN_UNIFI_CONTROLLER=unifi.${DOMAIN_VNET}
 export DOMAIN_JELLYFIN=video.${DOMAIN_VNET}
 export DOMAIN_KOLIBRI=edu.${DOMAIN_VNET}
+DOMAIN_CALIBRE_WEB=books.${DOMAIN_VNET}
 export KIWIX_DATA_DIR=${PROJECT_ROOT}/config/services/kiwix/data
 export TRANSMISSION_CONFIG_DIR=${PROJECT_ROOT}/config/services/transmission/config
 export TRANSMISSION_DOWNLOADS_DIR=${PROJECT_ROOT}/config/services/transmission/downloads

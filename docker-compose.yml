@@ -19,18 +19,20 @@ volumes:
     name: matomo
   wordpress:
     name: wordpress
-  resourcespace:
-    name: resourcespace
-  nextcloud:
-    name: nextcloud
+  # resourcespace:
+  #   name: resourcespace
+  # nextcloud:
+  #   name: nextcloud
   portainer:
     name: portainer
-  unifi-controller:
-    name: unifi-controller
+  # unifi-controller:
+  #   name: unifi-controller
   kolibri:
     name: kolibri
   jellyfin:
     name: jellyfin
+  calibre-web:
+    name: calibre-web
 
 services:
   grafana:
@@ -177,23 +179,23 @@ services:
       traefik.http.routers.wordpress.tls: "true"
       traefik.http.services.wordpress.loadbalancer.server.port: 80
 
-  resourcespace:
-    container_name: resourcespace
-    image: suntorytimed/resourcespace:latest
-    restart: unless-stopped
-    depends_on:
-      - mariadb
-    volumes:
-      - resourcespace:/var/www/html
-    networks:
-      - traefik
-      - mysql
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.resourcespace.entrypoints: websecure
-      traefik.http.routers.resourcespace.rule: Host(`${DOMAIN_RESOURCESPACE}`)
-      traefik.http.routers.resourcespace.tls: "true"
-      traefik.http.services.resourcespace.loadbalancer.server.port: 80
+  # resourcespace:
+  #   container_name: resourcespace
+  #   image: suntorytimed/resourcespace:latest
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - mariadb
+  #   volumes:
+  #     - resourcespace:/var/www/html
+  #   networks:
+  #     - traefik
+  #     - mysql
+  #   labels:
+  #     traefik.enable: "true"
+  #     traefik.http.routers.resourcespace.entrypoints: websecure
+  #     traefik.http.routers.resourcespace.rule: Host(`${DOMAIN_RESOURCESPACE}`)
+  #     traefik.http.routers.resourcespace.tls: "true"
+  #     traefik.http.services.resourcespace.loadbalancer.server.port: 80
 
   kiwix:
     container_name: kiwix
@@ -240,40 +242,40 @@ services:
       traefik.http.routers.transmission.tls: "true"
       traefik.http.services.transmission.loadbalancer.server.port: 9091
 
-  unifi-poller:
-    container_name: unifi-poller
-    restart: unless-stopped
-    image: golift/unifi-poller:latest
-    environment:
-      UP_INFLUXDB_DISABLE: "true"
-      UP_UNIFI_DEFAULT_URL: ${UP_UNIFI_DEFAULT_URL}
-      UP_UNIFI_DEFAULT_USER: ${UP_UNIFI_DEFAULT_USER}
-      UP_UNIFI_DEFAULT_PASS: ${UP_UNIFI_DEFAULT_PASS}
-    networks:
-      - prometheus
+  # unifi-poller:
+  #   container_name: unifi-poller
+  #   restart: unless-stopped
+  #   image: golift/unifi-poller:latest
+  #   environment:
+  #     UP_INFLUXDB_DISABLE: "true"
+  #     UP_UNIFI_DEFAULT_URL: ${UP_UNIFI_DEFAULT_URL}
+  #     UP_UNIFI_DEFAULT_USER: ${UP_UNIFI_DEFAULT_USER}
+  #     UP_UNIFI_DEFAULT_PASS: ${UP_UNIFI_DEFAULT_PASS}
+  #   networks:
+  #     - prometheus
 
-  nextcloud:
-    image: nextcloud:latest
-    container_name: nextcloud
-    environment:
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD_NEXTCLOUD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE_NEXTCLOUD}
-      MYSQL_USER: ${MYSQL_USER_NEXTCLOUD}
-      MYSQL_HOST: ${MYSQL_HOST}
-    volumes:
-      - ${NEXTCLOUD_CONFIG_DIR}:/config
-      - nextcloud:/var/www/html
-    restart: unless-stopped
-    networks:
-      - mysql
-      - prometheus
-      - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.nextcloud.entrypoints: websecure
-      traefik.http.routers.nextcloud.rule: Host(`${DOMAIN_NEXTCLOUD}`)
-      traefik.http.routers.nextcloud.tls: "true"
-      traefik.http.services.nextcloud.loadbalancer.server.port: 80
+  # nextcloud:
+  #   image: nextcloud:latest
+  #   container_name: nextcloud
+  #   environment:
+  #     MYSQL_PASSWORD: ${MYSQL_PASSWORD_NEXTCLOUD}
+  #     MYSQL_DATABASE: ${MYSQL_DATABASE_NEXTCLOUD}
+  #     MYSQL_USER: ${MYSQL_USER_NEXTCLOUD}
+  #     MYSQL_HOST: ${MYSQL_HOST}
+  #   volumes:
+  #     - ${NEXTCLOUD_CONFIG_DIR}:/config
+  #     - nextcloud:/var/www/html
+  #   restart: unless-stopped
+  #   networks:
+  #     - mysql
+  #     - prometheus
+  #     - traefik
+  #   labels:
+  #     traefik.enable: "true"
+  #     traefik.http.routers.nextcloud.entrypoints: websecure
+  #     traefik.http.routers.nextcloud.rule: Host(`${DOMAIN_NEXTCLOUD}`)
+  #     traefik.http.routers.nextcloud.tls: "true"
+  #     traefik.http.services.nextcloud.loadbalancer.server.port: 80
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -295,32 +297,32 @@ services:
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
 
-  unifi-controller:
-    image: linuxserver/unifi-controller
-    container_name: unifi-controller
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-    volumes:
-      - unifi-controller:/config
-    ports:
-      - 3478:3478/udp
-      - 10001:10001/udp
-      - 8080:8080
-      - 1900:1900/udp
-      - 6789:6789
-      - 5514:5514/udp
-    restart: unless-stopped
-    networks:
-      - prometheus
-      - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.unifi-controller.entrypoints: websecure
-      traefik.http.routers.unifi-controller.rule: Host(`${DOMAIN_UNIFI_CONTROLLER}`)
-      traefik.http.routers.unifi-controller.tls: "true"
-      traefik.http.services.unifi-controller.loadbalancer.server.scheme: https
-      traefik.http.services.unifi-controller.loadbalancer.server.port: 8443
+  # unifi-controller:
+  #   image: linuxserver/unifi-controller
+  #   container_name: unifi-controller
+  #   environment:
+  #     PUID: ${PUID}
+  #     PGID: ${PGID}
+  #   volumes:
+  #     - unifi-controller:/config
+  #   ports:
+  #     - 3478:3478/udp
+  #     - 10001:10001/udp
+  #     - 8080:8080
+  #     - 1900:1900/udp
+  #     - 6789:6789
+  #     - 5514:5514/udp
+  #   restart: unless-stopped
+  #   networks:
+  #     - prometheus
+  #     - traefik
+  #   labels:
+  #     traefik.enable: "true"
+  #     traefik.http.routers.unifi-controller.entrypoints: websecure
+  #     traefik.http.routers.unifi-controller.rule: Host(`${DOMAIN_UNIFI_CONTROLLER}`)
+  #     traefik.http.routers.unifi-controller.tls: "true"
+  #     traefik.http.services.unifi-controller.loadbalancer.server.scheme: https
+  #     traefik.http.services.unifi-controller.loadbalancer.server.port: 8443
 
   jellyfin:
     image: linuxserver/jellyfin
@@ -361,5 +363,25 @@ services:
       traefik.http.routers.kolibri.rule: Host(`${DOMAIN_KOLIBRI}`)
       traefik.http.routers.kolibri.tls: "true"
       traefik.http.services.kolibri.loadbalancer.server.port: 8080
+    networks:
+      - traefik
+  
+  calibre-web:
+    image: linuxserver/calibre-web
+    container_name: calibre-web
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - calibre-web/data:/config
+      - calibre-web/library:/books
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.calibre-web.entrypoints: websecure
+      traefik.http.routers.calibre-web.rule: Host(`${DOMAIN_CALIBRE_WEB}`)
+      traefik.http.routers.calibre-web.tls: "true"
+      traefik.http.services.calibre-web.loadbalancer.server.port: 8083
     networks:
       - traefik
