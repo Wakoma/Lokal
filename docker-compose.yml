@@ -179,6 +179,7 @@ services:
     container_name: ipfs-cluster
     image: ipfs/ipfs-cluster:latest # TODO pin version
     networks:
+      - traefik
       - ipfs
     depends_on:
       - ipfs-node
