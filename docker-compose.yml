@@ -7,6 +7,8 @@ networks:
     name: mysql
   prometheus:
     name: prometheus
+  ipfs:
+    name: ipfs
 
 volumes:
   mysql:
@@ -161,6 +163,7 @@ services:
     image: ipfs/go-ipfs:latest # TODO pin version
     networks:
       - traefik
+      - ipfs
     restart: unless-stopped
     volumes:
       - ipfs-node:/data/ipfs
@@ -175,13 +178,16 @@ services:
   ipfs-cluster:
     container_name: ipfs-cluster
     image: ipfs/ipfs-cluster:latest # TODO pin version
+    networks:
+      - ipfs
     depends_on:
       - ipfs-node
     environment:
       CLUSTER_PEERNAME: ipfs-cluster
-      CLUSTER_SECRET: ${CLUSTER_SECRET} # TODO
+      CLUSTER_SECRET: ${IPFS_CLUSTER_SECRET} # TODO
       CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/ipfs-node/tcp/5001
       CLUSTER_CRDT_TRUSTEDPEERS: '*'
+      CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9094
       CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
     volumes:
       - ipfs-cluster:/data/ipfs-cluster
