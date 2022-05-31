@@ -205,8 +205,18 @@ services:
       traefik.http.routers.ipfs-cluster.entrypoints: websecure
       traefik.http.routers.ipfs-cluster.rule: HostRegexp(`${DOMAIN_IPFS_CLUSTER}`)
       traefik.http.routers.ipfs-cluster.tls: "true"
+      traefik.http.routers.ipfs-cluster.service: ipfs-cluster
       traefik.http.routers.ipfs-cluster.middlewares: traefik-auth
       traefik.http.services.ipfs-cluster.loadbalancer.server.port: 9094
+      traefik.http.middlewares.strip-pinning-prefix.stripprefix.prefixes: /pinning
+      traefik.http.routers.ipfs-pinning.entrypoints: websecure
+      traefik.http.routers.ipfs-pinning.rule: HostRegexp(`${DOMAIN_IPFS_CLUSTER}`) && PathPrefix(`/pinning/`)
+      traefik.http.routers.ipfs-pinning.tls: "true"
+      traefik.http.routers.ipfs-pinning.service: ipfs-pinning
+      traefik.http.routers.ipfs-pinning.middlewares: traefik-auth
+      traefik.http.routers.ipfs-pinning.middlewares: strip-pinning-prefix
+      traefik.http.services.ipfs-pinning.loadbalancer.server.port: 9097
+
 
 
   wordpress:
