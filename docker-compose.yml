@@ -197,6 +197,7 @@ services:
       CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/ipfs-node/tcp/5001
       CLUSTER_CRDT_TRUSTEDPEERS: '*'
       CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9094
+      CLUSTER_PINSVCAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9097
       CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
     volumes:
       - ipfs-cluster:/data/ipfs-cluster
