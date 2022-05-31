@@ -173,11 +173,11 @@ services:
       traefik.http.routers.ipfs-node.rule: HostRegexp(`${DOMAIN_IPFS_NODE}`)
       traefik.http.routers.ipfs-node.tls: "true"
       traefik.http.routers.ipfs-node.middlewares: traefik-auth
-      traefik.http.routers.service: ipfs-node
+      traefik.http.routers.ipfs-node.service: ipfs-node
       traefik.http.services.ipfs-node.loadbalancer.server.port: 5001
       traefik.http.routers.ipfs-swarm.entrypoints: ipfs-swarm
       traefik.http.routers.ipfs-swarm.rule: HostRegexp(`${DOMAIN_IPFS_NODE}`)
-      traefik.http.routers.service: ipfs-swarm
+      traefik.http.routers.ipfs-swarm.service: ipfs-swarm
       traefik.http.services.ipfs-swarm.loadbalancer.server.port: 4001
 
   ipfs-cluster:
