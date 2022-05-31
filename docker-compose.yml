@@ -165,6 +165,9 @@ services:
       - traefik
       - ipfs
     restart: unless-stopped
+    ports:
+      - 4001:4001
+      - 4001:4001/udp
     volumes:
       - ipfs-node:/data/ipfs
     labels:
