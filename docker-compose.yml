@@ -174,6 +174,9 @@ services:
       traefik.http.routers.ipfs-node.tls: "true"
       traefik.http.routers.ipfs-node.middlewares: traefik-auth
       traefik.http.services.ipfs-node.loadbalancer.server.port: 5001
+      traefik.http.router.ipfs-swarm.entrypoints: ipfs-swarm
+      traefik.http.router.ipfs-swarm.rule: HostRegexp(`${DOMAIN_IPFS_NODE}`)
+      traefik.http.services.ipfs-swarm.loadbalancer.server.port: 4001
 
   ipfs-cluster:
     container_name: ipfs-cluster
