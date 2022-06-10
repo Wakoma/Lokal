@@ -193,11 +193,11 @@ services:
       CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/ipfs-node/tcp/5001
       CLUSTER_CRDT_TRUSTEDPEERS: '*'
       CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9094
-      CLUSTER_RESTAPI_CORSALLOWEDMETHODS: GET, POST
-      CLUSTER_RESTAPI_CORSALLOWEDORIGINS: '*'
+      #CLUSTER_RESTAPI_CORSALLOWEDMETHODS: GET, POST
+      #CLUSTER_RESTAPI_CORSALLOWEDORIGINS: '*'
       CLUSTER_PINSVCAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9097
-      CLUSTER_PINSVCAPI_CORSALLOWEDMETHODS: GET, POST
-      CLUSTER_PINSVCAPI_CORSALLOWEDORIGINS: '*'
+      #CLUSTER_PINSVCAPI_CORSALLOWEDMETHODS: GET, POST
+      #CLUSTER_PINSVCAPI_CORSALLOWEDORIGINS: '*'
       CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
     volumes:
       - ipfs-cluster:/data/ipfs-cluster
@@ -216,7 +216,12 @@ services:
       traefik.http.routers.ipfs-pinning.service: ipfs-pinning
       traefik.http.routers.ipfs-pinning.middlewares: traefik-auth
       traefik.http.routers.ipfs-pinning.middlewares: strip-pinning-prefix
+      traefik.http.routers.ipfs-pinning.middlewares: corsheader
       traefik.http.services.ipfs-pinning.loadbalancer.server.port: 9097
+      traefik.http.middlewares.corsheader.headers.accesscontrolallowmethods: "GET,OPTIONS,PUT,POST"
+      traefik.http.middlewares.corsheader.headers.accesscontrolalloworiginlist: "https://foo.bar.org,https://example.org"
+      traefik.http.middlewares.corsheader.headers.accesscontrolmaxage: 100
+      traefik.http.middlewares.corsheader.headers.addvaryheader: true
 
 
 
