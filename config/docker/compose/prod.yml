@@ -14,7 +14,7 @@ services:
       traefik.http.routers.fileserver.entrypoints: websecure
       traefik.http.routers.fileserver.rule: Host(`get.${DOMAIN}`, `${PUBLIC_GET_DOMAIN}`)
       traefik.http.routers.fileserver.tls: "true"
-      traefik.http.routers.fileserver.tls.certresolver: dns
+      traefik.http.routers.fileserver.tls.certresolver: ${CERT_RESOLVER}
       traefik.http.services.fileserver.loadbalancer.server.port: 80
     networks:
       - traefik
