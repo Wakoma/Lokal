@@ -217,11 +217,7 @@ services:
       traefik.http.routers.ipfs-pinning.middlewares: traefik-auth, corsheader, strip-pinning-prefix
       traefik.http.services.ipfs-pinning.loadbalancer.server.port: 9097
       traefik.http.middlewares.corsheader.headers.accesscontrolallowmethods: "GET,OPTIONS,PUT,POST"
-      traefik.http.middlewares.corsheader.headers.accesscontrolalloworiginlist: "https://foo.bar.org,https://example.org"
-      traefik.http.middlewares.corsheader.headers.accesscontrolmaxage: 100
-      traefik.http.middlewares.corsheader.headers.addvaryheader: true
-
-
+      traefik.http.middlewares.corsheader.headers.accesscontrolalloworiginlist: "*"
 
   wordpress:
     container_name: wordpress
