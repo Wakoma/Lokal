@@ -217,9 +217,7 @@ services:
       traefik.http.routers.ipfs-pinning.middlewares: traefik-auth, corsheader, strip-pinning-prefix
       traefik.http.services.ipfs-pinning.loadbalancer.server.port: 9097
       traefik.http.middlewares.corsheader.headers.accesscontrolallowmethods: "GET,POST"
-      traefik.http.middlewares.corsheader.headers.accesscontrolalloworigin: "*"
-      traefik.http.middlewares.corsheader.headers.accesscontrolallowheaders: "*"
-      traefik.http.middlewares.corsheader.headers.accesscontrolexposeheaders: "*"
+      traefik.http.middlewares.corsheader.headers.accesscontrolalloworigin: "https://agregoreweb.github.io"
       traefik.http.middlewares.corsheader.headers.accesscontrolallowcredentials: "true"
 
   wordpress:
