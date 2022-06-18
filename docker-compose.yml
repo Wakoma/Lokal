@@ -209,19 +209,21 @@ services:
       traefik.http.routers.ipfs-cluster.service: ipfs-cluster
       traefik.http.routers.ipfs-cluster.middlewares: traefik-auth
       traefik.http.services.ipfs-cluster.loadbalancer.server.port: 9094
+
       traefik.http.routers.ipfs-pinning.entrypoints: websecure
       traefik.http.routers.ipfs-pinning.rule: HostRegexp(`${DOMAIN_IPFS_CLUSTER}`) && PathPrefix(`/pinning/`) && Method(`GET`, `POST`, `PUT`, `DELETE`, `PATCH`)
       traefik.http.routers.ipfs-pinning.tls: "true"
       traefik.http.routers.ipfs-pinning.service: ipfs-pinning
       traefik.http.routers.ipfs-pinning.middlewares: traefik-auth, corsheader, strip-pinning-prefix
       traefik.http.services.ipfs-pinning.loadbalancer.server.port: 9097
+
       traefik.http.routers.corspreflight.entrypoints: websecure
       traefik.http.routers.corspreflight.rule: HostRegexp(`${DOMAIN_IPFS_CLUSTER}`) && PathPrefix(`/pinning/`) && Method(`OPTIONS`)
-      traefik.http.routers.corspreflight.service: corsepreflight
       traefik.http.routers.corspreflight.middleware: corseheader, strip-pinning-prefix
-      traefik.http.services.corspreflight.loadbalancer.server.port: 9097
+
       traefik.http.middlewares.strip-pinning-prefix.stripprefix.prefixes: /pinning
-      traefik.http.middlewares.corsheader.headers.accesscontrolallowmethods: "GET,POST"
+
+      traefik.http.middlewares.corsheader.headers.accesscontrolallowmethods: "GET,POST,OPTIONS"
       traefik.http.middlewares.corsheader.headers.accesscontrolalloworigin: "https://agregoreweb.github.io"
       traefik.http.middlewares.corsheader.headers.accesscontrolallowcredentials: "true"
 
