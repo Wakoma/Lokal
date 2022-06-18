@@ -216,7 +216,7 @@ services:
       traefik.http.routers.ipfs-pinning.middlewares: traefik-auth, corsheader, strip-pinning-prefix
       traefik.http.services.ipfs-pinning.loadbalancer.server.port: 9097
       traefik.http.routers.corspreflight.entrypoints: websecure
-      traefik.http.routers.corspreflight.rule: HostRegexp(`${DOMAIN_IPFS_CLUSTER}`) && PathPrefix(`/pinning/`) && Method(`HEAD`)
+      traefik.http.routers.corspreflight.rule: HostRegexp(`${DOMAIN_IPFS_CLUSTER}`) && PathPrefix(`/pinning/`) && Method(`OPTIONS`)
       traefik.http.routers.corspreflight.service: corsepreflight
       traefik.http.routers.corspreflight.middleware: corseheader, strip-pinning-prefix
       traefik.http.services.corspreflight.loadbalancer.server.port: 9097
