@@ -207,15 +207,15 @@ services:
       traefik.http.routers.corspreflight.entrypoints: websecure
       traefik.http.routers.corspreflight.rule: Host(`${DOMAIN_IPFS_CLUSTER}`) && Method(`OPTIONS`)
       traefik.http.routers.corspreflight.tls: "true"
-      traefik.http.routers.corspreflight.middleware: corsheader
+      traefik.http.routers.corspreflight.middlewares: corsheader
       traefik.http.routers.corspreflight.service: corspreflight
       traefik.http.services.corspreflight.loadbalancer.server.port: 9094
 
       traefik.http.routers.ipfs-cluster.entrypoints: websecure
       traefik.http.routers.ipfs-cluster.rule: Host(`${DOMAIN_IPFS_CLUSTER}`) && Method(`GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `HEAD`)
       traefik.http.routers.ipfs-cluster.tls: "true"
-      traefik.http.routers.ipfs-cluster.service: ipfs-cluster, corsheader
-      traefik.http.routers.ipfs-cluster.middlewares: traefik-auth
+      traefik.http.routers.ipfs-cluster.service: ipfs-cluster
+      traefik.http.routers.ipfs-cluster.middlewares: traefik-auth, corsheader
       traefik.http.services.ipfs-cluster.loadbalancer.server.port: 9094
 
       traefik.http.routers.ipfs-pinning.entrypoints: websecure
