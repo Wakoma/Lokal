@@ -203,29 +203,34 @@ services:
       - ipfs-cluster:/data/ipfs-cluster
     labels:
       traefik.enable: "true"
+
+      traefik.http.routers.corspreflight.entrypoints: websecure
+      traefik.http.routers.corspreflight.rule: Host(`${DOMAIN_IPFS_CLUSTER}`) && Method(`OPTIONS`)
+      traefik.http.routers.corspreflight.tls: "true"
+      traefik.http.routers.corspreflight.middleware: corsheader
+      traefik.http.routers.corspreflight.service: corspreflight
+      traefik.http.services.corspreflight.loadbalancer.server.port: 9094
+
       traefik.http.routers.ipfs-cluster.entrypoints: websecure
-      traefik.http.routers.ipfs-cluster.rule: HostRegexp(`${DOMAIN_IPFS_CLUSTER}`)
+      traefik.http.routers.ipfs-cluster.rule: Host(`${DOMAIN_IPFS_CLUSTER}`) && Method(`GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `HEAD`)
       traefik.http.routers.ipfs-cluster.tls: "true"
-      traefik.http.routers.ipfs-cluster.service: ipfs-cluster
+      traefik.http.routers.ipfs-cluster.service: ipfs-cluster, corsheader
       traefik.http.routers.ipfs-cluster.middlewares: traefik-auth
       traefik.http.services.ipfs-cluster.loadbalancer.server.port: 9094
 
       traefik.http.routers.ipfs-pinning.entrypoints: websecure
-      traefik.http.routers.ipfs-pinning.rule: HostRegexp(`${DOMAIN_IPFS_CLUSTER}`) && PathPrefix(`/pinning/`) && Method(`GET`, `POST`, `PUT`, `DELETE`, `PATCH`)
+      traefik.http.routers.ipfs-pinning.rule: Host(`${DOMAIN_IPFS_CLUSTER}`) && PathPrefix(`/pinning/`) && Method(`GET`, `POST`, `PUT`, `DELETE`, `PATCH`)
       traefik.http.routers.ipfs-pinning.tls: "true"
       traefik.http.routers.ipfs-pinning.service: ipfs-pinning
       traefik.http.routers.ipfs-pinning.middlewares: traefik-auth, corsheader, strip-pinning-prefix
       traefik.http.services.ipfs-pinning.loadbalancer.server.port: 9097
 
-      traefik.http.routers.corspreflight.entrypoints: websecure
-      traefik.http.routers.corspreflight.rule: HostRegexp(`${DOMAIN_IPFS_CLUSTER}`) && PathPrefix(`/pinning/`) && Method(`OPTIONS`)
-      traefik.http.routers.corspreflight.middleware: corseheader, strip-pinning-prefix
-
       traefik.http.middlewares.strip-pinning-prefix.stripprefix.prefixes: /pinning
 
       traefik.http.middlewares.corsheader.headers.accesscontrolallowmethods: "GET,POST,OPTIONS"
-      traefik.http.middlewares.corsheader.headers.accesscontrolalloworigin: "https://agregoreweb.github.io"
+      traefik.http.middlewares.corsheader.headers.accesscontrolalloworiginlist: "https://agregoreweb.github.io"
       traefik.http.middlewares.corsheader.headers.accesscontrolallowcredentials: "true"
+      traefik.http.middlewares.corsheader.headers.accesscontrolallowheaders: 'Content-Type,Content-Length,Range,Authorization'
 
   wordpress:
     container_name: wordpress
