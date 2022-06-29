@@ -3,3 +3,4 @@
 
 [local:vars]
 ansible_connection=local
+is_server_live=false

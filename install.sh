@@ -14,8 +14,5 @@ apt install --yes software-properties-common ansible direnv
 # install software plugins
 ansible-galaxy install -r requirements.yml
 
-
 # run the installation
-export ROOT_SSH_USER=root
-export PRIMARY_SSH_USER=ubuntu
 ansible-playbook -c local -i "127.0.0.1," -l "127.0.0.1" lokal.yml

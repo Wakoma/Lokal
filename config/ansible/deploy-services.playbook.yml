@@ -2,43 +2,6 @@
 - name: Deploy Services
   hosts: all
   tasks:
-    - name: Make acme certs directory if it does not yet exist
-      become: yes
-      become_user: root
-      file:
-        path: "{{ updated_envrc.ACME_CERTS_DIR }}"
-        state: directory
-        owner: root
-        group: root
-        mode: 0700
-      when: not server_is_live
-
-    - name: Make acme certs directory if it does not yet exist
-      become: yes
-      become_user: root
-      file:
-        path: "{{ updated_envrc.ACME_CERTS_DIR }}"
-        state: directory
-        owner: root
-        group: root
-        mode: 0700
-      when: not server_is_live
-
-    - name: Change file ownership, group and permissions
-      become: yes
-      become_user: root
-      ansible.builtin.copy:
-        remote_src: True
-        src: "/tmp/{{ updated_envrc.ACME_DOMAIN }}/{{ item }}"
-        dest: "{{ updated_envrc.ACME_CERTS_DIR }}/{{ item }}"
-        owner: root
-        group: root
-        mode: 0600
-      with_items:
-        - "{{ updated_envrc.ACME_DOMAIN }}.cer"
-        - "{{ updated_envrc.ACME_DOMAIN }}.key"
-      when: not server_is_live
-
     - name: Docker-compose pull
       shell: "direnv exec . dc pull traefik grafana netdata prometheus portainer wordpress matomo transmission unifi-poller unifi-controller jellyfin"
       args:
@@ -46,11 +9,6 @@
 
     - name: Docker-compose up mariadb
       shell: "direnv exec . dc up -d mariadb"
-      args:
-        chdir: "{{ git_dest }}"
-
-    - name: Init databases
-      shell: "direnv exec . config/services/mariadb/scripts/init-databases.sh"
       args:
         chdir: "{{ git_dest }}"
 

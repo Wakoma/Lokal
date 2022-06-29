@@ -1,0 +1,10 @@
+
+
+tasks:
+
+- include: tasks/self-signed-certs.yml
+  when: not server_is_live
+
+- include: tasks/secure-sshd.yml
+  when: ansible_connection == "ssh"
+

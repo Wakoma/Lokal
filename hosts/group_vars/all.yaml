@@ -1,5 +1,6 @@
 project_name: vnet
 project_root: "/opt/lokal"
+domain: vnet.lan
 
 # develop - uses mock email client and so on
 # staging - like production but without TLS
@@ -32,7 +33,6 @@ docker_pgid: $(grep docker /etc/group | cut -d ':' -f 3)
 puid: $(id -u)
 pgid: $(id -g)
 tz: $(realpath /etc/localtime | grep -oP "^/usr/share/zoneinfo/\K.*")
-domain: vnet.lan
 domain_vnet: ${DOMAIN}
 domain_vnet_local: vnet.lokal.network
 domain_wordpress: ${DOMAIN_VNET}

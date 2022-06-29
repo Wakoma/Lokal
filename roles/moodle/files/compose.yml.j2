@@ -1,9 +1,8 @@
 version: "3.8"
 services:
 
-  mariadb:
+  moodledb:
     image: docker.io/bitnami/mariadb:10.5
-    container_name: moodledatabase
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - MARIADB_USER=bn_moodle
@@ -11,46 +10,38 @@ services:
       - MARIADB_CHARACTER_SET=utf8mb4
       - MARIADB_COLLATE=utf8mb4_unicode_ci
     volumes:
-      - 'mariadb_data:/bitnami/mariadb'
+      - '{{project_root}}/moodle/moodledb:/bitnami/mariadb'
     networks:
-      - moodledatabase
+      - moodle
 
   moodle:
     image: docker.io/bitnami/moodle:3
     environment:
-      - MOODLE_DATABASE_HOST=moodledatabase
+      - MOODLE_DATABASE_HOST=moodledb
       - MOODLE_DATABASE_PORT_NUMBER=3306
       - MOODLE_DATABASE_USER=bn_moodle
       - MOODLE_DATABASE_NAME=bitnami_moodle
       - ALLOW_EMPTY_PASSWORD=yes
     volumes:
-      - 'moodle_data:/bitnami/moodle'
-      - 'moodledata_data:/bitnami/moodledata'
+      - '{{project_root}}/moodle/moodle:/bitnami/moodle'
+      - '{{project_root}}/moodle/moodledata:/bitnami/moodledata'
     depends_on:
-      - mariadb
+      - moodledb
     labels:
       traefik.enable: "true"
       traefik.http.routers.moodle.entrypoints: websecure
-      traefik.http.routers.moodle.rule: Host(`${DOMAIN_MOODLE}`)
+      traefik.http.routers.moodle.rule: Host(`moodle.{{domain}}`)
       traefik.http.routers.moodle.tls: "true"
 {% if server_is_live %}
-      traefik.http.routers.moodle.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.moodle.tls.certresolver: {{cert_resolver}}
 {% endif %}
       traefik.http.services.moodle.loadbalancer.server.port: 80
     networks:
-      - moodledatabase
+      - moodle
       - traefik
-
-volumes:
-  mariadb_data:
-    driver: local
-  moodle_data:
-    driver: local
-  moodledata_data:
-    driver: local
 
 networks:
   traefik:
     external: true
-  moodledatabase:
-    name: moodledatabase
+  moodle:
+    name: moodle
