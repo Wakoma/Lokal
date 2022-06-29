@@ -5,21 +5,6 @@ networks:
     name: mail
 
 services:
-  fileserver:
-    container_name: fileserver
-    image: caddy
-    restart: always
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.fileserver.entrypoints: websecure
-      traefik.http.routers.fileserver.rule: Host(`get.${DOMAIN}`, `${PUBLIC_GET_DOMAIN}`)
-      traefik.http.routers.fileserver.tls: "true"
-      traefik.http.routers.fileserver.tls.certresolver: dns
-      traefik.http.services.fileserver.loadbalancer.server.port: 80
-    networks:
-      - traefik
-    volumes:
-      - ./config/services/get/:/usr/share/caddy/
   mailhog:
     container_name: mailhog
     image: mailhog/mailhog:latest

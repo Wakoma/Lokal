@@ -44,6 +44,9 @@ services:
       traefik.http.routers.grafana.rule: Host(`${DOMAIN_GRAFANA}`)
       traefik.http.routers.grafana.tls: "true"
       traefik.http.services.grafana.loadbalancer.server.port: 3000
+      {% if is_live %}
+      traefik.http.routers.grafana.tls.certresolver: ${CERT_RESOLVER}
+      {% endif %}
     volumes:
       - grafana:/var/lib/grafana:rw
     networks:
@@ -65,6 +68,10 @@ services:
       traefik.http.routers.netdata.rule: Host(`${DOMAIN_NETDATA}`)
       traefik.http.routers.netdata.tls: "true"
       traefik.http.services.netdata.loadbalancer.server.port: 19999
+      {% if is_live %}
+      traefik.http.routers.netdata.middlewares: traefik-auth
+      traefik.http.routers.netdata.tls.certresolver: ${CERT_RESOLVER}
+      {% endif %}
     networks:
       - traefik
       - prometheus
@@ -85,6 +92,10 @@ services:
       traefik.http.routers.prometheus.rule: Host(`${DOMAIN_PROMETHEUS}`)
       traefik.http.routers.prometheus.tls: "true"
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
+      {% if is_live %}
+      traefik.http.routers.prometheus.middlewares: traefik-auth
+      traefik.http.routers.prometheus.tls.certresolver: ${CERT_RESOLVER}
+      {% endif %}
     networks:
       - traefik
       - prometheus
@@ -104,6 +115,11 @@ services:
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
+      {% if is_live %}
+      traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
+      traefik.http.routers.traefik.middlewares: traefik-auth
+      traefik.http.routers.traefik.tls.certresolver: ${CERT_RESOLVER}
+      {% endif %}
     networks:
       - traefik
       - prometheus
@@ -113,6 +129,47 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    {% if is_live %}
+      - ./config/services/traefik/config/live/dynamic.yml:/config/live.yml
+      - ./config/services/traefik/config/local/dynamic.yml:/config/local.yml
+      - ./acme:/acme
+      - ./config/services/traefik/certs:/certs
+    command:
+      - --accessLog=true
+      - --api.insecure=false
+      - --api.dashboard=true
+      - --api.debug=false
+      - --certificatesResolvers.dns.acme.dnsChallenge.delayBeforeCheck=60
+      - --certificatesResolvers.dns.acme.dnsChallenge.provider=${DNS_PROVIDER}
+      - --certificatesResolvers.dns.acme.email=${ACME_EMAIL}
+      - --certificatesResolvers.dns.acme.storage=/acme/acme.json
+      - --certificatesresolvers.http.acme.httpchallenge=true
+      - --certificatesresolvers.http.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.http.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.http.acme.storage=/acme/acme.json
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entryPoints.metrics.address=:8082
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --log.level=WARNING
+      - --metrics.prometheus=true
+      - --metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addServicesLabels=true
+      - --metrics.prometheus.entryPoint=metrics
+      - --providers.docker=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=traefik
+      - --providers.file.directory=/config
+      - --providers.file.watch=true
+      - --serversTransport.insecureSkipVerify=true
+    environment:
+      - NAMECHEAP_API_USER
+      - NAMECHEAP_API_KEY
+    {% endif %}
 
   mariadb:
     container_name: ${MYSQL_HOST}
@@ -149,6 +206,9 @@ services:
       traefik.http.routers.matomo.rule: Host(`${DOMAIN_MATOMO}`)
       traefik.http.routers.matomo.tls: "true"
       traefik.http.services.matomo.loadbalancer.server.port: 80
+      {% if is_live %}
+      traefik.http.routers.matomo.tls.certresolver: ${CERT_RESOLVER}
+      {% endif %}
     depends_on:
       - mariadb
 
@@ -176,6 +236,11 @@ services:
       traefik.http.routers.wordpress.rule: HostRegexp(`${DOMAIN_WORDPRESS}`)
       traefik.http.routers.wordpress.tls: "true"
       traefik.http.services.wordpress.loadbalancer.server.port: 80
+      {% if is_live %}
+      traefik.http.routers.wordpress.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.wordpress.tls.domains[1].main: ${DOMAIN_WORDPRESS}
+      traefik.http.routers.wordpress.tls.domains[1].sans: '*.${DOMAIN_WORDPRESS}'
+      {% endif %}
 
   resourcespace:
     container_name: resourcespace
@@ -194,6 +259,9 @@ services:
       traefik.http.routers.resourcespace.rule: Host(`${DOMAIN_RESOURCESPACE}`)
       traefik.http.routers.resourcespace.tls: "true"
       traefik.http.services.resourcespace.loadbalancer.server.port: 80
+      {% if is_live %}
+      traefik.http.routers.resourcespace.tls.certresolver: ${CERT_RESOLVER}
+      {% endif %}
 
   kiwix:
     container_name: kiwix
@@ -274,6 +342,9 @@ services:
       traefik.http.routers.nextcloud.rule: Host(`${DOMAIN_NEXTCLOUD}`)
       traefik.http.routers.nextcloud.tls: "true"
       traefik.http.services.nextcloud.loadbalancer.server.port: 80
+      {% if is_live %}
+      traefik.http.routers.nextcloud.tls.certresolver: ${CERT_RESOLVER}
+      {% endif %}
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -294,6 +365,9 @@ services:
       traefik.http.routers.portainer.rule: Host(`${DOMAIN_PORTAINER}`)
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
+      {% if is_live %}
+      traefik.http.routers.portainer.tls.certresolver: ${CERT_RESOLVER}
+      {% endif %}
 
   unifi-controller:
     image: linuxserver/unifi-controller

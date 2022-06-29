@@ -1,7 +1,7 @@
 src_box = "ubuntu/focal64"
-ip = ENV["VAGRANT_IP"]
-hostname = ENV["DOMAIN"]
-name = ENV["PROJECT_NAME"]
+ip = "192.168.56.11"
+hostname = "lokal.lan"
+name = "Lokal"
 Vagrant.configure("2") do |config|
   config.vm.define name do |subconfig|
     subconfig.vm.box = src_box

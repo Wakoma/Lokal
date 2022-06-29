@@ -1,0 +1,8 @@
+- name: "Render docker compose"
+  include: "chore/render-compose.yml"
+
+- name: "Setup DB"
+  include: "chore/create-db.yml"
+
+- name: "Setup network"
+  include: "generic/network.yml"

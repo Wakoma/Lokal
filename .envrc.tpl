@@ -3,16 +3,18 @@ export DEPLOYMENT_ENVIRONMENT=develop  # develop, staging, production
 export PROJECT_ROOT=${PWD}
 export PATH="${PROJECT_ROOT}:${PATH}"
 
+export ROOT_SSH_USER=root
+export PRIMARY_SSH_USER=$(whoami)
+
 # Cloud Provider Secrets
 export HCLOUD_TOKEN=
 export VAGRANT_IP=10.180.0.102
 
 # Cloud Provider Variables
+export PRIMARY_SSH_USER=ubuntu
 export HCLOUD_IMAGE=ubuntu-20.04
 export HCLOUD_LOCATION=nbg1
 export HCLOUD_SERVER_TYPE=cpx11
-export ROOT_SSH_USER=root
-export PRIMARY_SSH_USER=ubuntu
 export SERVER_IS_LIVE=false
 export DNS_PROVIDER=namecheap
 export CERT_RESOLVER=dns
