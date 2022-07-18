@@ -1,0 +1,20 @@
+---
+- name: Deploy Wordpress
+  hosts: all
+  tasks:
+  - name: Make Wordpress installation directory
+    file:
+      path: "{{ project_root }}/wordpress"
+      state: directory
+
+  - name: Render compose.yml
+    ansible.builtin.template:
+      src: "compose.yml.j2"
+      dest: "{{ project_root }}/moodle/compose.yml"
+      mode: "0600"
+
+  - name: Docker-compose up
+    shell: "docker-compose up --quiet-pull -d"
+    args:
+      chdir: "{{ project_root }}/moodle/"
+    when: separate

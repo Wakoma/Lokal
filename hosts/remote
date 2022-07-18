@@ -1,0 +1,5 @@
+[remote]
+1.2.3.4
+
+[remote:vars]
+ansible_user=ubuntu

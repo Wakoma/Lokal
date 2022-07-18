@@ -1,0 +1,16 @@
+Traefik is missing config/services/traefik/live/dynamic.yml file. Why?
+Treafik is missing acme/ folder. Why?
+Treafik is missing config/services/traefik/certs. Why?
+
+Need to resolve DOCKER_PGID and inject it into lokal/templates/compose.yml. Should
+be as simple as calling some docker facts resolver. 
+
+What are essential apps for Lokal to work?
+- kiwix ?
+- transmission ?
+- kolibri ?
+- jellyfin ?
+- unifi-controller ?
+- portainer ?
+- unifi-poller ?
+- resourcespace ?

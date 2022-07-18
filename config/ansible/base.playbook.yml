@@ -31,17 +31,6 @@
         mode: 0640
         content: "{{ primary_ssh_user }}"
 
-    - name: Register primary user's details
-      user:
-        name: "{{ primary_ssh_user }}"
-      register: primary_ssh_user_params
-
-    - name: Hook direnv into primary user's shell
-      lineinfile:
-        path: "{{ primary_ssh_user_params.home }}/.bashrc"
-        insertafter: EOF
-        line: eval "$(direnv hook bash)"
-
 - name: Ensure firewall is set up
   hosts: all
   become: yes

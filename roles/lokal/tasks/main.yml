@@ -1,0 +1,42 @@
+tasks:
+
+# Prepare the most basic things
+- name: "Creating project root directory"
+  ansible.builtin.file:
+    state: directory
+    path: '{{project_root}}'
+
+- name: Render base compose.yml
+  ansible.builtin.template:
+    path: compose.yml.j2
+    dest: '{{project_root}}/base.yml'
+
+- name: Create app dirs
+  ansible.builtin.file:
+    path: '{{project_root}}/{{item}}'
+    state: directory
+  loop:
+    - mysql
+    - traefik
+    - grafana
+    - prometheus
+    - matomo
+    - resourcespace
+
+# Make sure computer is secure
+- name: base/self-signed-certs.yml
+  when: not server_is_live
+
+- name: base/secure-sshd.yml
+  when: ansible_connection == "ssh"
+
+# Add necessary software
+- name: "Create prometheus directory"
+  ansible.builtin.file:
+    state: directory
+    path: '{{project_root}}/prometheus/data'
+
+- name: "Copy config files to prometheus config directory"
+  ansible.builtin.copy:
+    src: files/prometheus/
+    dest: '{{project_root}}/prometheus/etc/'
