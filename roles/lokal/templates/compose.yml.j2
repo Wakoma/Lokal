@@ -11,14 +11,8 @@ networks:
 volumes:
   mysql:
     name: mysql
-  prometheus:
-    name: prometheus
-  grafana:
-    name: grafana
   matomo:
     name: matomo
-  wordpress:
-    name: wordpress
   resourcespace:
     name: resourcespace
   nextcloud:
@@ -41,14 +35,14 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.grafana.entrypoints: websecure
-      traefik.http.routers.grafana.rule: Host(`${DOMAIN_GRAFANA}`)
+      traefik.http.routers.grafana.rule: Host(`{{domain_grafana}}`)
       traefik.http.routers.grafana.tls: "true"
       traefik.http.services.grafana.loadbalancer.server.port: 3000
       {% if is_live %}
-      traefik.http.routers.grafana.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
       {% endif %}
     volumes:
-      - grafana:/var/lib/grafana:rw
+      - {{project_root}}/grafana:/var/lib/grafana:rw
     networks:
       - traefik
       - prometheus
@@ -60,17 +54,17 @@ services:
       - SYS_PTRACE
     environment:
       PGID: ${DOCKER_PGID}
-    hostname: ${DOMAIN_NETDATA}
+    hostname: {{domain_netdata}}
     image: netdata/netdata:v1.28.0-amd64
     labels:
       traefik.enable: "true"
       traefik.http.routers.netdata.entrypoints: websecure
-      traefik.http.routers.netdata.rule: Host(`${DOMAIN_NETDATA}`)
+      traefik.http.routers.netdata.rule: Host(`{{domain_netdata}}`)
       traefik.http.routers.netdata.tls: "true"
       traefik.http.services.netdata.loadbalancer.server.port: 19999
       {% if is_live %}
       traefik.http.routers.netdata.middlewares: traefik-auth
-      traefik.http.routers.netdata.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.netdata.tls.certresolver: {{cert_resolver}}
       {% endif %}
     networks:
       - traefik
@@ -89,20 +83,20 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.prometheus.entrypoints: websecure
-      traefik.http.routers.prometheus.rule: Host(`${DOMAIN_PROMETHEUS}`)
+      traefik.http.routers.prometheus.rule: Host(`{{domain_prometheus}}`)
       traefik.http.routers.prometheus.tls: "true"
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
       {% if is_live %}
       traefik.http.routers.prometheus.middlewares: traefik-auth
-      traefik.http.routers.prometheus.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
       {% endif %}
     networks:
       - traefik
       - prometheus
     restart: unless-stopped
     volumes:
-      - ./config/services/prometheus:/etc/prometheus
-      - prometheus:/prometheus
+      - {{project_root}}/prometheus/etc:/etc/prometheus
+      - {{project_root}}/prometheus/data:/prometheus
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   traefik:
@@ -111,14 +105,14 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.traefik.entrypoints: websecure
-      traefik.http.routers.traefik.rule: Host(`${DOMAIN_TRAEFIK}`)
+      traefik.http.routers.traefik.rule: Host(`{{domain_traefik}}`)
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
       {% if is_live %}
-      traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
+      traefik.http.middlewares.traefik-auth.basicauth.users: {{traefik_basicauth_users}}
       traefik.http.routers.traefik.middlewares: traefik-auth
-      traefik.http.routers.traefik.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
       {% endif %}
     networks:
       - traefik
@@ -130,8 +124,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     {% if is_live %}
-      - ./config/services/traefik/config/live/dynamic.yml:/config/live.yml
-      - ./config/services/traefik/config/local/dynamic.yml:/config/local.yml
+      - {{project_root}}/traefik/config/live/dynamic.yml:/config/live.yml
+      - {{project_root}}/traefik/config/local/dynamic.yml:/config/local.yml
       - ./acme:/acme
       - ./config/services/traefik/certs:/certs
     command:
@@ -211,36 +205,6 @@ services:
       {% endif %}
     depends_on:
       - mariadb
-
-  wordpress:
-    container_name: wordpress
-    depends_on:
-      - mariadb
-    image: wordpress:5.6.0-php7.4-apache
-    environment:
-      WORDPRESS_DB_HOST: ${MYSQL_HOST}
-      WORDPRESS_DB_USER: ${MYSQL_USER_WORDPRESS}
-      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD_WORDPRESS}
-      WORDPRESS_DB_NAME: ${MYSQL_DATABASE_WORDPRESS}
-      WORDPRESS_CONFIG_EXTRA: |
-        define('WP_ALLOW_MULTISITE', true );
-    networks:
-      - mysql
-      - traefik
-    restart: unless-stopped
-    volumes:
-      - wordpress:/var/www/html
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.wordpress.entrypoints: websecure
-      traefik.http.routers.wordpress.rule: HostRegexp(`${DOMAIN_WORDPRESS}`)
-      traefik.http.routers.wordpress.tls: "true"
-      traefik.http.services.wordpress.loadbalancer.server.port: 80
-      {% if is_live %}
-      traefik.http.routers.wordpress.tls.certresolver: ${CERT_RESOLVER}
-      traefik.http.routers.wordpress.tls.domains[1].main: ${DOMAIN_WORDPRESS}
-      traefik.http.routers.wordpress.tls.domains[1].sans: '*.${DOMAIN_WORDPRESS}'
-      {% endif %}
 
   resourcespace:
     container_name: resourcespace
