@@ -9,12 +9,6 @@ networks:
     name: prometheus
 
 volumes:
-  mysql:
-    name: mysql
-  matomo:
-    name: matomo
-  resourcespace:
-    name: resourcespace
   nextcloud:
     name: nextcloud
   portainer:
@@ -166,42 +160,42 @@ services:
     {% endif %}
 
   mariadb:
-    container_name: ${MYSQL_HOST}
+    container_name: {{mysql_host}}
     image: mariadb:10.5.8-focal
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
     networks:
       - mysql
       - prometheus
     restart: unless-stopped
     volumes:
-      - mysql:/var/lib/mysql
+      - {{project_root}}/mysql:/var/lib/mysql
 
   matomo:
     container_name: matomo
-    hostname: ${DOMAIN_MATOMO}
+    hostname: {{domain_matomo}}
     image: matomo:4.1.1-apache
     restart: unless-stopped
     volumes:
-      - matomo:/var/www/html
+      - {{project_root}}/matomo:/var/www/html
     environment:
-      MATOMO_DATABASE_HOST: ${MYSQL_HOST}
+      MATOMO_DATABASE_HOST: {{mysql_host}}
       MATOMO_DATABASE_ADAPTER: mysql
       MATOMO_DATABASE_TABLES_PREFIX: matomo_
-      MATOMO_DATABASE_USERNAME: ${MYSQL_USER_MATOMO}
-      MATOMO_DATABASE_PASSWORD: ${MYSQL_PASSWORD_MATOMO}
-      MATOMO_DATABASE_DBNAME: ${MYSQL_DATABASE_MATOMO}
+      MATOMO_DATABASE_USERNAME: {{mysql_user_matomo}}
+      MATOMO_DATABASE_PASSWORD: {{mysql_password_matomo}}
+      MATOMO_DATABASE_DBNAME: {{mysql_database_matomo}}
     networks:
       - mysql
       - traefik
     labels:
       traefik.enable: "true"
       traefik.http.routers.matomo.entrypoints: websecure
-      traefik.http.routers.matomo.rule: Host(`${DOMAIN_MATOMO}`)
+      traefik.http.routers.matomo.rule: Host(`{{domain_matomo}}`)
       traefik.http.routers.matomo.tls: "true"
       traefik.http.services.matomo.loadbalancer.server.port: 80
       {% if is_live %}
-      traefik.http.routers.matomo.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.matomo.tls.certresolver: {{cert_resolver}}
       {% endif %}
     depends_on:
       - mariadb
@@ -213,18 +207,18 @@ services:
     depends_on:
       - mariadb
     volumes:
-      - resourcespace:/var/www/html
+      - {{project_root}}/resourcespace:/var/www/html
     networks:
       - traefik
       - mysql
     labels:
       traefik.enable: "true"
       traefik.http.routers.resourcespace.entrypoints: websecure
-      traefik.http.routers.resourcespace.rule: Host(`${DOMAIN_RESOURCESPACE}`)
+      traefik.http.routers.resourcespace.rule: Host(`{{domain_resourcespace}}`)
       traefik.http.routers.resourcespace.tls: "true"
       traefik.http.services.resourcespace.loadbalancer.server.port: 80
       {% if is_live %}
-      traefik.http.routers.resourcespace.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.resourcespace.tls.certresolver: {{cert_resolver}}
       {% endif %}
 
   kiwix:
@@ -303,11 +297,11 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.nextcloud.entrypoints: websecure
-      traefik.http.routers.nextcloud.rule: Host(`${DOMAIN_NEXTCLOUD}`)
+      traefik.http.routers.nextcloud.rule: Host(`{{domain_nextcloud}}`)
       traefik.http.routers.nextcloud.tls: "true"
       traefik.http.services.nextcloud.loadbalancer.server.port: 80
       {% if is_live %}
-      traefik.http.routers.nextcloud.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.nextcloud.tls.certresolver: {{cert_resolver}}
       {% endif %}
 
   portainer:
@@ -326,11 +320,11 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.portainer.entrypoints: websecure
-      traefik.http.routers.portainer.rule: Host(`${DOMAIN_PORTAINER}`)
+      traefik.http.routers.portainer.rule: Host(`{{domain_portainer}}`)
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
       {% if is_live %}
-      traefik.http.routers.portainer.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
       {% endif %}
 
   unifi-controller:

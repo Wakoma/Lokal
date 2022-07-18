@@ -16,9 +16,12 @@ tasks:
     path: '{{project_root}}/{{item}}'
     state: directory
   loop:
+    - mysql
     - traefik
     - grafana
     - prometheus
+    - matomo
+    - resourcespace
 
 # Make sure computer is secure
 - name: base/self-signed-certs.yml
