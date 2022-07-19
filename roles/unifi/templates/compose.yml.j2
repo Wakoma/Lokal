@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  unifi-poller:
+    container_name: unifi-poller
+    restart: unless-stopped
+    image: golift/unifi-poller:latest
+    environment:
+      UP_INFLUXDB_DISABLE: "true"
+      UP_UNIFI_DEFAULT_URL: '{{up_unifi_default_url}}'
+      UP_UNIFI_DEFAULT_USER: '{{up_unifi_default_user}}'
+      UP_UNIFI_DEFAULT_PASS: '{{up_unifi_default_pass}}'
+    networks:
+      - prometheus
+
+  unifi-controller:
+    image: linuxserver/unifi-controller
+    container_name: unifi-controller
+    environment:
+      PUID: {{ ansible_facts["ansible_user_uid"] }}'
+      PGID: '{{ ansible_facts["ansible_user_gid"] }}'
+    volumes:
+      - unifi-controller:/config
+    ports:
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8080:8080
+      - 1900:1900/udp
+      - 6789:6789
+      - 5514:5514/udp
+    restart: unless-stopped
+    networks:
+      - prometheus
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.unifi-controller.entrypoints: websecure
+      traefik.http.routers.unifi-controller.rule: Host(`{{domain_unifi_controller}}`)
+      traefik.http.routers.unifi-controller.tls: "true"
+      traefik.http.services.unifi-controller.loadbalancer.server.scheme: https
+      traefik.http.services.unifi-controller.loadbalancer.server.port: 8443

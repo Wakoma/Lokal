@@ -1,7 +1,0 @@
----
-- name: Install Lokal
-  hosts: all
-  tasks:
-  - name: Load a default configuration variables
-    debug: var=mysql_password
-    

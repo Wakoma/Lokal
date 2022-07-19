@@ -11,6 +11,6 @@ What are essential apps for Lokal to work?
 - kolibri ?
 - jellyfin ?
 - unifi-controller ?
-- portainer ?
 - unifi-poller ?
+- portainer ?
 - resourcespace ?

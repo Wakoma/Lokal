@@ -2,6 +2,11 @@
 
 roles:
 - lokal
+- unifi
 - wordpress
 - moodle
+- nextcloud
+- resourcespace
+- matomo
+- zims
 - start

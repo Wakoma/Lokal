@@ -1,0 +1,19 @@
+- name: "Create root dir"
+  file:
+    path: '{{project_root}}/nextcloud'
+    state: directory
+
+- name: "Create data dir"
+  file:
+    path: '{{project_root}}/nextcloud/data'
+    state: directory
+
+- name: "Create config dir"
+  file:
+    path: '{{project_root}}/nextcloud/config'
+    state: directory
+
+- name: "Render the compose file"
+  template:
+    name: compose.yml.j2
+    dst: '{{project_root}}/nextcloud.yml'

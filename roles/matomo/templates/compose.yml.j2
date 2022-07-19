@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  matomo:
+    container_name: matomo
+    hostname: {{domain_matomo}}
+    image: matomo:4.1.1-apache
+    restart: unless-stopped
+    volumes:
+      - {{project_root}}/matomo:/var/www/html
+    environment:
+      MATOMO_DATABASE_HOST: {{mysql_host}}
+      MATOMO_DATABASE_ADAPTER: mysql
+      MATOMO_DATABASE_TABLES_PREFIX: matomo_
+      MATOMO_DATABASE_USERNAME: {{mysql_user_matomo}}
+      MATOMO_DATABASE_PASSWORD: {{mysql_password_matomo}}
+      MATOMO_DATABASE_DBNAME: {{mysql_database_matomo}}
+    networks:
+      - mysql
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.matomo.entrypoints: websecure
+      traefik.http.routers.matomo.rule: Host(`{{domain_matomo}}`)
+      traefik.http.routers.matomo.tls: "true"
+      traefik.http.services.matomo.loadbalancer.server.port: 80
+      {% if is_live %}
+      traefik.http.routers.matomo.tls.certresolver: {{cert_resolver}}
+      {% endif %}
+    depends_on:
+      - mariadb

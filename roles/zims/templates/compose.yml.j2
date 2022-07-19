@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+
+  kiwix:
+    container_name: kiwix
+    image: kiwix/kiwix-serve
+    command:
+      - --library
+      - /library/library.xml
+    restart: unless-stopped
+    volumes:
+      - {{project_root}}/kiwix:/library
+      - {{project_root}}/transmission/downloads:/downloads:ro
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.kiwix.entrypoints: websecure
+      traefik.http.routers.kiwix.rule: Host(`{{domain_kiwix}}`)
+      traefik.http.routers.kiwix.tls: "true"
+      traefik.http.services.kiwix.loadbalancer.server.port: 80
+
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    environment:
+      PUID: '{{ ansible_facts["ansible_user_uid"] }}'
+      PGID: '{{ ansible_facts["ansible_user_gid"] }}'
+      TZ: '{{ ansible_facts["ansible_date_time"]["tz"] }}'
+    volumes:
+      - {{project_root}}/transmission/config:/config
+      - {{project_root}}/transmission/downloads:/downloads
+      - {{project_root}}/transmission/watch:/watch
+    ports:
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.transmission.entrypoints: websecure
+      traefik.http.routers.transmission.rule: Host(`{{domain_transmission}}`)
+      traefik.http.routers.transmission.tls: "true"
+      traefik.http.services.transmission.loadbalancer.server.port: 9091

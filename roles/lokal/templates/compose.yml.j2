@@ -9,8 +9,6 @@ networks:
     name: prometheus
 
 volumes:
-  nextcloud:
-    name: nextcloud
   portainer:
     name: portainer
   unifi-controller:
@@ -164,145 +162,14 @@ services:
     image: mariadb:10.5.8-focal
     environment:
       MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
+    ports:
+      - 3306:3306  # necessary to manipulate mariadb locally
     networks:
       - mysql
       - prometheus
     restart: unless-stopped
     volumes:
       - {{project_root}}/mysql:/var/lib/mysql
-
-  matomo:
-    container_name: matomo
-    hostname: {{domain_matomo}}
-    image: matomo:4.1.1-apache
-    restart: unless-stopped
-    volumes:
-      - {{project_root}}/matomo:/var/www/html
-    environment:
-      MATOMO_DATABASE_HOST: {{mysql_host}}
-      MATOMO_DATABASE_ADAPTER: mysql
-      MATOMO_DATABASE_TABLES_PREFIX: matomo_
-      MATOMO_DATABASE_USERNAME: {{mysql_user_matomo}}
-      MATOMO_DATABASE_PASSWORD: {{mysql_password_matomo}}
-      MATOMO_DATABASE_DBNAME: {{mysql_database_matomo}}
-    networks:
-      - mysql
-      - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.matomo.entrypoints: websecure
-      traefik.http.routers.matomo.rule: Host(`{{domain_matomo}}`)
-      traefik.http.routers.matomo.tls: "true"
-      traefik.http.services.matomo.loadbalancer.server.port: 80
-      {% if is_live %}
-      traefik.http.routers.matomo.tls.certresolver: {{cert_resolver}}
-      {% endif %}
-    depends_on:
-      - mariadb
-
-  resourcespace:
-    container_name: resourcespace
-    image: suntorytimed/resourcespace:latest
-    restart: unless-stopped
-    depends_on:
-      - mariadb
-    volumes:
-      - {{project_root}}/resourcespace:/var/www/html
-    networks:
-      - traefik
-      - mysql
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.resourcespace.entrypoints: websecure
-      traefik.http.routers.resourcespace.rule: Host(`{{domain_resourcespace}}`)
-      traefik.http.routers.resourcespace.tls: "true"
-      traefik.http.services.resourcespace.loadbalancer.server.port: 80
-      {% if is_live %}
-      traefik.http.routers.resourcespace.tls.certresolver: {{cert_resolver}}
-      {% endif %}
-
-  kiwix:
-    container_name: kiwix
-    image: kiwix/kiwix-serve
-    command:
-      - --library
-      - ${KIWIX_DATA_DIR}/library.xml
-    restart: unless-stopped
-    volumes:
-      - ${KIWIX_DATA_DIR}:${KIWIX_DATA_DIR}
-      - ${TRANSMISSION_DOWNLOADS_DIR}:${TRANSMISSION_DOWNLOADS_DIR}
-    networks:
-      - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.kiwix.entrypoints: websecure
-      traefik.http.routers.kiwix.rule: Host(`${DOMAIN_KIWIX}`)
-      traefik.http.routers.kiwix.tls: "true"
-      traefik.http.services.kiwix.loadbalancer.server.port: 80
-
-  transmission:
-    image: linuxserver/transmission
-    container_name: transmission
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
-    volumes:
-      - ${TRANSMISSION_CONFIG_DIR}:/config
-      - ${TRANSMISSION_DOWNLOADS_DIR}:/downloads
-      - ${TRANSMISSION_WATCH_DIR}:/watch
-    ports:
-      - 51413:51413
-      - 51413:51413/udp
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.transmission.entrypoints: websecure
-      traefik.http.routers.transmission.rule: Host(`${DOMAIN_TRANSMISSION}`)
-      traefik.http.routers.transmission.tls: "true"
-      traefik.http.services.transmission.loadbalancer.server.port: 9091
-
-  unifi-poller:
-    container_name: unifi-poller
-    restart: unless-stopped
-    image: golift/unifi-poller:latest
-    environment:
-      UP_INFLUXDB_DISABLE: "true"
-      UP_UNIFI_DEFAULT_URL: ${UP_UNIFI_DEFAULT_URL}
-      UP_UNIFI_DEFAULT_USER: ${UP_UNIFI_DEFAULT_USER}
-      UP_UNIFI_DEFAULT_PASS: ${UP_UNIFI_DEFAULT_PASS}
-    networks:
-      - prometheus
-
-  nextcloud:
-    image: nextcloud:latest
-    container_name: nextcloud
-    environment:
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD_NEXTCLOUD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE_NEXTCLOUD}
-      MYSQL_USER: ${MYSQL_USER_NEXTCLOUD}
-      MYSQL_HOST: ${MYSQL_HOST}
-    volumes:
-      - ${NEXTCLOUD_CONFIG_DIR}:/config
-      - nextcloud:/var/www/html
-    restart: unless-stopped
-    networks:
-      - mysql
-      - prometheus
-      - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.nextcloud.entrypoints: websecure
-      traefik.http.routers.nextcloud.rule: Host(`{{domain_nextcloud}}`)
-      traefik.http.routers.nextcloud.tls: "true"
-      traefik.http.services.nextcloud.loadbalancer.server.port: 80
-      {% if is_live %}
-      traefik.http.routers.nextcloud.tls.certresolver: {{cert_resolver}}
-      {% endif %}
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -327,40 +194,13 @@ services:
       traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
       {% endif %}
 
-  unifi-controller:
-    image: linuxserver/unifi-controller
-    container_name: unifi-controller
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-    volumes:
-      - unifi-controller:/config
-    ports:
-      - 3478:3478/udp
-      - 10001:10001/udp
-      - 8080:8080
-      - 1900:1900/udp
-      - 6789:6789
-      - 5514:5514/udp
-    restart: unless-stopped
-    networks:
-      - prometheus
-      - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.unifi-controller.entrypoints: websecure
-      traefik.http.routers.unifi-controller.rule: Host(`${DOMAIN_UNIFI_CONTROLLER}`)
-      traefik.http.routers.unifi-controller.tls: "true"
-      traefik.http.services.unifi-controller.loadbalancer.server.scheme: https
-      traefik.http.services.unifi-controller.loadbalancer.server.port: 8443
-
   jellyfin:
     image: linuxserver/jellyfin
     container_name: jellyfin
     environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
+      PUID: ''{{ ansible_facts["ansible_user_uid"] }}''
+      PGID: '{{ ansible_facts["ansible_user_gid"] }}'
+      TZ: '{{ ansible_facts["ansible_date_time"]["tz"] }}'
       JELLYFIN_PublishedServerUrl: https://${DOMAIN_JELLYFIN}
     volumes:
       - jellyfin:/config
@@ -384,7 +224,7 @@ services:
     container_name: kolibri
     restart: unless-stopped
     environment:
-      TZ: ${TZ}
+      TZ: '{{ ansible_facts["ansible_date_time"]["tz"] }}'
     volumes:
       - kolibri:/root:rw
     labels:

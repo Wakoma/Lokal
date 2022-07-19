@@ -20,18 +20,21 @@ tasks:
     - traefik
     - grafana
     - prometheus
-    - matomo
-    - resourcespace
 
 # Make sure computer is secure
-- name: base/self-signed-certs.yml
+- name: "Self signed certs"
+  include_tasks: 
+    file: base/self-signed-certs.yml
   when: not server_is_live
 
-- name: base/secure-sshd.yml
+- name: "Basic security"
+  include_tasks: 
+    file: 
+      base/secure-sshd.yml
   when: ansible_connection == "ssh"
 
 # Add necessary software
-- name: "Create prometheus directory"
+- name: "Create prometheus data directory"
   ansible.builtin.file:
     state: directory
     path: '{{project_root}}/prometheus/data'
