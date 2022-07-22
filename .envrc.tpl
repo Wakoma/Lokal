@@ -19,7 +19,8 @@ export CERT_RESOLVER=dns
 
 # Container Secrets
 export ACME_EMAIL=
-export TRAEFIK_BASICAUTH_USERS=''
+export TRAEFIK_BASICAUTH_USERS=
+export IPFS_BASICAUTH_USERS=
 export NAMECHEAP_API_USER=
 export NAMECHEAP_API_KEY=
 

@@ -72,6 +72,7 @@ services:
       - ${ACME_CERTS_DIR}/${ACME_DOMAIN}.key:/certs/lokal.key
     labels:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
+      traefik.http.middlewares.ipfs-auth.basicauth.users: ${IPFS_BASICAUTH_USERS}
       traefik.http.routers.traefik.middlewares: traefik-auth
 
   transmission:

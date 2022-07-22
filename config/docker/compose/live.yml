@@ -61,6 +61,7 @@ services:
       - NAMECHEAP_API_KEY
     labels:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
+      traefik.http.middlewares.ipfs-auth.basicauth.users: ${IPFS_BASICAUTH_USERS}
       traefik.http.routers.traefik.middlewares: traefik-auth
       traefik.http.routers.traefik.tls.certresolver: ${CERT_RESOLVER}
     volumes:
