@@ -7,6 +7,8 @@ networks:
     name: mysql
   prometheus:
     name: prometheus
+  ipfs:
+    name: ipfs
 
 volumes:
   mysql:
@@ -31,6 +33,10 @@ volumes:
     name: kolibri
   jellyfin:
     name: jellyfin
+  ipfs-node:
+    name: ipfs-node
+  ipfs-cluster:
+    name: ipfs-cluster
 
 services:
   grafana:
@@ -151,6 +157,80 @@ services:
       traefik.http.services.matomo.loadbalancer.server.port: 80
     depends_on:
       - mariadb
+
+  ipfs-node:
+    container_name: ipfs-node
+    image: ipfs/go-ipfs:latest # TODO pin version
+    networks:
+      - traefik
+      - ipfs
+    restart: unless-stopped
+    ports:
+      - 4001:4001
+      - 4001:4001/udp
+    volumes:
+      - ipfs-node:/data/ipfs
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.ipfs-node.entrypoints: websecure
+      traefik.http.routers.ipfs-node.rule: HostRegexp(`${DOMAIN_IPFS_NODE}`)
+      traefik.http.routers.ipfs-node.tls: "true"
+      traefik.http.routers.ipfs-node.middlewares: ipfs-auth
+      traefik.http.routers.ipfs-node.service: ipfs-node
+      traefik.http.services.ipfs-node.loadbalancer.server.port: 5001
+
+  ipfs-cluster:
+    container_name: ipfs-cluster
+    image: ipfs/ipfs-cluster:latest # TODO pin version
+    networks:
+      - traefik
+      - ipfs
+    depends_on:
+      - ipfs-node
+    environment:
+      CLUSTER_PEERNAME: ipfs-cluster
+      CLUSTER_SECRET: ${IPFS_CLUSTER_SECRET} # TODO
+      CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/ipfs-node/tcp/5001
+      CLUSTER_CRDT_TRUSTEDPEERS: '*'
+      CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9094
+      #CLUSTER_RESTAPI_CORSALLOWEDMETHODS: GET, POST
+      #CLUSTER_RESTAPI_CORSALLOWEDORIGINS: '*'
+      CLUSTER_PINSVCAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9097
+      #CLUSTER_PINSVCAPI_CORSALLOWEDMETHODS: GET, POST
+      #CLUSTER_PINSVCAPI_CORSALLOWEDORIGINS: '*'
+      CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
+    volumes:
+      - ipfs-cluster:/data/ipfs-cluster
+    labels:
+      traefik.enable: "true"
+
+      traefik.http.routers.corspreflight.entrypoints: websecure
+      traefik.http.routers.corspreflight.rule: Host(`${DOMAIN_IPFS_CLUSTER}`) && Method(`OPTIONS`)
+      traefik.http.routers.corspreflight.tls: "true"
+      traefik.http.routers.corspreflight.middlewares: corsheader
+      traefik.http.routers.corspreflight.service: corspreflight
+      traefik.http.services.corspreflight.loadbalancer.server.port: 9094
+
+      traefik.http.routers.ipfs-cluster.entrypoints: websecure
+      traefik.http.routers.ipfs-cluster.rule: Host(`${DOMAIN_IPFS_CLUSTER}`) && Method(`GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `HEAD`)
+      traefik.http.routers.ipfs-cluster.tls: "true"
+      traefik.http.routers.ipfs-cluster.service: ipfs-cluster
+      traefik.http.routers.ipfs-cluster.middlewares: ipfs-auth, corsheader
+      traefik.http.services.ipfs-cluster.loadbalancer.server.port: 9094
+
+      traefik.http.routers.ipfs-pinning.entrypoints: websecure
+      traefik.http.routers.ipfs-pinning.rule: Host(`${DOMAIN_IPFS_CLUSTER}`) && PathPrefix(`/pinning/`) && Method(`GET`, `POST`, `PUT`, `DELETE`, `PATCH`)
+      traefik.http.routers.ipfs-pinning.tls: "true"
+      traefik.http.routers.ipfs-pinning.service: ipfs-pinning
+      traefik.http.routers.ipfs-pinning.middlewares: ipfs-auth, corsheader, strip-pinning-prefix
+      traefik.http.services.ipfs-pinning.loadbalancer.server.port: 9097
+
+      traefik.http.middlewares.strip-pinning-prefix.stripprefix.prefixes: /pinning
+
+      traefik.http.middlewares.corsheader.headers.accesscontrolallowmethods: "GET,POST,OPTIONS"
+      traefik.http.middlewares.corsheader.headers.accesscontrolalloworiginlist: "https://agregoreweb.github.io"
+      traefik.http.middlewares.corsheader.headers.accesscontrolallowcredentials: "true"
+      traefik.http.middlewares.corsheader.headers.accesscontrolallowheaders: 'Content-Type,Content-Length,Range,Authorization'
 
   wordpress:
     container_name: wordpress

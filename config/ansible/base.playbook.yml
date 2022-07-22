@@ -211,6 +211,8 @@
       - 8490
       - 8495
       - 8496
+      # ipfs-swarm
+      - 4001
     firewall_allowed_udp_ports:
       # unifi-controller
       - 3478
@@ -223,6 +225,8 @@
       - 51413
       # jitsi
       - 10000
+      # ipfs
+      - 4001
     firewall_disable_ufw: true
     firewall_enable_ipv6: false
   roles:

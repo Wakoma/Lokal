@@ -19,7 +19,8 @@ export CERT_RESOLVER=dns
 
 # Container Secrets
 export ACME_EMAIL=
-export TRAEFIK_BASICAUTH_USERS=''
+export TRAEFIK_BASICAUTH_USERS=
+export IPFS_BASICAUTH_USERS=
 export NAMECHEAP_API_USER=
 export NAMECHEAP_API_KEY=
 
@@ -47,6 +48,8 @@ export DOMAIN_PORTAINER=portainer.${DOMAIN_VNET}
 export DOMAIN_UNIFI_CONTROLLER=unifi.${DOMAIN_VNET}
 export DOMAIN_JELLYFIN=video.${DOMAIN_VNET}
 export DOMAIN_KOLIBRI=edu.${DOMAIN_VNET}
+export DOMAIN_IPFS_NODE=ipfs.${DOMAIN_VNET}
+export DOMAIN_IPFS_CLUSTER=ipfs-cluster.${DOMAIN_VNET}
 export KIWIX_DATA_DIR=${PROJECT_ROOT}/config/services/kiwix/data
 export TRANSMISSION_CONFIG_DIR=${PROJECT_ROOT}/config/services/transmission/config
 export TRANSMISSION_DOWNLOADS_DIR=${PROJECT_ROOT}/config/services/transmission/downloads
