@@ -14,10 +14,10 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.mailhog.entrypoints: websecure
-      traefik.http.routers.mailhog.rule: Host(`${DOMAIN_MAILHOG}`)
+      traefik.http.routers.mailhog.rule: Host(`{{subdomain_mailhog}}.{{domain}}`)
       traefik.http.routers.mailhog.tls: "true"
       traefik.http.services.mailhog.loadbalancer.server.port: 8025
-      traefik.http.routers.mailhog.tls.certresolver: ${CERT_RESOLVER}
+      traefik.http.routers.mailhog.tls.certresolver: {{cert_resolver}}
       traefik.http.routers.mailhog.middlewares: traefik-auth
     restart: unless-stopped
 

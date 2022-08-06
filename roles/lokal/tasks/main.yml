@@ -1,5 +1,3 @@
-tasks:
-
 # Prepare the most basic things
 - name: "Creating project root directory"
   ansible.builtin.file:
@@ -8,7 +6,7 @@ tasks:
 
 - name: Render base compose.yml
   ansible.builtin.template:
-    path: compose.yml.j2
+    src: compose.yml.j2
     dest: '{{project_root}}/base.yml'
 
 - name: Create app dirs
@@ -21,17 +19,10 @@ tasks:
     - grafana
     - prometheus
 
-# Make sure computer is secure
 - name: "Self signed certs"
-  include_tasks: 
-    file: base/self-signed-certs.yml
+  include_tasks:
+    file: self-signed-certs.yml
   when: not server_is_live
-
-- name: "Basic security"
-  include_tasks: 
-    file: 
-      base/secure-sshd.yml
-  when: ansible_connection == "ssh"
 
 # Add necessary software
 - name: "Create prometheus data directory"

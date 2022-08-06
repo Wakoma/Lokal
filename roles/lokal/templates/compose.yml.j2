@@ -8,15 +8,6 @@ networks:
   prometheus:
     name: prometheus
 
-volumes:
-  portainer:
-    name: portainer
-  unifi-controller:
-    name: unifi-controller
-  kolibri:
-    name: kolibri
-  jellyfin:
-    name: jellyfin
 
 services:
   grafana:
@@ -27,10 +18,10 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.grafana.entrypoints: websecure
-      traefik.http.routers.grafana.rule: Host(`{{domain_grafana}}`)
+      traefik.http.routers.grafana.rule: Host(`{{subdomain_grafana}}.{{domain}}`)
       traefik.http.routers.grafana.tls: "true"
       traefik.http.services.grafana.loadbalancer.server.port: 3000
-      {% if is_live %}
+      {% if server_is_live %}
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
       {% endif %}
     volumes:
@@ -45,16 +36,16 @@ services:
     cap_add:
       - SYS_PTRACE
     environment:
-      PGID: ${DOCKER_PGID}
-    hostname: {{domain_netdata}}
+      PUID: '{{ ansible_facts["user_uid"] }}'
+    hostname: {{subdomain_netdata}}.{{domain}}
     image: netdata/netdata:v1.28.0-amd64
     labels:
       traefik.enable: "true"
       traefik.http.routers.netdata.entrypoints: websecure
-      traefik.http.routers.netdata.rule: Host(`{{domain_netdata}}`)
+      traefik.http.routers.netdata.rule: Host(`{{subdomain_netdata}}.{{domain}}`)
       traefik.http.routers.netdata.tls: "true"
       traefik.http.services.netdata.loadbalancer.server.port: 19999
-      {% if is_live %}
+      {% if server_is_live %}
       traefik.http.routers.netdata.middlewares: traefik-auth
       traefik.http.routers.netdata.tls.certresolver: {{cert_resolver}}
       {% endif %}
@@ -75,10 +66,10 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.prometheus.entrypoints: websecure
-      traefik.http.routers.prometheus.rule: Host(`{{domain_prometheus}}`)
+      traefik.http.routers.prometheus.rule: Host(`{{subdomain_prometheus}}.{{domain}}`)
       traefik.http.routers.prometheus.tls: "true"
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
-      {% if is_live %}
+      {% if server_is_live %}
       traefik.http.routers.prometheus.middlewares: traefik-auth
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
       {% endif %}
@@ -97,11 +88,11 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.traefik.entrypoints: websecure
-      traefik.http.routers.traefik.rule: Host(`{{domain_traefik}}`)
+      traefik.http.routers.traefik.rule: Host(`{{subdomain_traefik}}.{{domain}}`)
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
-      {% if is_live %}
+      {% if server_is_live %}
       traefik.http.middlewares.traefik-auth.basicauth.users: {{traefik_basicauth_users}}
       traefik.http.routers.traefik.middlewares: traefik-auth
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
@@ -115,7 +106,7 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    {% if is_live %}
+    {% if server_is_live %}
       - {{project_root}}/traefik/config/live/dynamic.yml:/config/live.yml
       - {{project_root}}/traefik/config/local/dynamic.yml:/config/local.yml
       - ./acme:/acme
@@ -126,12 +117,12 @@ services:
       - --api.dashboard=true
       - --api.debug=false
       - --certificatesResolvers.dns.acme.dnsChallenge.delayBeforeCheck=60
-      - --certificatesResolvers.dns.acme.dnsChallenge.provider=${DNS_PROVIDER}
-      - --certificatesResolvers.dns.acme.email=${ACME_EMAIL}
+      - --certificatesResolvers.dns.acme.dnsChallenge.provider={{dns_provider}}
+      - --certificatesResolvers.dns.acme.email={{acme_email}}
       - --certificatesResolvers.dns.acme.storage=/acme/acme.json
       - --certificatesresolvers.http.acme.httpchallenge=true
       - --certificatesresolvers.http.acme.httpchallenge.entrypoint=web
-      - --certificatesresolvers.http.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.http.acme.email={{acme_email}}
       - --certificatesresolvers.http.acme.storage=/acme/acme.json
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
@@ -180,32 +171,58 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - portainer:/data
+      - {{project_root}}/portainer:/data
     networks:
       - prometheus
       - traefik
     labels:
       traefik.enable: "true"
       traefik.http.routers.portainer.entrypoints: websecure
-      traefik.http.routers.portainer.rule: Host(`{{domain_portainer}}`)
+      traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
-      {% if is_live %}
+      {% if server_is_live %}
       traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
       {% endif %}
+
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    environment:
+      PUID: '{{ ansible_facts["user_uid"] }}'
+      PGID: '{{ ansible_facts["user_gid"] }}'
+      TZ: '{{ ansible_facts["date_time"]["tz"] }}'
+    volumes:
+      - {{project_root}}/transmission/config:/config
+      - {{project_root}}/transmission/downloads:/downloads
+      - {{project_root}}/transmission/watch:/watch
+    ports:
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.transmission.entrypoints: websecure
+      traefik.http.routers.transmission.rule: Host(`{{subdomain_transmission}}.{{domain}}`)
+      traefik.http.routers.transmission.tls: "true"
+      traefik.http.services.transmission.loadbalancer.server.port: 9091
 
   jellyfin:
     image: linuxserver/jellyfin
     container_name: jellyfin
     environment:
-      PUID: ''{{ ansible_facts["ansible_user_uid"] }}''
-      PGID: '{{ ansible_facts["ansible_user_gid"] }}'
-      TZ: '{{ ansible_facts["ansible_date_time"]["tz"] }}'
-      JELLYFIN_PublishedServerUrl: https://${DOMAIN_JELLYFIN}
+      PUID: '{{ ansible_facts["user_uid"] }}'
+      PGID: '{{ ansible_facts["user_gid"] }}'
+      TZ: '{{ ansible_facts["date_time"]["tz"] }}'
+      JELLYFIN_PublishedServerUrl: https://{{subdomain_jellyfin}}.{{domain}}
     volumes:
-      - jellyfin:/config
-      - ${JELLYFIN_DATA_DIR}:/data
-      - ${TRANSMISSION_DOWNLOADS_DIR}:/downloads
+      - {{project_root}}/jellyfin/config:/config
+      - {{project_root}}/jellyfin/data:/data
+      - {{project_root}}/transmission/downloads:/downloads:ro
     ports:
       - 7359:7359/udp
       # - 1900:1900/udp  # Can't be used at 1900 because that clashes with unif-controller
@@ -213,7 +230,7 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.jellyfin.entrypoints: websecure
-      traefik.http.routers.jellyfin.rule: Host(`${DOMAIN_JELLYFIN}`)
+      traefik.http.routers.jellyfin.rule: Host(`{{subdomain_jellyfin}}.{{domain}}`)
       traefik.http.routers.jellyfin.tls: "true"
       traefik.http.services.jellyfin.loadbalancer.server.port: 8096
     networks:
@@ -224,13 +241,13 @@ services:
     container_name: kolibri
     restart: unless-stopped
     environment:
-      TZ: '{{ ansible_facts["ansible_date_time"]["tz"] }}'
+      TZ: '{{ ansible_facts["date_time"]["tz"] }}'
     volumes:
       - kolibri:/root:rw
     labels:
       traefik.enable: "true"
       traefik.http.routers.kolibri.entrypoints: websecure
-      traefik.http.routers.kolibri.rule: Host(`${DOMAIN_KOLIBRI}`)
+      traefik.http.routers.kolibri.rule: Host(`{{subdomain_kolibri}}.{{domain}}`)
       traefik.http.routers.kolibri.tls: "true"
       traefik.http.services.kolibri.loadbalancer.server.port: 8080
     networks:

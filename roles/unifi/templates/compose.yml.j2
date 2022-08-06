@@ -16,8 +16,8 @@ services:
     image: linuxserver/unifi-controller
     container_name: unifi-controller
     environment:
-      PUID: {{ ansible_facts["ansible_user_uid"] }}'
-      PGID: '{{ ansible_facts["ansible_user_gid"] }}'
+      PUID: {{ ansible_facts["user_uid"] }}'
+      PGID: '{{ ansible_facts["user_gid"] }}'
     volumes:
       - unifi-controller:/config
     ports:
@@ -34,7 +34,7 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.unifi-controller.entrypoints: websecure
-      traefik.http.routers.unifi-controller.rule: Host(`{{domain_unifi_controller}}`)
+      traefik.http.routers.unifi-controller.rule: Host(`{{subdomain_unifi_controller}}.{{domain}}`)
       traefik.http.routers.unifi-controller.tls: "true"
       traefik.http.services.unifi-controller.loadbalancer.server.scheme: https
       traefik.http.services.unifi-controller.loadbalancer.server.port: 8443

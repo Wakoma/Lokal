@@ -16,7 +16,7 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.kiwix.entrypoints: websecure
-      traefik.http.routers.kiwix.rule: Host(`{{domain_kiwix}}`)
+      traefik.http.routers.kiwix.rule: Host(`{{subdomain_kiwix}}.{{domain}}`)
       traefik.http.routers.kiwix.tls: "true"
       traefik.http.services.kiwix.loadbalancer.server.port: 80
 
@@ -24,9 +24,9 @@ services:
     image: linuxserver/transmission
     container_name: transmission
     environment:
-      PUID: '{{ ansible_facts["ansible_user_uid"] }}'
-      PGID: '{{ ansible_facts["ansible_user_gid"] }}'
-      TZ: '{{ ansible_facts["ansible_date_time"]["tz"] }}'
+      PUID: '{{ ansible_facts["user_uid"] }}'
+      PGID: '{{ ansible_facts["user_gid"] }}'
+      TZ: '{{ ansible_facts["date_time"]["tz"] }}'
     volumes:
       - {{project_root}}/transmission/config:/config
       - {{project_root}}/transmission/downloads:/downloads
@@ -42,6 +42,6 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.transmission.entrypoints: websecure
-      traefik.http.routers.transmission.rule: Host(`{{domain_transmission}}`)
+      traefik.http.routers.transmission.rule: Host(`{{subdomain_transmission}}.{{domain}}`)
       traefik.http.routers.transmission.tls: "true"
       traefik.http.services.transmission.loadbalancer.server.port: 9091

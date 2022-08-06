@@ -1,12 +1,17 @@
-
-
-roles:
-- lokal
-- unifi
-- wordpress
-- moodle
-- nextcloud
-- resourcespace
-- matomo
-- zims
-- start
+---
+- name: Install and launch Wakoma Lokal
+  hosts: all
+  # tasks:
+  #   - name: "Show facts"
+  #     ansible.builtin.debug:
+  #       var: ansible_facts
+  roles:
+  - lokal
+  # - unifi
+  # - wordpress
+  # - moodle
+  # - nextcloud
+  # - resourcespace
+  # - matomo
+  # - zims
+  # - start

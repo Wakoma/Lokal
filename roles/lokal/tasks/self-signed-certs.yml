@@ -4,32 +4,30 @@
   file:
     path: "{{ acme_certs_dir }}"
     state: directory
-    owner: root
-    group: root
     mode: 0700
-  when: not server_is_live
 
-- name: Make acme certs directory if it does not yet exist
+- name: Ensure SSL private key
   become: yes
   become_user: root
-  file:
-    path: "{{ acme_certs_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0700
-  when: not server_is_live
+  community.crypto.openssl_privatekey:
+    path: "{{ acme_certs_dir }}/{{domain}}.key"
 
-- name: Change file ownership, group and permissions
+- name: Create SSL CSR
   become: yes
   become_user: root
-  ansible.builtin.copy:
-    src: "/tmp/{{ acme_domain }}/{{ item }}"
-    dest: "{{ acme_certs_dir }}/{{ item }}"
-    owner: root
-    group: root
-    mode: 0600
-  with_items:
-    - "{{ acme_domain }}.cer"
-    - "{{ acme_domain }}.key"
-  when: not server_is_live
+  community.crypto.openssl_csr:
+    path: "{{ acme_certs_dir }}/{{domain}}.csr"
+    privatekey_path: "{{ acme_certs_dir }}/{{domain}}.key"
+    organization_name: "Wakoma"
+    commonName: "{{domain}}"
+    email_address: "devel@wakoma.net"
+    country_name: "{{locale}}"
+
+- name: Create SSL certificate
+  become: yes
+  become_user: root
+  community.crypto.x509_certificate:
+    provider: "selfsigned"
+    path: "{{ acme_certs_dir }}/{{domain}}.cer"
+    privatekey_path: "{{ acme_certs_dir }}/{{domain}}.key"
+    csr_path: "{{ acme_certs_dir }}/{{domain}}.csr"

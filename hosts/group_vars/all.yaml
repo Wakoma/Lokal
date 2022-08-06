@@ -1,12 +1,11 @@
 project_name: vnet
-project_root: "/opt/lokal"
+project_root: "$HOME/lokal"
 domain: vnet.lan
 
 # develop - uses mock email client and so on
 # staging - like production but without TLS
 deployment_environment: develop  # develop, staging, production
-#path: "{{project_root}}:${PATH}"
-server_is_live: true
+server_is_live: false
 
 
 # Cloud Provider Secrets
@@ -18,56 +17,45 @@ vagrant_ip: 10.180.0.102
 hcloud_image: ubuntu-20.04
 hcloud_location: nbg1
 hcloud_server_type: cpx11
-server_is_live: false
 dns_provider: namecheap
 cert_resolver: dns
 
 # Container Secrets
 acme_email: 
+acme_certs_dir: /media/certs/
 traefik_basicauth_users: ''
 namecheap_api_user: 
 namecheap_api_key: 
 
 # Container Variables
+# PUID: ''{{ ansible_facts["user_uid"] }}''
+# PGID: '{{ ansible_facts["user_gid"] }}'
+# TZ: '{{ ansible_facts["date_time"]["tz"] }}'
 docker_pgid: $(grep docker /etc/group | cut -d ':' -f 3)
-puid: $(id -u)
-pgid: $(id -g)
-tz: $(realpath /etc/localtime | grep -oP "^/usr/share/zoneinfo/\K.*")
-domain_vnet: ${DOMAIN}
-domain_vnet_local: vnet.lokal.network
-domain_wordpress: ${DOMAIN_VNET}
-domain_wordpress_www: www.${DOMAIN_VNET}
-domain_traefik: router.${DOMAIN_VNET}
-domain_netdata: monitor.${DOMAIN_VNET}
-domain_prometheus: metrics.${DOMAIN_VNET}
-domain_grafana: dash.${DOMAIN_VNET}
-domain_matomo: analytics.${DOMAIN_VNET}
-domain_resourcespace: assets.${DOMAIN}
-domain_mailhog: mailhog.${DOMAIN_VNET}
-domain_kiwix: learn.${DOMAIN_VNET}
-domain_transmission: torrent.${DOMAIN_VNET}
-domain_nextcloud: nextcloud.${DOMAIN}
-domain_portainer: portainer.${DOMAIN_VNET}
-domain_unifi_controller: unifi.${DOMAIN_VNET}
-domain_jellyfin: video.${DOMAIN_VNET}
-domain_kolibri: edu.${DOMAIN_VNET}
-kiwix_data_dir: ${PROJECT_ROOT}/config/services/kiwix/data
-transmission_config_dir: ${PROJECT_ROOT}/config/services/transmission/config
-transmission_downloads_dir: ${PROJECT_ROOT}/config/services/transmission/downloads
-transmission_watch_dir: ${PROJECT_ROOT}/config/services/transmission/watch
-nextcloud_config_dir: ${PROJECT_ROOT}/config/services/nextcloud/config
-jellyfin_config_dir: ${PROJECT_ROOT}/config/services/jellyfin/config
-jellyfin_data_dir: ${PROJECT_ROOT}/config/services/jellyfin/data
-
-acme_domain: ${DOMAIN}
-acme_certs_dir: /media/certs/${ACME_DOMAIN}
+subdomain_traefik: router
+subdomain_netdata: monitor
+subdomain_prometheus: metrics
+subdomain_grafana: dash
+subdomain_matomo: analytics
+subdomain_resourcespace: assets
+subdomain_mailhog: mailhog
+subdomain_kiwix: learn
+subdomain_transmission: torrent
+subdomain_nextcloud: nextcloud
+subdomain_portainer: portainer
+subdomain_unifi_controller: unifi
+subdomain_jellyfin: video
+subdomain_kolibri: edu
+# kiwix_data_dir: ${PROJECT_ROOT}/config/services/kiwix/data
+# transmission_config_dir: ${PROJECT_ROOT}/config/services/transmission/config
+# transmission_downloads_dir: ${PROJECT_ROOT}/config/services/transmission/downloads
+# transmission_watch_dir: ${PROJECT_ROOT}/config/services/transmission/watch
+# nextcloud_config_dir: ${PROJECT_ROOT}/config/services/nextcloud/config
+# jellyfin_config_dir: ${PROJECT_ROOT}/config/services/jellyfin/config
+# jellyfin_data_dir: ${PROJECT_ROOT}/config/services/jellyfin/data
 
 # Application Secrets
 mysql_root_password: default
-mysql_password_wordpress: wordpress
-mysql_password_resourcespace: resourcespace
-mysql_password_matomo: matoma
-mysql_password_nextcloud: nextcloud
 up_unifi_default_url: 
 up_unifi_default_user: 
 up_unifi_default_pass: 
@@ -77,17 +65,17 @@ mysql_host: mariadb
 mysql_port: 3601
 
 mysql_user_wordpress: wordpress
+mysql_password_wordpress: wordpress
 mysql_database_wordpress: wordpress
-mysql_url_wordpress: mysql://${MYSQL_USER_WORDPRESS}:${MYSQL_PASSWORD_WORDPRESS}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_WORDPRESS}
 
 mysql_user_resourcespace: resourcespace
+mysql_password_resourcespace: resourcespace
 mysql_database_resourcespace: resourcespace
-mysql_url_resourcespace: mysql://${MYSQL_USER_RESOURCESPACE}:${MYSQL_PASSWORD_RESOURCESPACE}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_RESOURCESPACE}
 
 mysql_user_matomo: matoma
+mysql_password_matomo: matoma
 mysql_database_matomo: matoma
-mysql_url_matomo: mysql://${MYSQL_USER_MATOMO}:${MYSQL_PASSWORD_MATOMO}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_MATOMO}
 
 mysql_user_nextcloud: nextcloud
+mysql_password_nextcloud: nextcloud
 mysql_database_nextcloud: nextcloud
-mysql_url_nextcloud: mysql://${MYSQL_USER_NEXTCLOUD}:${MYSQL_PASSWORD_NEXTCLOUD}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE_NEXTCLOUD}

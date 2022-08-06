@@ -14,7 +14,7 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.mailhog.entrypoints: websecure
-      traefik.http.routers.mailhog.rule: Host(`${DOMAIN_MAILHOG}`)
+      traefik.http.routers.mailhog.rule: Host(`{{subdomain_mailhog}}.{{domain}}`)
       traefik.http.routers.mailhog.tls: "true"
       traefik.http.services.mailhog.loadbalancer.server.port: 8025
       traefik.http.routers.mailhog.middlewares: traefik-auth
@@ -67,8 +67,8 @@ services:
       - --serversTransport.insecureSkipVerify=true
     volumes:
       - ./config/services/traefik/config/local:/config
-      - ${ACME_CERTS_DIR}/${ACME_DOMAIN}.cer:/certs/lokal.cer
-      - ${ACME_CERTS_DIR}/${ACME_DOMAIN}.key:/certs/lokal.key
+      - {{acme_certs_dir}}/{{domain}}.cer:/certs/lokal.cer
+      - {{acme_certs_dir}}/{{domain}}.key:/certs/lokal.key
     labels:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
       traefik.http.routers.traefik.middlewares: traefik-auth

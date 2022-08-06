@@ -6,7 +6,7 @@ services:
       traefik.http.routers.azuracast.entrypoints: websecure
       traefik.http.routers.azuracast.rule: Host(`${DOMAIN_AZURACAST}`)
       traefik.http.routers.azuracast.tls: "true"
-{% if server_is_live %}
+{% if is_live %}
       traefik.http.routers.azuracast.tls.certresolver: ${CERT_RESOLVER}
 {% endif %}
       traefik.http.services.azuracast.loadbalancer.server.port: 80

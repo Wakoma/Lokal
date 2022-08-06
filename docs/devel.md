@@ -45,7 +45,7 @@ development)
    ${VAGRANT_IP} ${DOMAIN_GRAFANA}\n\
    ${VAGRANT_IP} ${DOMAIN_MATOMO}\n\
    ${VAGRANT_IP} ${DOMAIN_RESOURCESPACE}\n\
-   ${VAGRANT_IP} ${DOMAIN_MAILHOG}\n\
+   ${VAGRANT_IP} {{subdomain_mailhog}}.{{domain}}\n\
    "
    ```
 
