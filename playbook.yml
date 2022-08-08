@@ -1,10 +1,6 @@
 ---
 - name: Install and launch Wakoma Lokal
   hosts: all
-  # tasks:
-  #   - name: "Show facts"
-  #     ansible.builtin.debug:
-  #       var: ansible_facts
   roles:
   - lokal
   # - unifi

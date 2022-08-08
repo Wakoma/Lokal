@@ -21,7 +21,7 @@
     organization_name: "Wakoma"
     commonName: "{{domain}}"
     email_address: "devel@wakoma.net"
-    country_name: "{{locale}}"
+    country_name: "US"
 
 - name: Create SSL certificate
   become: yes

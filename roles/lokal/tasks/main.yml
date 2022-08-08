@@ -11,26 +11,26 @@
 
 - name: Create app dirs
   ansible.builtin.file:
-    path: '{{project_root}}/{{item}}'
+    path: '{{project_root}}/{{item}}/data'
     state: directory
   loop:
     - mysql
     - traefik
     - grafana
     - prometheus
+    - portainer
+    - transmission
+    - jellyfin
 
 - name: "Self signed certs"
   include_tasks:
     file: self-signed-certs.yml
   when: not server_is_live
 
-# Add necessary software
-- name: "Create prometheus data directory"
-  ansible.builtin.file:
-    state: directory
-    path: '{{project_root}}/prometheus/data'
+- name: "Setup traefik"
+  include_tasks:
+    file: setup-traefik.yml
 
-- name: "Copy config files to prometheus config directory"
-  ansible.builtin.copy:
-    src: files/prometheus/
-    dest: '{{project_root}}/prometheus/etc/'
+- name: "Setup prometheus"
+  include_tasks:
+    file: setup-prometheus.yml

@@ -25,7 +25,7 @@ services:
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
       {% endif %}
     volumes:
-      - {{project_root}}/grafana:/var/lib/grafana:rw
+      - {{project_root}}/grafana/data:/var/lib/grafana:rw
     networks:
       - traefik
       - prometheus
@@ -34,7 +34,7 @@ services:
   netdata:
     container_name: netdata
     cap_add:
-      - SYS_PTRACE
+    - SYS_PTRACE
     environment:
       PUID: '{{ ansible_facts["user_uid"] }}'
     hostname: {{subdomain_netdata}}.{{domain}}
@@ -160,7 +160,7 @@ services:
       - prometheus
     restart: unless-stopped
     volumes:
-      - {{project_root}}/mysql:/var/lib/mysql
+      - {{project_root}}/mysql/data:/var/lib/mysql
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -171,7 +171,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - {{project_root}}/portainer:/data
+      - {{project_root}}/portainer/data:/data
     networks:
       - prometheus
       - traefik
@@ -194,7 +194,7 @@ services:
       TZ: '{{ ansible_facts["date_time"]["tz"] }}'
     volumes:
       - {{project_root}}/transmission/config:/config
-      - {{project_root}}/transmission/downloads:/downloads
+      - {{project_root}}/transmission/data:/downloads
       - {{project_root}}/transmission/watch:/watch
     ports:
       - 51413:51413
@@ -222,7 +222,7 @@ services:
     volumes:
       - {{project_root}}/jellyfin/config:/config
       - {{project_root}}/jellyfin/data:/data
-      - {{project_root}}/transmission/downloads:/downloads:ro
+      - {{project_root}}/transmission/data:/downloads:ro
     ports:
       - 7359:7359/udp
       # - 1900:1900/udp  # Can't be used at 1900 because that clashes with unif-controller
@@ -233,22 +233,5 @@ services:
       traefik.http.routers.jellyfin.rule: Host(`{{subdomain_jellyfin}}.{{domain}}`)
       traefik.http.routers.jellyfin.tls: "true"
       traefik.http.services.jellyfin.loadbalancer.server.port: 8096
-    networks:
-      - traefik
-
-  kolibri:
-    image: neethumohan1212/kolibri
-    container_name: kolibri
-    restart: unless-stopped
-    environment:
-      TZ: '{{ ansible_facts["date_time"]["tz"] }}'
-    volumes:
-      - kolibri:/root:rw
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.kolibri.entrypoints: websecure
-      traefik.http.routers.kolibri.rule: Host(`{{subdomain_kolibri}}.{{domain}}`)
-      traefik.http.routers.kolibri.tls: "true"
-      traefik.http.services.kolibri.loadbalancer.server.port: 8080
     networks:
       - traefik

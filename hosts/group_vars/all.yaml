@@ -1,6 +1,8 @@
 project_name: vnet
 project_root: "$HOME/lokal"
 domain: vnet.lan
+lang: en_US
+locale: en_US.utf-8
 
 # develop - uses mock email client and so on
 # staging - like production but without TLS

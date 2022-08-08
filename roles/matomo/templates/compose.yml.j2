@@ -3,11 +3,11 @@ version: "3.8"
 services:
   matomo:
     container_name: matomo
-    hostname: {{domain_matomo}}
+    hostname: {{subdomain_matomo}}.{{domain}}
     image: matomo:4.1.1-apache
     restart: unless-stopped
     volumes:
-      - {{project_root}}/matomo:/var/www/html
+      - {{project_root}}/matomo/data:/var/www/html
     environment:
       MATOMO_DATABASE_HOST: {{mysql_host}}
       MATOMO_DATABASE_ADAPTER: mysql

@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  kolibri:
+    image: neethumohan1212/kolibri
+    container_name: kolibri
+    restart: unless-stopped
+    environment:
+      TZ: '{{ ansible_facts["date_time"]["tz"] }}'
+    volumes:
+      - {{project_root}}/kolibri/data:/root:rw
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.kolibri.entrypoints: websecure
+      traefik.http.routers.kolibri.rule: Host(`{{subdomain_kolibri}}.{{domain}}`)
+      traefik.http.routers.kolibri.tls: "true"
+      traefik.http.services.kolibri.loadbalancer.server.port: 8080
+    networks:
+      - traefik

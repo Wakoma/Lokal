@@ -17,7 +17,7 @@ services:
       - traefik
     restart: unless-stopped
     volumes:
-      - {{project_root}}/wordpress:/var/www/html
+      - {{project_root}}/wordpress/data:/var/www/html
     labels:
       traefik.enable: "true"
       traefik.http.routers.wordpress.entrypoints: websecure
