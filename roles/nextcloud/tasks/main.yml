@@ -1,12 +1,23 @@
-- name: "Create root dir"
-  file:
-    path: '{{project_root}}/nextcloud'
-    state: directory
-
-- name: "Create data dir"
+---
+- name: "Create app dir"
   file:
     path: '{{project_root}}/nextcloud/data'
     state: directory
+
+- name: "Init database"
+  community.mysql.mysql_db:
+    name: {{mysql_database_nextcloud}}
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    state: present
+
+- name: "Grant user priviledges to the DB"
+  community.mysql.mysql_user:
+    name: {{mysql_user_nextcloud}}
+    password: "{{mysql_password_nextcloud}}"
+    priv: '{{mysql_database_nextcloud}}.*:ALL'
+    state: present
+    login_user: root
 
 - name: "Create config dir"
   file:
@@ -16,4 +27,9 @@
 - name: "Render the compose file"
   template:
     name: compose.yml.j2
-    dst: '{{project_root}}/nextcloud.yml'
+    dst: '{{project_root}}/nextcloud/compose.yml'
+
+- name: Docker-compose up
+  shell: "docker-compose up --quiet-pull -d -f compose.yml nextcloud"
+  args:
+    chdir: "{{ project_root }}/nextcloud/"

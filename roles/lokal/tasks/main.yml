@@ -1,13 +1,8 @@
-# Prepare the most basic things
+---
 - name: "Creating project root directory"
   ansible.builtin.file:
     state: directory
     path: '{{project_root}}'
-
-- name: Render base compose.yml
-  ansible.builtin.template:
-    src: compose.yml.j2
-    dest: '{{project_root}}/base.yml'
 
 - name: Create app dirs
   ansible.builtin.file:
@@ -34,3 +29,21 @@
 - name: "Setup prometheus"
   include_tasks:
     file: setup-prometheus.yml
+
+- name: "Install necessary base software"
+  package:
+    name:
+      - docker-compose
+      - python3-pymysql
+    state: present
+  become: true
+
+- name: Render base compose.yml
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: '{{project_root}}/compose.yml'
+
+- name: Docker-compose up
+  shell: "docker-compose up --quiet-pull -d -f compose.yml grafana netdata prometheus traefik mariadb portainer transmission jellyfin"
+  args:
+    chdir: "{{project_root}}/"

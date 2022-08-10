@@ -84,3 +84,14 @@
       enabled: yes
       state: started
     when: "{{ setup_ssh | default(false) }}"
+
+  - name: "Make sure docker-compose is installed"
+    package:
+      name: docker-compose
+      state: present
+
+  - name: "Add current user to docker group"
+    user:
+      name: '{{ ansible_user }}'
+      groups: docker
+      append: yes

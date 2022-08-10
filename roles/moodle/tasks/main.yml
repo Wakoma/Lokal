@@ -1,19 +1,26 @@
 ---
-- name: Deploy Moodle
-  hosts: all
-  tasks:
-  - name: Make Moodle installation directory
-    file:
-      path: "{{ project_root }}/moodle"
-      state: directory
+- name: Create app directory
+  file:
+    path: "{{ project_root }}/moodle/app"
+    state: directory
 
-  - name: Render compose.yml
-    ansible.builtin.template:
-      src: "compose.yml.j2"
-      dest: "{{ project_root }}/moodle/compose.yml"
-      mode: "0600"
+- name: Create app-data directory
+  file:
+    path: "{{ project_root }}/moodle/data"
+    state: directory
 
-  - name: Docker-compose up
-    shell: "docker-compose up --quiet-pull -d"
-    args:
-      chdir: "{{ project_root }}/moodle/"
+- name: Create db directory
+  file:
+    path: "{{ project_root }}/moodle/db"
+    state: directory
+
+- name: Render compose.yml
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ project_root }}/moodle/compose.yml"
+    mode: "0600"
+
+- name: Docker-compose up
+  shell: "docker-compose up --quiet-pull -d -f compose.yml moodledb moodle"
+  args:
+    chdir: "{{ project_root }}/moodle/"

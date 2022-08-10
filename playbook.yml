@@ -3,8 +3,8 @@
   hosts: all
   roles:
   - lokal
-  # - unifi
-  # - wordpress
+  - unifi
+  - wordpress
   # - moodle
   # - nextcloud
   # - resourcespace

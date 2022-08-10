@@ -8,26 +8,15 @@ locale: en_US.utf-8
 # staging - like production but without TLS
 deployment_environment: develop  # develop, staging, production
 server_is_live: false
-
-
-# Cloud Provider Secrets
-hcloud_token: 
-vagrant_ip: 10.180.0.102
-
-## Cloud Provider Variables
-# primary_ssh_user: ubuntu # replace with ansible_user
-hcloud_image: ubuntu-20.04
-hcloud_location: nbg1
-hcloud_server_type: cpx11
 dns_provider: namecheap
 cert_resolver: dns
+namecheap_api_user:
+namecheap_api_key:
 
 # Container Secrets
 acme_email: 
 acme_certs_dir: /media/certs/
 traefik_basicauth_users: ''
-namecheap_api_user: 
-namecheap_api_key: 
 
 # Container Variables
 # PUID: ''{{ ansible_facts["user_uid"] }}''
@@ -81,3 +70,14 @@ mysql_database_matomo: matoma
 mysql_user_nextcloud: nextcloud
 mysql_password_nextcloud: nextcloud
 mysql_database_nextcloud: nextcloud
+
+# TO BE SEPARATED TO STANDALONE PLAYS
+# Cloud Provider Secrets
+hcloud_token:
+vagrant_ip: 10.180.0.102
+
+## Cloud Provider Variables
+# primary_ssh_user: ubuntu # replace with ansible_user
+hcloud_image: ubuntu-20.04
+hcloud_location: nbg1
+hcloud_server_type: cpx11

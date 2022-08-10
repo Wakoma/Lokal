@@ -1,4 +1,4 @@
-
+---
 - name: "Copy config files for prometheus"
   ansible.builtin.copy:
     src: files/prometheus/

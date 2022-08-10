@@ -21,9 +21,9 @@ services:
       traefik.http.routers.grafana.rule: Host(`{{subdomain_grafana}}.{{domain}}`)
       traefik.http.routers.grafana.tls: "true"
       traefik.http.services.grafana.loadbalancer.server.port: 3000
-      {% if server_is_live %}
+{% if server_is_live %}
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
-      {% endif %}
+{% endif %}
     volumes:
       - {{project_root}}/grafana/data:/var/lib/grafana:rw
     networks:
@@ -45,10 +45,10 @@ services:
       traefik.http.routers.netdata.rule: Host(`{{subdomain_netdata}}.{{domain}}`)
       traefik.http.routers.netdata.tls: "true"
       traefik.http.services.netdata.loadbalancer.server.port: 19999
-      {% if server_is_live %}
+{% if server_is_live %}
       traefik.http.routers.netdata.middlewares: traefik-auth
       traefik.http.routers.netdata.tls.certresolver: {{cert_resolver}}
-      {% endif %}
+{% endif %}
     networks:
       - traefik
       - prometheus
@@ -69,10 +69,10 @@ services:
       traefik.http.routers.prometheus.rule: Host(`{{subdomain_prometheus}}.{{domain}}`)
       traefik.http.routers.prometheus.tls: "true"
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
-      {% if server_is_live %}
+{% if server_is_live %}
       traefik.http.routers.prometheus.middlewares: traefik-auth
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
-      {% endif %}
+{% endif %}
     networks:
       - traefik
       - prometheus
@@ -92,11 +92,11 @@ services:
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
-      {% if server_is_live %}
+{% if server_is_live %}
       traefik.http.middlewares.traefik-auth.basicauth.users: {{traefik_basicauth_users}}
       traefik.http.routers.traefik.middlewares: traefik-auth
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
-      {% endif %}
+{% endif %}
     networks:
       - traefik
       - prometheus
@@ -106,7 +106,7 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    {% if server_is_live %}
+{% if server_is_live %}
       - {{project_root}}/traefik/config/live/dynamic.yml:/config/live.yml
       - {{project_root}}/traefik/config/local/dynamic.yml:/config/local.yml
       - ./acme:/acme
@@ -146,7 +146,7 @@ services:
     environment:
       - NAMECHEAP_API_USER
       - NAMECHEAP_API_KEY
-    {% endif %}
+{% endif %}
 
   mariadb:
     container_name: {{mysql_host}}
@@ -181,9 +181,9 @@ services:
       traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
-      {% if server_is_live %}
+{% if server_is_live %}
       traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
-      {% endif %}
+{% endif %}
 
   transmission:
     image: linuxserver/transmission

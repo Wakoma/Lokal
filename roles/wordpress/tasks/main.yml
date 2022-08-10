@@ -1,36 +1,32 @@
 ---
-- name: Deploy Wordpress
-  hosts: all
-  tasks:
-  - name: Make Wordpress installation directory
-    file:
-      path: "{{ project_root }}/wordpress/data"
-      state: directory
+- name: Create app directory
+  file:
+    path: "{{ project_root }}/wordpress/data"
+    state: directory
 
-  - name: Init database
-    community.mysql.mysql_db:
-      name: {{mysql_database_wordpress}}
-      login_user: root
-      login_password: "{{mysql_root_password}}"
-      state: present
+- name: Init database
+  community.mysql.mysql_db:
+    name: "{{mysql_database_wordpress}}"
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    state: present
 
-  - name: Grant user priviledges to the DB
-    community.mysql.mysql_user:
-      name: {{mysql_user_wordpress}}
-      password: "{{mysql_password_wordpress}}"
-      priv: '{{mysql_database_wordpress}}.*:ALL'
-      state: present
-      login_user: root
-      login_password: "{{mysql_root_password}}"
+- name: Grant user priviledges to the DB
+  community.mysql.mysql_user:
+    name: "{{mysql_user_wordpress}}"
+    password: "{{mysql_password_wordpress}}"
+    priv: '{{mysql_database_wordpress}}.*:ALL'
+    state: present
+    login_user: root
+    login_password: "{{mysql_root_password}}"
 
-  - name: Render compose.yml
-    ansible.builtin.template:
-      src: "compose.yml.j2"
-      dest: "{{ project_root }}/wordpress/compose.yml"
-      mode: "0600"
+- name: Render compose.yml
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ project_root }}/wordpress/compose.yml"
+    mode: "0600"
 
-  - name: Docker-compose up
-    shell: "docker-compose up --quiet-pull -d"
-    args:
-      chdir: "{{ project_root }}/wordpress/"
-    when: separate
+- name: Docker-compose up
+  shell: "docker-compose up --quiet-pull -d -f compose.yml wordpress"
+  args:
+    chdir: "{{ project_root }}/wordpress/"

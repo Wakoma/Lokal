@@ -25,3 +25,11 @@ services:
       {% if server_is_live %}
       traefik.http.routers.nextcloud.tls.certresolver: {{cert_resolver}}
       {% endif %}
+
+networks:
+  traefik:
+    external: true
+  mysql:
+    external: true
+  prometheus:
+    external: true

@@ -1,3 +1,4 @@
+---
 - name: Make acme certs directory if it does not yet exist
   become: yes
   become_user: root

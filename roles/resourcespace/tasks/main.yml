@@ -1,36 +1,32 @@
 ---
-- name: Deploy Resourcespace
-  hosts: all
-  tasks:
-  - name: Make Resourcespace installation directory
-    file:
-      path: "{{ project_root }}/resourcespace/data"
-      state: directory
+- name: Create app directory
+  file:
+    path: "{{ project_root }}/resourcespace/data"
+    state: directory
 
-  - name: Init database
-    community.mysql.mysql_db:
-      name: {{mysql_database_resourcespace}}
-      login_user: root
-      login_password: "{{mysql_root_password}}"
-      state: present
+- name: Init database
+  community.mysql.mysql_db:
+    name: {{mysql_database_resourcespace}}
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    state: present
 
-  - name: Grant user priviledges to the DB
-    community.mysql.mysql_user:
-      name: {{mysql_user_resourcespace}}
-      password: "{{mysql_password_resourcespace}}"
-      priv: '{{mysql_database_resourcespace}}.*:ALL'
-      state: present
-      login_user: root
-      login_password: "{{mysql_root_password}}"
+- name: Grant user priviledges to the DB
+  community.mysql.mysql_user:
+    name: {{mysql_user_resourcespace}}
+    password: "{{mysql_password_resourcespace}}"
+    priv: '{{mysql_database_resourcespace}}.*:ALL'
+    state: present
+    login_user: root
+    login_password: "{{mysql_root_password}}"
 
-  - name: Render compose.yml
-    ansible.builtin.template:
-      src: "compose.yml.j2"
-      dest: "{{ project_root }}/resourcespace/compose.yml"
-      mode: "0600"
+- name: Render compose.yml
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ project_root }}/resourcespace/compose.yml"
+    mode: "0600"
 
-  - name: Docker-compose up
-    shell: "docker-compose up --quiet-pull -d"
-    args:
-      chdir: "{{ project_root }}/resourcespace/"
-    when: separate
+- name: Docker-compose up
+  shell: "docker-compose up --quiet-pull -d -f compose.yml resourcespace"
+  args:
+    chdir: "{{ project_root }}/resourcespace/"

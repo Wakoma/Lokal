@@ -29,3 +29,9 @@ services:
       {% endif %}
     depends_on:
       - mariadb
+
+networks:
+  traefik:
+    external: true
+  mysql:
+    external: true

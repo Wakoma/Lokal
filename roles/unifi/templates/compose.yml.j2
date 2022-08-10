@@ -38,3 +38,9 @@ services:
       traefik.http.routers.unifi-controller.tls: "true"
       traefik.http.services.unifi-controller.loadbalancer.server.scheme: https
       traefik.http.services.unifi-controller.loadbalancer.server.port: 8443
+
+networks:
+  traefik:
+    external: true
+  prometheus:
+    external: true

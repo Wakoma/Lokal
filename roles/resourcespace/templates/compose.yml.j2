@@ -7,7 +7,7 @@ services:
     depends_on:
       - mariadb
     volumes:
-      - {{project_root}}/resourcespace:/var/www/html
+      - {{project_root}}/resourcespace/data:/var/www/html
     networks:
       - traefik
       - mysql
@@ -20,3 +20,9 @@ services:
       {% if server_is_live %}
       traefik.http.routers.resourcespace.tls.certresolver: {{cert_resolver}}
       {% endif %}
+
+networks:
+  traefik:
+    external: true
+  mysql:
+    external: true

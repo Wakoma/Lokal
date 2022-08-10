@@ -28,3 +28,9 @@ services:
       traefik.http.routers.wordpress.tls.certresolver: {{cert_resolver}}
       traefik.http.routers.wordpress.tls.domains[1].main: {{domain}}
       {% endif %}
+
+networks:
+  traefik:
+    external: true
+  mysql:
+    external: true

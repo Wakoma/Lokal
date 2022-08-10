@@ -9,7 +9,7 @@ services:
       - MARIADB_CHARACTER_SET=utf8mb4
       - MARIADB_COLLATE=utf8mb4_unicode_ci
     volumes:
-      - '{{project_root}}/moodle/moodledb:/bitnami/mariadb'
+      - '{{project_root}}/moodle/db:/bitnami/mariadb'
     networks:
       - moodle
 
@@ -22,8 +22,8 @@ services:
       - MOODLE_DATABASE_NAME=bitnami_moodle
       - ALLOW_EMPTY_PASSWORD=yes
     volumes:
-      - '{{project_root}}/moodle/moodle:/bitnami/moodle'
-      - '{{project_root}}/moodle/moodledata:/bitnami/moodledata'
+      - '{{project_root}}/moodle/app:/bitnami/moodle'
+      - '{{project_root}}/moodle/data:/bitnami/moodledata'
     depends_on:
       - moodledb
     labels:
