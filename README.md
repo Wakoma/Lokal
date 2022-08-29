@@ -1,6 +1,7 @@
 # Lokal Services. Global Impact.
 
-Open source glue for open source applications and services for content production, curation and sharing.
+Lokal enables communities to access opensource network services without the internet. Lokal provides opensource alternatives to the most used services such as youtube, twitter, whatsapp, blogs and others.
+Lokal is focused on QoS, Ops and connectivity rather than just providing a bunch of services.
 
 ![Alt text](https://wakoma.co/wp-content/uploads/2021/04/content2.jpg) 
 

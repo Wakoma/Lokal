@@ -3,28 +3,21 @@
 roles:
 - name: geerlingguy.docker
   version: 2.9.0
-  source: https://galaxy.ansible.com
 
 - name: geerlingguy.pip
   version: 2.0.0
-  source: https://galaxy.ansible.com
 
 - name: geerlingguy.firewall
   version: 2.5.0
-  source: https://galaxy.ansible.com
 
 - name: geerlingguy.security
   version: 2.1.0
-  source: https://galaxy.ansible.com
 
 - name: bguerel.self_signed_certificate
   version: v1.0.1
-  source: https://galaxy.ansible.com
 
 collections:
 - name: markuman.nextcloud
   version: 3.0.2
-  source: https://galaxy.ansible.com
 
 - name: community.mysql
-  source: https://galaxy.ansible.com

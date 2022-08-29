@@ -9,10 +9,13 @@ fi
 
 # install necessary software
 apt update
-apt install --yes software-properties-common ansible direnv
+apt install --yes software-properties-common python3-pip
+
+# use pip to install the newest ansible 2.10+
+pip install ansible
 
 # install software plugins
 ansible-galaxy install -r requirements.yml
 
 # run the installation
-ansible-playbook -c local -i "127.0.0.1," -l "127.0.0.1" lokal.yml
+ansible-playbook -c local -i hosts/local playbook.yml

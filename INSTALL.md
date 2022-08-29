@@ -7,7 +7,7 @@ You can either install Lokal directly on your machine or perform a remote instal
 Client is the machine that issues commands and launches services on the server. Client and server can be the
 same machine - then it is a local installation.
 
-You can either create a client from your machine (run `local.sh`) or use provided Dockerfile to
+You can either create a client from your machine (run `install.sh`) or use provided Dockerfile to
 quickly prepare a controller on less dev-friendly environment such as Windows OS.
 
 `docker build `
@@ -20,7 +20,6 @@ quickly prepare a controller on less dev-friendly environment such as Windows OS
 
 If you want to launch services on a remote host, you need to create yourself an "inventory"
 ansible file with connection details to the remote server.
-
 
 # Envs
 Live - actual production
