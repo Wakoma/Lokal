@@ -19,7 +19,7 @@ services:
       PUID: {{ ansible_facts["user_uid"] }}'
       PGID: '{{ ansible_facts["user_gid"] }}'
     volumes:
-      - unifi-controller:/config
+      - {{project_root}}/unifi/data:/config
     ports:
       - 3478:3478/udp
       - 10001:10001/udp

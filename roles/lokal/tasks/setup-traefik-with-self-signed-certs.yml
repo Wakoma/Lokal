@@ -21,7 +21,7 @@
     privatekey_path: "{{ acme_certs_dir }}/{{domain}}.key"
     organization_name: "Wakoma"
     commonName: "{{domain}}"
-    email_address: "devel@wakoma.net"
+    email_address: "{{acme_email}}"
     country_name: "US"
 
 - name: Create SSL certificate

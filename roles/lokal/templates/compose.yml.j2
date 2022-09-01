@@ -8,7 +8,6 @@ networks:
   prometheus:
     name: prometheus
 
-
 services:
   grafana:
     container_name: grafana
@@ -152,12 +151,19 @@ services:
     container_name: {{mysql_host}}
     image: mariadb:10.5.8-focal
     environment:
-      MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
+      MARIADB_ROOT_PASSWORD: {{mysql_root_password}}
+      MARIADB_MYSQL_LOCALHOST_USER: "true"
     ports:
       - 3306:3306  # necessary to manipulate mariadb locally
     networks:
       - mysql
       - prometheus
+    healthcheck:
+      test: mysql -c "select 1 from DUAL"
+      interval: 60s
+      retries: 5
+      start_period: 10s
+      timeout: 1s
     restart: unless-stopped
     volumes:
       - {{project_root}}/mysql/data:/var/lib/mysql

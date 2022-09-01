@@ -1,0 +1,5 @@
+subdomain_matomo: analytics
+
+mysql_user_matomo: matoma
+mysql_password_matomo: matoma
+mysql_database_matomo: matoma

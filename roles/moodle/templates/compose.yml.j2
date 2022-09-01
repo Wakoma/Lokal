@@ -12,6 +12,9 @@ services:
       - '{{project_root}}/moodle/db:/bitnami/mariadb'
     networks:
       - moodle
+    # we don't actually need to expose the port because nobody was 
+    # ports:
+    #  - 3307:3306
 
   moodle:
     image: docker.io/bitnami/moodle:3

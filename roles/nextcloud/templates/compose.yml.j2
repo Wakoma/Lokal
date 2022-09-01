@@ -9,8 +9,8 @@ services:
       MYSQL_USER: {{mysql_user_nextcloud}}
       MYSQL_HOST: {{mysql_host}}
     volumes:
-      - {{project_root}}/nextcloud/config:/config
-      - {{project_root}}/nextcloud/data:/var/www/html
+      - {{config_dir_nextcloud}}:/config
+      - {{data_dir_nextcloud}}:/var/www/html
     restart: unless-stopped
     networks:
       - mysql

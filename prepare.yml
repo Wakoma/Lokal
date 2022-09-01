@@ -1,0 +1,104 @@
+---
+- name: Prepare host system for Lokal (security/user...)
+  hosts: all
+  
+  tasks:
+    - name: Wait for apt list lock (Known to cause issues sometimes)
+      raw: while fuser /var/lib/apt/lists/lock >/dev/null 2>&1; do echo 'Waiting for apt list lock.' && sleep 10; done
+      changed_when: False
+
+    - name: Ensure packages are updated
+      apt:
+        update_cache: yes
+        upgrade: dist
+        autoclean: yes
+        autoremove: yes
+    
+    - name: Ensure that the app user is present
+      user:
+        name: "{{ app_user }}"
+        shell: /bin/bash
+        groups: [sudo]
+        append: yes
+        createhome: yes
+
+    - name: Ensure that the primary user's ssh directory exists
+      file:
+        path: "/home/{{ app_user }}/.ssh"
+        state: directory
+        owner: "{{ app_user }}"
+        mode: 0700
+        group: "{{ app_user }}"
+
+    - name: Ensure authorized_keys file is initiated for primary user
+      file:
+        path: "/home/{{ app_user }}/.ssh/authorized_keys"
+        state: file
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0600
+
+    - name: Ensure authorized_keys file is initiated for primary user
+      lineinfile:
+        line: "{{ ssh_key }}"
+        path: "/home/{{ app_user }}/.ssh/authorized_keys"
+        state: present
+
+  roles:
+  - name: geerlingguy.security
+    vars:
+      security_sudoers_passwordless:
+      - '{{ app_user }}'
+      security_ssh_permit_root_login: "yes"
+
+  - name: geerlingguy.docker
+    become: true
+    vars:
+      docker_users:
+      - '{{ app_user }}'
+      docker_service_state: restarted
+
+  - name: geerlingguy.pip
+    become: yes
+    vars:
+      pip_executable: pip3
+      pip_package: python3-pip
+      pip_install_packages:
+        - name: docker
+          state: present
+
+- name: Ensure firewall is set up
+  hosts: all
+  become: yes
+  vars:
+    firewall_state: started
+    firewall_enabled_at_boot: true
+    firewall_allowed_tcp_ports:
+      # ssh
+      - 22
+      # web
+      - 80
+      - 443
+      # unifi-controller
+      - 8080
+      - 6789
+      # transmission
+      - 51413
+      # jitsi
+      - 4443
+    firewall_allowed_udp_ports:
+      # unifi-controller
+      - 3478
+      - 10001
+      - 1900
+      - 5514
+      # jellyfin
+      - 7359
+      # transmission
+      - 51413
+      # jitsi
+      - 10000
+    firewall_disable_ufw: true
+    firewall_enable_ipv6: false
+  roles:
+    - geerlingguy.firewall

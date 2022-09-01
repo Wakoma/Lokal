@@ -7,9 +7,10 @@
 - name: Init database
   community.mysql.mysql_db:
     name: "{{mysql_database_wordpress}}"
+    state: present
     login_user: root
     login_password: "{{mysql_root_password}}"
-    state: present
+    login_host: localhost
 
 - name: Grant user priviledges to the DB
   community.mysql.mysql_user:
@@ -19,14 +20,15 @@
     state: present
     login_user: root
     login_password: "{{mysql_root_password}}"
+    login_host: localhost
 
-- name: Render compose.yml
+- name: Render docker-compose.yml
   ansible.builtin.template:
     src: "compose.yml.j2"
-    dest: "{{ project_root }}/wordpress/compose.yml"
+    dest: "{{ project_root }}/wordpress/docker-compose.yml"
     mode: "0600"
 
 - name: Docker-compose up
-  shell: "docker-compose up --quiet-pull -d -f compose.yml wordpress"
+  shell: "docker-compose up -d"
   args:
     chdir: "{{ project_root }}/wordpress/"

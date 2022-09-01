@@ -1,14 +1,18 @@
 ---
 - name: "Create app dir"
-  file:
-    path: '{{project_root}}/nextcloud/data'
+  ansible.builtin.file:
+    path: '{{item}}'
     state: directory
+  loop:
+    - "{{data_dir_nextcloud}}"
+    - "{{config_dir_nextcloud}}"
 
 - name: "Init database"
   community.mysql.mysql_db:
     name: {{mysql_database_nextcloud}}
     login_user: root
     login_password: "{{mysql_root_password}}"
+    login_host: localhost
     state: present
 
 - name: "Grant user priviledges to the DB"
@@ -18,18 +22,15 @@
     priv: '{{mysql_database_nextcloud}}.*:ALL'
     state: present
     login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_host: localhost
 
-- name: "Create config dir"
-  file:
-    path: '{{project_root}}/nextcloud/config'
-    state: directory
-
-- name: "Render the compose file"
+- name: "Render the docker-compose file"
   template:
     name: compose.yml.j2
-    dst: '{{project_root}}/nextcloud/compose.yml'
+    dst: '{{project_root}}/nextcloud/docker-compose.yml'
 
 - name: Docker-compose up
-  shell: "docker-compose up --quiet-pull -d -f compose.yml nextcloud"
+  shell: "docker-compose up -d"
   args:
     chdir: "{{ project_root }}/nextcloud/"

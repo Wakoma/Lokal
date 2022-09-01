@@ -1,5 +1,5 @@
 ---
-- name: Install and launch Wakoma Lokal
+- name: Install local
   hosts: all
   roles:
   - lokal
