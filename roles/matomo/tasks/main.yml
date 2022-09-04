@@ -16,6 +16,7 @@
     name: "{{mysql_user_matomo}}"
     password: "{{mysql_password_matomo}}"
     priv: '{{mysql_database_matomo}}.*:ALL'
+    host: '%'
     state: present
     login_user: root
     login_password: "{{mysql_root_password}}"

@@ -33,6 +33,6 @@
     dest: '{{project_root}}/docker-compose.yml'
 
 - name: Docker-compose up
-  shell: "docker-compose up -d"
-  args:
+  ansible.builtin.shell: 
+    cmd: "docker-compose up -d"
     chdir: "{{project_root}}"

@@ -1,0 +1,30 @@
+version: "2.1"
+services:
+  calibre:
+    image: linuxserver/calibre-web
+    container_name: calibre
+    environment:
+      - PUID={{ ansible_facts["user_uid"] }}
+      - PGID={{ ansible_facts["user_gid"] }}
+      - TZ={{ ansible_facts["date_time"]["tz"] }}
+    volumes:
+      - "{{project_root}}/calibre/web:/config"
+      - "{{project_root}}/calibre/data:/library"
+    restart: unless-stopped
+  calibre-server:
+    image: linuxserver/calibre
+    container_name: calibre-server
+    environment:
+      - PUID={{ ansible_facts["user_uid"] }}
+      - PGID={{ ansible_facts["user_gid"] }}
+      - TZ={{ ansible_facts["date_time"]["tz"] }}
+      - GUAC_USER={{user_calibre}}
+      - GUAC_PASS={{password_calibre}}
+    volumes:
+      - "{{project_root}}/calibre/server:/config"
+      - "{{project_root}}/calibre/data:/library"  # used to be /config/Calibre Library
+    restart: unless-stopped
+networks:
+  default:
+    external:
+      name: vpuu-offline

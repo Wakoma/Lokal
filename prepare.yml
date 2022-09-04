@@ -29,6 +29,7 @@
         owner: "{{ app_user }}"
         mode: 0700
         group: "{{ app_user }}"
+      when: "{{ setup_ssh }}"
 
     - name: Ensure authorized_keys file is initiated for primary user
       file:
@@ -37,12 +38,14 @@
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
         mode: 0600
+      when: "{{ setup_ssh }}"
 
     - name: Ensure authorized_keys file is initiated for primary user
       lineinfile:
         line: "{{ ssh_key }}"
         path: "/home/{{ app_user }}/.ssh/authorized_keys"
         state: present
+      when: "{{ setup_ssh }}"
 
   roles:
   - name: geerlingguy.security

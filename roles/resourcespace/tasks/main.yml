@@ -16,6 +16,7 @@
     name: {{mysql_user_resourcespace}}
     password: "{{mysql_password_resourcespace}}"
     priv: '{{mysql_database_resourcespace}}.*:ALL'
+    host: '%'
     state: present
     login_user: root
     login_password: "{{mysql_root_password}}"
