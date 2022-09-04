@@ -1,0 +1,43 @@
+- name: List possible backup files
+  ansible.builtin.find:
+    paths: "{{project_root}}/wordpress/backup"
+    file_type: directory
+  register: available_backups
+
+- name: Get the latest backup
+  ansible.builtin.set_fact:
+    latest_backup: "{{ available_backups.files | sort(attribute='mtime',reverse=true) | first }}"
+
+- name: "Stop the service"
+  ansible.builtin.shell:
+    cmd: "docker-compose down"
+    chdir: "{{project_root}}/wordpress"
+
+- name: "Restore docker-compose"
+  ansible.builtin.copy:
+    src: "{{latest_backup}}/docker-compose.yml"
+    dest: "{{project_root}}/wordpress/docker-compose.yml"
+    remote_src: yes
+
+- name: "Restore data"
+  ansible.builtin.unarchive:
+    src: "{{latest_backup}}/data.tgz"
+    dest: "{{project_root}}/wordpress/data/"
+    remote_src: yes
+
+- name: "Restore DB"
+  community.mysql.mysql_db:
+    state: import
+    name: "{{mysql_database_wordpress}}"
+    target: mysql.dump.sql.gz
+    dump_extra_args: --protocol=TCP
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_port: "{{mysql_port}}"
+    chdir: "{{backup_dir}}"
+    force: yes
+
+- name: "Start the service again"
+  ansible.builtin.shell:
+    cmd: "docker-compose up -d"
+    chdir: "{{project_root}}/wordpress"

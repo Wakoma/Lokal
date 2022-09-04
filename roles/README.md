@@ -1,3 +1,31 @@
+# Services
+
+Lokal comes with one mandatory `lokal` service and other optional. You control which services
+are installed in root `playbook.yml`. Every service has three mode-operandi.
+
+- installation
+- backup
+- restore
+
+If you do not specify anything then installation/update will be performed. Otherwise, specify
+one of `backup` or `restore` runtime variable using `-e` parameter of `ansible-playbook`.
+
+## Backup
+
+You control what is being run by ansible-playbook's command line argument `-e backup`. Variable
+backup should contain comma-separated services that you want to backup e.g.:
+```bash
+ansible-playbook -i host/mini1 -e backup=wordpress,matmoto playbook.yml
+```
+
+## Restore
+
+Restore is controlled by property `restore` with the same syntax as `backup` - it should contain also
+comma-separated services that you want to restore.
+```bash
+ansible-playbook -i host/mini1 -e restore=wordpress,matmoto playbook.yml
+```
+
 # What services does it include so far?
 You can find the full list of services here: https://wakoma.co/lokal/#services
 

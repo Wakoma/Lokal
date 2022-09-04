@@ -1,0 +1,45 @@
+- name: "Get current timestamp"
+  register: timestamp_result
+  shell: date '+%Y-%m-%d_%H-%M-%S'
+
+- name: "Get name of backup directory"
+  set_fact:
+    backup_dir: "{{project_root}}/wordpress/backup/{{timestamp_result.stdout}}"
+
+- name: "Create backup dir"
+  ansible.builtin.file:
+    path: "{{backup_dir}}"
+    state: directory
+
+- name: "Stop the service"
+  ansible.builtin.shell:
+    cmd: "docker-compose down"
+    chdir: "{{project_root}}/wordpress"
+
+- name: "Backup docker-compose"
+  ansible.builtin.copy:
+    src: "{{project_root}}/wordpress/docker-compose.yml"
+    dest: "{{backup_dir}}/docker-compose.yml"
+    remote_src: yes
+
+- name: "Backup data"
+  community.general.archive:
+    path: "{{project_root}}/wordpress/data/"
+    dest: "{{backup_dir}}/data.tgz"
+    format: gz
+
+- name: "Backup DB"
+  community.mysql.mysql_db:
+    state: dump
+    name: "{{mysql_database_wordpress}}"
+    target: mysql.dump.sql.gz
+    dump_extra_args: "--routines --triggers --protocol=TCP"
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_port: "{{mysql_port}}"
+    chdir: "{{backup_dir}}"
+
+- name: "Start the service again"
+  ansible.builtin.shell:
+    cmd: "docker-compose up -d"
+    chdir: "{{project_root}}/wordpress"

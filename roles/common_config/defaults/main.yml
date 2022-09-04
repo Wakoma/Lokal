@@ -1,0 +1,42 @@
+## Common base settings
+project_name: vnet
+project_root: "$HOME/lokal"
+domain: vnet.lan
+lang: en_US
+locale: en_US.utf-8
+
+# deploy HTTPS certificates obtained from public ACME service
+server_is_live: false
+
+## Environment: 
+# - develop: uses mock email client and so on
+# - staging: like production but without TLS
+# - production: ??
+deployment_environment: develop  # develop, staging, production
+
+# Common DNS settings
+dns_provider: namecheap
+cert_resolver: dns
+namecheap_api_user:
+namecheap_api_key:
+
+# Common services settings
+mysql_root_password: default
+mysql_host: mariadb
+mysql_port: 3306
+
+# Common runtime variables
+# PUID: ''{{ ansible_facts["user_uid"] }}''
+# PGID: '{{ ansible_facts["user_gid"] }}'
+# TZ: '{{ ansible_facts["date_time"]["tz"] }}'
+
+
+# TO BE SEPARATED TO STANDALONE PLAYS
+# Cloud Provider Secrets
+hcloud_token:
+vagrant_ip: 10.180.0.102
+
+## Cloud Provider Variables
+hcloud_image: ubuntu-20.04
+hcloud_location: nbg1
+hcloud_server_type: cpx11

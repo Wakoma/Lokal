@@ -17,6 +17,7 @@
     name: "{{mysql_user_wordpress}}"
     password: "{{mysql_password_wordpress}}"
     priv: '{{mysql_database_wordpress}}.*:ALL'
+    host: "%"
     state: present
     login_user: root
     login_password: "{{mysql_root_password}}"
@@ -29,6 +30,6 @@
     mode: "0600"
 
 - name: Docker-compose up
-  shell: "docker-compose up -d"
-  args:
+  ansible.builtin.shell: 
+    cmd: "docker-compose up -d"
     chdir: "{{ project_root }}/wordpress/"
