@@ -1,6 +1,6 @@
 - name: "Get current timestamp"
   register: timestamp_result
-  shell: date '+%Y-%m-%d_%H-%M-%S'
+  shell: date '+%Y%m%dT%H%M%S'
 
 - name: "Get name of backup directory"
   set_fact:
@@ -36,6 +36,7 @@
     dump_extra_args: "--routines --triggers --protocol=TCP"
     login_user: root
     login_password: "{{mysql_root_password}}"
+    login_host: localhost
     login_port: "{{mysql_port}}"
     chdir: "{{backup_dir}}"
 

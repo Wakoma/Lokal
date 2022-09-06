@@ -7,7 +7,7 @@
 - name: Get the latest backup
   ansible.builtin.set_fact:
     latest_backup: "{{ available_backups.files | sort(attribute='mtime',reverse=true) | first }}"
-
+  
 - name: "Stop the service"
   ansible.builtin.shell:
     cmd: "docker-compose down"
@@ -15,13 +15,13 @@
 
 - name: "Restore docker-compose"
   ansible.builtin.copy:
-    src: "{{latest_backup}}/docker-compose.yml"
+    src: "{{latest_backup.path}}/docker-compose.yml"
     dest: "{{project_root}}/wordpress/docker-compose.yml"
     remote_src: yes
 
 - name: "Restore data"
   ansible.builtin.shell:
-    cmd: "tar -xzf {{latest_backup}}/data.tgz"
+    cmd: "tar -xzf {{latest_backup.path}}/data.tgz"
     chdir: "{{project_root}}/wordpress/data"
   become: yes
 
@@ -30,11 +30,11 @@
     state: import
     name: "{{mysql_database_wordpress}}"
     target: mysql.dump.sql.gz
-    dump_extra_args: --protocol=TCP
     login_user: root
     login_password: "{{mysql_root_password}}"
     login_port: "{{mysql_port}}"
-    chdir: "{{backup_dir}}"
+    login_host: localhost
+    chdir: "{{latest_backup.path}}"
     force: yes
 
 - name: "Start the service again"
