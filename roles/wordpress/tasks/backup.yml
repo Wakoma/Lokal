@@ -4,7 +4,7 @@
 
 - name: "Get name of backup directory"
   set_fact:
-    backup_dir: "{{project_root}}/wordpress/backup/{{timestamp_result.stdout}}"
+    backup_dir: "{{backup_root}}/wordpress/{{timestamp_result.stdout}}"
 
 - name: "Create backup dir"
   ansible.builtin.file:
@@ -23,10 +23,10 @@
     remote_src: yes
 
 - name: "Backup data"
-  community.general.archive:
-    path: "{{project_root}}/wordpress/data/"
-    dest: "{{backup_dir}}/data.tgz"
-    format: gz
+  ansible.builtin.shell:
+    cmd: "tar -czf {{backup_dir}}/data.tgz ."
+    chdir: "{{project_root}}/wordpress/data"
+  become: yes # we need to become root to preserve docker's user owner of the files
 
 - name: "Backup DB"
   community.mysql.mysql_db:

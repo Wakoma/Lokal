@@ -1,6 +1,6 @@
 - name: List possible backup files
   ansible.builtin.find:
-    paths: "{{project_root}}/wordpress/backup"
+    paths: "{{backup_root}}/wordpress/"
     file_type: directory
   register: available_backups
 
@@ -20,10 +20,10 @@
     remote_src: yes
 
 - name: "Restore data"
-  ansible.builtin.unarchive:
-    src: "{{latest_backup}}/data.tgz"
-    dest: "{{project_root}}/wordpress/data/"
-    remote_src: yes
+  ansible.builtin.shell:
+    cmd: "tar -xzf {{latest_backup}}/data.tgz"
+    chdir: "{{project_root}}/wordpress/data"
+  become: yes
 
 - name: "Restore DB"
   community.mysql.mysql_db:

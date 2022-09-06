@@ -1,7 +1,7 @@
 ---
 - name: Create app dirs
   ansible.builtin.file:
-    path: '{{project_root}}/{{item}}/data'
+    path: '{{project_root}}/base/{{item}}/data'
     state: directory
   loop:
     - mysql
@@ -23,6 +23,7 @@
 - name: "Install necessary base software"
   package:
     name:
+      - mariadb-client
       - python3-pymysql
     state: present
   become: true
@@ -30,9 +31,9 @@
 - name: Render base docker-compose.yml
   ansible.builtin.template:
     src: compose.yml.j2
-    dest: '{{project_root}}/docker-compose.yml'
+    dest: '{{project_root}}/base/docker-compose.yml'
 
 - name: Docker-compose up
   ansible.builtin.shell: 
     cmd: "docker-compose up -d"
-    chdir: "{{project_root}}"
+    chdir: "{{project_root}}/base"

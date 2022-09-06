@@ -1,0 +1,10 @@
+---
+- name: Ensure base dirs exist"
+  ansible.builtin.file:
+    path: '{{item}}'
+    state: directory
+    owner: '{{ansible_user}}'
+  loop:
+    - "{{project_root}}"
+    - "{{backup_root}}"
+  become: yes

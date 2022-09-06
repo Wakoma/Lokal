@@ -24,7 +24,7 @@ services:
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
 {% endif %}
     volumes:
-      - {{project_root}}/grafana/data:/var/lib/grafana:rw
+      - {{project_root}}/base/grafana/data:/var/lib/grafana:rw
     networks:
       - traefik
       - prometheus
@@ -77,8 +77,8 @@ services:
       - prometheus
     restart: unless-stopped
     volumes:
-      - {{project_root}}/prometheus/etc:/etc/prometheus
-      - {{project_root}}/prometheus/data:/prometheus
+      - {{project_root}}/base/prometheus/etc:/etc/prometheus
+      - {{project_root}}/base/prometheus/data:/prometheus
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   traefik:
@@ -106,10 +106,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 {% if server_is_live %}
-      - {{project_root}}/traefik/config/live/dynamic.yml:/config/live.yml
-      - {{project_root}}/traefik/config/local/dynamic.yml:/config/local.yml
-      - ./acme:/acme
-      - ./config/services/traefik/certs:/certs
+      - {{project_root}}/base/traefik/config/live/dynamic.yml:/config/live.yml
+      - {{project_root}}/base/traefik/config/local/dynamic.yml:/config/local.yml
+      - {{project_root}}/base/traefik/data/acme:/acme
+      - {{project_root}}/base/traefik/data/certs:/certs
     command:
       - --accessLog=true
       - --api.insecure=false
@@ -151,7 +151,7 @@ services:
     container_name: {{mysql_host}}
     image: mariadb:10.5.8-focal
     environment:
-      MARIADB_ROOT_PASSWORD: {{mysql_root_password}}
+      MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
       MARIADB_MYSQL_LOCALHOST_USER: "true"
     ports:
       - 3306:3306  # necessary to manipulate mariadb locally
@@ -159,14 +159,14 @@ services:
       - mysql
       - prometheus
     healthcheck:
-      test: mysql -c "select 1 from DUAL"
+      test: mysql --protocol tcp -u root --password={{mysql_root_password}} -e "SELECT 1 FROM DUAL" mysql
       interval: 60s
       retries: 5
-      start_period: 10s
+      start_period: 5s
       timeout: 1s
     restart: unless-stopped
     volumes:
-      - {{project_root}}/mysql/data:/var/lib/mysql
+      - {{project_root}}/base/mysql/data:/var/lib/mysql
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -177,7 +177,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - {{project_root}}/portainer/data:/data
+      - {{project_root}}/base/portainer/data:/data
     networks:
       - prometheus
       - traefik
@@ -199,9 +199,9 @@ services:
       PGID: '{{ ansible_facts["user_gid"] }}'
       TZ: '{{ ansible_facts["date_time"]["tz"] }}'
     volumes:
-      - {{project_root}}/transmission/config:/config
-      - {{project_root}}/transmission/data:/downloads
-      - {{project_root}}/transmission/watch:/watch
+      - {{project_root}}/base/transmission/config:/config
+      - {{project_root}}/base/transmission/data:/downloads
+      - {{project_root}}/base/transmission/watch:/watch
     ports:
       - 51413:51413
       - 51413:51413/udp
@@ -226,9 +226,9 @@ services:
       TZ: '{{ ansible_facts["date_time"]["tz"] }}'
       JELLYFIN_PublishedServerUrl: https://{{subdomain_jellyfin}}.{{domain}}
     volumes:
-      - {{project_root}}/jellyfin/config:/config
-      - {{project_root}}/jellyfin/data:/data
-      - {{project_root}}/transmission/data:/downloads:ro
+      - {{project_root}}/base/jellyfin/config:/config
+      - {{project_root}}/base/jellyfin/data:/data
+      - {{project_root}}/base/transmission/data:/downloads:ro
     ports:
       - 7359:7359/udp
       # - 1900:1900/udp  # Can't be used at 1900 because that clashes with unif-controller

@@ -1,0 +1,26 @@
+---
+- name: Make acme certs directory if it does not yet exist
+  file:
+    path: "{{ project_root }}/base/traefik/data/certs"
+    state: directory
+    mode: 0700
+
+- name: Ensure SSL private key
+  community.crypto.openssl_privatekey:
+    path: "{{ project_root }}/base/traefik/data/certs/{{domain}}.key"
+
+- name: Create SSL CSR
+  community.crypto.openssl_csr:
+    path: "{{ project_root }}/base/traefik/data/certs/{{domain}}.csr"
+    privatekey_path: "{{ project_root }}/base/traefik/data/certs/{{domain}}.key"
+    organization_name: "Wakoma"
+    commonName: "{{domain}}"
+    email_address: "{{acme_email}}"
+    country_name: "US"
+
+- name: Create SSL certificate
+  community.crypto.x509_certificate:
+    provider: "selfsigned"
+    path: "{{ project_root }}/base/traefik/data/certs/{{domain}}.cer"
+    privatekey_path: "{{ project_root }}/base/traefik/data/certs/{{domain}}.key"
+    csr_path: "{{ project_root }}/base/traefik/data/certs/{{domain}}.csr"

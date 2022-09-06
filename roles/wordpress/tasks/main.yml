@@ -11,6 +11,7 @@
     login_user: root
     login_password: "{{mysql_root_password}}"
     login_host: localhost
+    login_port: "{{mysql_port}}"
 
 - name: Grant user priviledges to the DB
   community.mysql.mysql_user:
@@ -22,6 +23,7 @@
     login_user: root
     login_password: "{{mysql_root_password}}"
     login_host: localhost
+    login_port: "{{mysql_port}}"
 
 - name: Render docker-compose.yml
   ansible.builtin.template:

@@ -1,7 +1,6 @@
 
 # Container Secrets
 acme_email: 
-acme_certs_dir: /media/certs/
 traefik_basicauth_users: ''
 
 

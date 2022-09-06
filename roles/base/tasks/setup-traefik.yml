@@ -1,0 +1,19 @@
+---
+- name: "Copy files for traefik"
+  ansible.builtin.copy:
+    src: files/traefik/config
+    dest: '{{project_root}}/base/traefik/'
+
+- name: "Create directories"
+  ansible.builtin.file:
+    path: "{{ project_root }}/base/traefik/data/{{item}}"
+    state: directory
+    mode: 0700
+  loop:
+  - certs
+  - acme
+
+- name: "Self signed certs"
+  include_tasks:
+    file: setup-traefik-with-self-signed-certs.yml
+  when: not server_is_live
