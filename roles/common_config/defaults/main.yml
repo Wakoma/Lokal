@@ -8,6 +8,14 @@ locale: en_US.utf-8
 
 # deploy HTTPS certificates obtained from public ACME service
 server_is_live: false
+# cert resolver can be "dns", "http", or "tls"
+cert_resolver: http
+
+# If you are using "cert_resolver: dns" then you need to give API access to
+# your DNS (domain) provider so the cert resolver can create domains and certificates
+dns_provider: namecheap
+namecheap_api_user:
+namecheap_api_key:
 
 ## Environment: 
 # - develop: uses mock email client and so on
@@ -15,11 +23,6 @@ server_is_live: false
 # - production: ??
 deployment_environment: develop  # develop, staging, production
 
-# Common DNS settings
-dns_provider: namecheap
-cert_resolver: dns
-namecheap_api_user:
-namecheap_api_key:
 
 # Common services settings
 mysql_root_password: default
@@ -27,8 +30,8 @@ mysql_host: mariadb
 mysql_port: 3306
 
 # Common runtime variables
-# PUID: ''{{ ansible_facts["user_uid"] }}''
-# PGID: '{{ ansible_facts["user_gid"] }}'
+# UID: ''{{ ansible_facts["user_uid"] }}''
+# GID: '{{ ansible_facts["user_gid"] }}'
 # TZ: '{{ ansible_facts["date_time"]["tz"] }}'
 
 

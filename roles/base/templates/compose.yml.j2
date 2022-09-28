@@ -12,6 +12,7 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana:7.3.7
+    user: "{{uid}}:{{gid}}"
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,natel-discrete-panel,grafana-piechart-panel
     labels:
@@ -24,7 +25,7 @@ services:
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
 {% endif %}
     volumes:
-      - {{project_root}}/base/grafana/data:/var/lib/grafana:rw
+      - {{project_root}}/base/grafana/data:/var/lib/grafana
     networks:
       - traefik
       - prometheus
@@ -62,6 +63,7 @@ services:
   prometheus:
     container_name: prometheus
     image: prom/prometheus:v2.24.1
+    user: "{{uid}}:{{gid}}"
     labels:
       traefik.enable: "true"
       traefik.http.routers.prometheus.entrypoints: websecure
@@ -106,10 +108,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 {% if server_is_live %}
-      - {{project_root}}/base/traefik/config/live/dynamic.yml:/config/live.yml
-      - {{project_root}}/base/traefik/config/local/dynamic.yml:/config/local.yml
       - {{project_root}}/base/traefik/data/acme:/acme
       - {{project_root}}/base/traefik/data/certs:/certs
+#      - {{project_root}}/base/traefik/config/live/dynamic.yml:/config/live.yml
+#      - {{project_root}}/base/traefik/config/local/dynamic.yml:/config/local.yml
     command:
       - --accessLog=true
       - --api.insecure=false
@@ -123,6 +125,11 @@ services:
       - --certificatesresolvers.http.acme.httpchallenge.entrypoint=web
       - --certificatesresolvers.http.acme.email={{acme_email}}
       - --certificatesresolvers.http.acme.storage=/acme/acme.json
+#      - --certificatesresolvers.http.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.tls.acme.tlschallenge=true
+      - --certificatesresolvers.tls.acme.email={{acme_email}}
+      - --certificatesresolvers.tls.acme.storage=/acme/acme.json
+#      - --certificatesresolvers.tls.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --entryPoints.metrics.address=:8082
@@ -139,8 +146,8 @@ services:
       - --providers.docker.endpoint=unix:///var/run/docker.sock
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=traefik
-      - --providers.file.directory=/config
-      - --providers.file.watch=true
+#      - --providers.file.directory=/config
+#      - --providers.file.watch=true
       - --serversTransport.insecureSkipVerify=true
     environment:
       - NAMECHEAP_API_USER
@@ -150,11 +157,13 @@ services:
   mariadb:
     container_name: {{mysql_host}}
     image: mariadb:10.5.8-focal
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
+      MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
       MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
       MARIADB_MYSQL_LOCALHOST_USER: "true"
     ports:
-      - 3306:3306  # necessary to manipulate mariadb locally
+      - '{{mysql_port}}:3306'  # necessary to manipulate mariadb locally
     networks:
       - mysql
       - prometheus
@@ -171,6 +180,7 @@ services:
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
+    user: "{{uid}}:{{gid}}"
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -194,15 +204,18 @@ services:
   transmission:
     image: linuxserver/transmission
     container_name: transmission
+#    transmission must not be run as ordinary user because it drops the privileges itself
+#    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
-      PUID: '{{ ansible_facts["user_uid"] }}'
-      PGID: '{{ ansible_facts["user_gid"] }}'
-      TZ: '{{ ansible_facts["date_time"]["tz"] }}'
+      PUID: "{{uid}}"
+      PGID: "{{gid}}"
+      TZ: "{{tz}}"
     volumes:
       - {{project_root}}/base/transmission/config:/config
       - {{project_root}}/base/transmission/data:/downloads
       - {{project_root}}/base/transmission/watch:/watch
     ports:
+      - 9091:9091
       - 51413:51413
       - 51413:51413/udp
     restart: unless-stopped
@@ -216,28 +229,6 @@ services:
       traefik.http.routers.transmission.rule: Host(`{{subdomain_transmission}}.{{domain}}`)
       traefik.http.routers.transmission.tls: "true"
       traefik.http.services.transmission.loadbalancer.server.port: 9091
-
-  jellyfin:
-    image: linuxserver/jellyfin
-    container_name: jellyfin
-    environment:
-      PUID: '{{ ansible_facts["user_uid"] }}'
-      PGID: '{{ ansible_facts["user_gid"] }}'
-      TZ: '{{ ansible_facts["date_time"]["tz"] }}'
-      JELLYFIN_PublishedServerUrl: https://{{subdomain_jellyfin}}.{{domain}}
-    volumes:
-      - {{project_root}}/base/jellyfin/config:/config
-      - {{project_root}}/base/jellyfin/data:/data
-      - {{project_root}}/base/transmission/data:/downloads:ro
-    ports:
-      - 7359:7359/udp
-      # - 1900:1900/udp  # Can't be used at 1900 because that clashes with unif-controller
-    restart: unless-stopped
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.jellyfin.entrypoints: websecure
-      traefik.http.routers.jellyfin.rule: Host(`{{subdomain_jellyfin}}.{{domain}}`)
-      traefik.http.routers.jellyfin.tls: "true"
-      traefik.http.services.jellyfin.loadbalancer.server.port: 8096
-    networks:
-      - traefik
+{% if server_is_live %}
+      traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
+{% endif %}

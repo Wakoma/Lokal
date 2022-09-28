@@ -54,15 +54,7 @@
       - '{{ app_user }}'
       security_ssh_permit_root_login: "yes"
 
-  - name: geerlingguy.docker
-    become: true
-    vars:
-      docker_users:
-      - '{{ app_user }}'
-      docker_service_state: restarted
-
   - name: geerlingguy.pip
-    become: yes
     vars:
       pip_executable: pip3
       pip_package: python3-pip
@@ -70,38 +62,47 @@
         - name: docker
           state: present
 
-- name: Ensure firewall is set up
-  hosts: all
-  become: yes
-  vars:
-    firewall_state: started
-    firewall_enabled_at_boot: true
-    firewall_allowed_tcp_ports:
-      # ssh
-      - 22
-      # web
-      - 80
-      - 443
-      # unifi-controller
-      - 8080
-      - 6789
-      # transmission
-      - 51413
-      # jitsi
-      - 4443
-    firewall_allowed_udp_ports:
-      # unifi-controller
-      - 3478
-      - 10001
-      - 1900
-      - 5514
-      # jellyfin
-      - 7359
-      # transmission
-      - 51413
-      # jitsi
-      - 10000
-    firewall_disable_ufw: true
-    firewall_enable_ipv6: false
-  roles:
-    - geerlingguy.firewall
+  # Why do we use raw 
+  - name: geerlingguy.firewall
+    hosts: all
+    vars:
+      firewall_state: started
+      firewall_enabled_at_boot: true
+      firewall_allowed_tcp_ports:
+        # ssh
+        - 22
+        # web
+        - 80
+        - 443
+        # unifi-controller
+        - 8080
+        - 6789
+        # transmission
+        - 9091
+        - 51413
+        # jitsi
+        - 4443
+      firewall_allowed_udp_ports:
+        # unifi-controller
+        - 3478
+        - 10001
+        - 1900
+        - 5514
+        # jellyfin
+        - 7359
+        # transmission
+        - 51413
+        # jitsi
+        - 10000
+      firewall_disable_ufw: true
+      firewall_enable_ipv6: false
+
+# geerlingguy.docker MUST be placed after geerlingguy.firewall!
+# geerlingguy.firewall drops INPUT and FORWARD tables that are
+# manipulated by the docker daemon upon its (re)start
+  - name: geerlingguy.docker
+    # become: true
+    vars:
+      docker_users:
+      - '{{ app_user }}'
+      docker_service_state: restarted

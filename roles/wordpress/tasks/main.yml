@@ -4,6 +4,13 @@
     path: "{{ project_root }}/wordpress/data"
     state: directory
 
+- name: Stop current app if it is already running
+  ansible.builtin.shell:
+    cmd: "docker-compose down"
+    chdir: "{{ project_root }}/wordpress"
+    removes: docker-compose.yml  # runs only when this file exists
+  ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
+
 - name: Init database
   community.mysql.mysql_db:
     name: "{{mysql_database_wordpress}}"

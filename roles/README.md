@@ -3,9 +3,10 @@
 Lokal comes with one mandatory `lokal` service and other optional. You control which services
 are installed in root `playbook.yml`. Every service has three mode-operandi.
 
-- installation
+- install
 - backup
 - restore
+- uninstall
 
 If you do not specify anything then installation/update will be performed. Otherwise, specify
 one of `backup` or `restore` runtime variable using `-e` parameter of `ansible-playbook`.
@@ -24,7 +25,17 @@ Restore is controlled by property `restore` with the same syntax as `backup` - i
 comma-separated services that you want to restore.
 ```bash
 ansible-playbook -i host/mini1 -e restore=wordpress,matmoto playbook.yml
-```
+``` 
+
+## Uninstall
+
+Uninstall is controlled by `uninstall` property with same syntax as the ones above. You can remove the
+uninstalled program from `services` variable before or after running the `uninstall` command.
+
+# Creating your own service
+
+Please take a look at our `example` role. There is extensive documentation on all caveats
+concerning adding a new service.
 
 # What services does it include so far?
 You can find the full list of services here: https://wakoma.co/lokal/#services

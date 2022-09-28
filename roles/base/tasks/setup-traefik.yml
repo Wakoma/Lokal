@@ -1,8 +1,8 @@
 ---
-- name: "Copy files for traefik"
-  ansible.builtin.copy:
-    src: files/traefik/config
-    dest: '{{project_root}}/base/traefik/'
+# - name: "Copy files for traefik"
+#   ansible.builtin.copy:
+#     src: files/traefik/config
+#     dest: '{{project_root}}/base/traefik/'
 
 - name: "Create directories"
   ansible.builtin.file:

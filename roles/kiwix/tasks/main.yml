@@ -1,0 +1,31 @@
+- name: Create app directory
+  ansible.builtin.file:
+    path: "{{ project_root }}/kiwix/{{item}}"
+    state: directory
+  loop:
+  - library
+  - data
+
+- name: Stop current app if it is already running
+  ansible.builtin.shell:
+    cmd: "docker-compose down"
+    chdir: "{{ project_root }}/kiwix"
+    removes: docker-compose.yml  # runs only when this file exists
+  ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
+
+- name: Init empty library file
+  ansible.builtin.copy:
+    content: library.xml.tpl
+    dest: "{{ project_root }}/kiwix/library/library.xml"
+    force: false
+
+- name: Render docker-compose.yml
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ project_root }}/kiwix/docker-compose.yml"
+    mode: "0600"
+
+- name: Docker-compose up
+  ansible.builtin.shell: 
+    cmd: "docker-compose up -d"
+    chdir: "{{ project_root }}/kiwix"

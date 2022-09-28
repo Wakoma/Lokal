@@ -1,3 +1,5 @@
 mysql_user_wordpress: wordpress
 mysql_password_wordpress: wordpress
 mysql_database_wordpress: wordpress
+
+version_wordpress: 5.6.1-php7.4-apache

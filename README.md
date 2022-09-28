@@ -29,8 +29,8 @@ alternatively, you can use pip to install it. Otherwise (since ansible does not 
 you are free to use our docker container, that contains ansible with all necessary modules. You
 can create one on your own with enclosed `Dockerfile` in the root of this project.
 ```bash
-docker build -n lokal:latest -f Dockerfile .
-docker run -v .:/lokal -it lokal:latest
+docker build -t lokal:latest .
+docker run --rm -itv ${PWD}:/lokal lokal:latest
 ```
 This will give you a bash terminal where you can access local files and run all commands described below.
 __This is just a "client" that you use to actually install Lokal on your server. It is not Lokal installation.__

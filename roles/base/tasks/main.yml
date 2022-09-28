@@ -10,7 +10,6 @@
     - prometheus
     - portainer
     - transmission
-    - jellyfin
 
 - name: "Setup traefik"
   include_tasks:
@@ -44,3 +43,7 @@
   ansible.builtin.shell: 
     cmd: "docker-compose up -d"
     chdir: "{{project_root}}/base"
+
+- name: Give the base time to boot up - takes at least 10 seconds
+  ansible.builtin.pause:
+    seconds: 10

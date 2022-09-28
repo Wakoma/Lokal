@@ -1,5 +1,6 @@
 ---
-# To install: ansible-galaxy install -r requirements.yml
+# Run following command to install requirements from this file
+# ansible-galaxy install -r requirements.yml
 roles:
 - name: geerlingguy.docker
   version: 2.9.0
