@@ -23,11 +23,11 @@ We're also using and integrating services that enable network management, offgri
 
 We provide ansible playbooks to prepare the target machine (either remote or localhost). Services themselves are packed as docker containers and are managed by docker-compose.
 
-## How do I try it out?
+# How do I try it out?
+
 First, you need ansible installation. We recommend version `>=2.10`. It is a python package so
 alternatively, you can use pip to install it. Otherwise (since ansible does not work on windows)
-you are free to use our docker container, that contains ansible with all necessary modules. You
-can create one on your own with enclosed `Dockerfile` in the root of this project.
+you are free to use our docker container, that contains ansible with all necessary modules.
 ```bash
 docker build -t lokal:latest .
 docker run --rm -itv ${PWD}:/lokal lokal:latest
@@ -35,11 +35,9 @@ docker run --rm -itv ${PWD}:/lokal lokal:latest
 This will give you a bash terminal where you can access local files and run all commands described below.
 __This is just a "client" that you use to actually install Lokal on your server. It is not Lokal installation.__
 
-You need a fresh ubuntu server to run Lokal on. We use ansible to deploy the whole complicated setup.
-In order to install Lokal, you need to know the IP and root password of your server. Have an SSH key
-ready as well.
+Next, you need a fresh ubuntu server to run Lokal on. In order to install Lokal, you need to know the IP and root password of your server. Have an SSH key ready as well.
 
-First, create a new file in `hosts/` folder. I use server's nickname without any suffix. This file will include IP, domain and other details about your server so Lokal can setup correctly. It needs to be in
+First, create a new file in `hosts/` folder. I use server's nickname without any suffix. This file will contain the IP, domain and other details about your server so Lokal can setup correctly. It needs to be in
 YAML format so you can specify services in this nice way. The minimal example is bellow
 
 ```YAML
@@ -49,7 +47,7 @@ all:
     server_is_live: true # or false if it is just testing machine not visible from the internet
     domain: server.example.com # domain visible from the outside internet (used only when server_is_live=true)
     ansible_user: ubuntu # the application user under which Lokal will run
-    services: # define wanted services - list of available is in services/ folder
+    services: # define wanted services - list of available is in roles/ folder
     - lokal
     - wordpress
 ```
@@ -60,19 +58,18 @@ want to check out `lokal` service because it contains all the most basic variabl
 ## Prepare a fresh server
 
 This supposes that you already have created an application user and setup your SSH key in it's `authorized_keys` file. If this is not the case, we have a playbook that does everything for you. 
-Create different `hosts/` file - I name it `server-prep` and the content is following
-```ini
-[your-server-nickname]
-162.55.180.169
-
-[your-server-nickname:vars]
-app_user=ubuntu # change that to your desired application user
-ansible_user=root
-setup_ssh=true # if you have set SSH keys for then set this to false and leave `ssh_key` empty 
-ssh_key=<content of your .ssh/id_rsa.pub or wherever you have your public key>
+Create different `hosts/` file - I name it `server-root` and the content is following
+```YAML
+all:
+  hosts: "1.2.3.4"
+  vars:
+    app_user: ubuntu # the application user under which lokal will run
+    ansible_user: root
+    setup_ssh: true # set to true only if app_user does not have SSH setup yet (and fill `ssh_key`)
+    ssh_key: <content of your .ssh/id_rsa.pub or wherever you have your public key>
 ```
 
-Now you are ready to run `ansible-playbook -i hosts/<your-host-prepare> prepare.yml`
+Now you are ready to run `ansible-playbook -i hosts/<your-host-root> prepare.yml`
 
 ## Services
 
@@ -98,6 +95,13 @@ ansible-playbook -i hosts/<your-host-file> -e backup=wordpress,matmoto playbook.
 ```
 
 ## Restore
+
+## Update
+
+Some services have update tasks (e.g. kiwix to update its library list with newly downloaded files via torent). Use it the same as any other command
+```bash
+ansible-playbook -i hosts/<your-host-file> -e update=kiwix playbook.yml
+```
 
 ## Where did Lokal start?
 In 2018 Wakoma partnered with VPUU ([Violence Prevention Through Urban Upgrading](https://vpuu.org.za)) in South Africa to start [V-NET](http://vpuu.org.za/towards-a-community-circular-economy/bridging-the-digital-divide/), a wireless community network, to bring connectivity in townships and informal settlements around Cape Town.  As part of V-NET, our team started building V-Stack, a suite of offline content and services offered to local communities.
