@@ -3,6 +3,7 @@ services:
   wordpress:
     container_name: wordpress
     image: wordpress:{{version_wordpress}}
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
       WORDPRESS_DB_HOST: {{mysql_host}}
       WORDPRESS_DB_USER: {{mysql_user_wordpress}}

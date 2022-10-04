@@ -4,12 +4,26 @@
     path: "{{ project_root }}/wordpress/data"
     state: directory
 
-- name: Stop current app if it is already running
+- name: Get current WP version (if user upgraded manually then don't downgrade!)
   ansible.builtin.shell:
-    cmd: "docker-compose down"
+    cmd: docker-compose exec wordpress grep 'wp_version\s*=' wp-includes/version.php
     chdir: "{{ project_root }}/wordpress"
     removes: docker-compose.yml  # runs only when this file exists
   ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
+  register: version_output
+
+- name: Parse current running version
+  set_fact:
+    version_runtime_wordpress: "{{version_output.stdout|regex_search('([\\d\\.]+)')}}"
+
+- name: Debug wordpress versions
+  debug:
+    msg: "Container version {{version_wordpress}} and runtime version {{version_runtime_wordpress}}"
+
+- name: Abort if runtime version is greater than docker version
+  ansible.builtin.fail:
+    msg: Please upgrade "version_wordpress" variable for this host at least to {{version_runtime_wordpress}}
+  when: version_runtime_wordpress is truthy and version_runtime_wordpress is version(version_wordpress, '>')
 
 - name: Init database
   community.mysql.mysql_db:
@@ -20,7 +34,7 @@
     login_host: localhost
     login_port: "{{mysql_port}}"
 
-- name: Grant user priviledges to the DB
+- name: Grant user privileges to the DB
   community.mysql.mysql_user:
     name: "{{mysql_user_wordpress}}"
     password: "{{mysql_password_wordpress}}"
