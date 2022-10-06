@@ -11,6 +11,6 @@
     mode: "0600"
 
 - name: Docker-compose up
-  shell: "docker-compose up -d unifi-poller unifi-controller"
+  shell: "docker-compose up -d"
   args:
     chdir: "{{ project_root }}/unifi/"

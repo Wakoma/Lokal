@@ -1,29 +1,16 @@
 ---
+- name: Fail when the app is already installed
+  ansible.builtin.fail:
+    msg: The app is already installed - use upgrade, backup, restore commands only
+  when: project_root+"/wordpress/docker-compose.yml" is file
+
 - name: Create app directory
   file:
-    path: "{{ project_root }}/wordpress/data"
+    path: "{{ project_root }}/wordpress/{{item}}"
     state: directory
-
-- name: Get current WP version (if user upgraded manually then don't downgrade!)
-  ansible.builtin.shell:
-    cmd: docker-compose exec wordpress grep 'wp_version\s*=' wp-includes/version.php
-    chdir: "{{ project_root }}/wordpress"
-    removes: docker-compose.yml  # runs only when this file exists
-  ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
-  register: version_output
-
-- name: Parse current running version
-  set_fact:
-    version_runtime_wordpress: "{{version_output.stdout|regex_search('([\\d\\.]+)')}}"
-
-- name: Debug wordpress versions
-  debug:
-    msg: "Container version {{version_wordpress}} and runtime version {{version_runtime_wordpress}}"
-
-- name: Abort if runtime version is greater than docker version
-  ansible.builtin.fail:
-    msg: Please upgrade "version_wordpress" variable for this host at least to {{version_runtime_wordpress}}
-  when: version_runtime_wordpress is truthy and version_runtime_wordpress is version(version_wordpress, '>')
+  loop:
+  - data
+  - app
 
 - name: Init database
   community.mysql.mysql_db:

@@ -1,0 +1,47 @@
+
+- name: Get the current app version
+  ansible.builtin.shell:
+    cmd: docker-compose exec wordpress grep 'wp_version\s*=' wp-includes/version.php
+    chdir: "{{ project_root }}/wordpress"
+    removes: docker-compose.yml  # runs only when this file exists
+  ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
+  register: version_output
+
+- name: Parse out the version
+  set_fact:
+    version_runtime_wordpress: "{{version_output.stdout|regex_search('([\\d\\.]+)')}}"
+
+- name: Abort if runtime version >= docker version
+  ansible.builtin.fail:
+    msg: Upgrade to {{version_wordpress}} is not possible because it is lower or equal to current version {{version_runtime_wordpress}}
+  when: version_runtime_wordpress is truthy and version_runtime_wordpress is version(version_wordpress, '>=')
+
+- name: Remove old container
+  ansible.builtin.shell: 
+    cmd: "docker-compose down"
+    chdir: "{{ project_root }}/wordpress/"
+
+- name: Clear app folder
+  ansible.builtin.file:
+    path: "{{ project_root }}/wordpress/app"
+    state: absent
+
+- name: Re-create the app folder
+  ansible.builtin.file:
+    path: "{{ project_root }}/wordpress/app"
+    state: directory
+
+- name: Render upgraded docker-compose.yml
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ project_root }}/wordpress/docker-compose.yml"
+    mode: "0600"
+
+- name: Docker-compose up
+  ansible.builtin.shell: 
+    cmd: "docker-compose up -d"
+    chdir: "{{ project_root }}/wordpress/"
+
+- name: Database upgrade
+  ansible.builtin.debug:
+    msg: Please visit https://{{domain}}/wp-admin/upgrade.php to run the DB upgrade

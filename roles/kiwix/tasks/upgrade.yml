@@ -1,3 +1,4 @@
+---
 - name: Find downloaded zim files
   ansible.builtin.shell:
     cmd: >
@@ -16,5 +17,5 @@
 
 - name: Restart kiwix service
   ansible.builtin.shell:
-    cmd: docker-compose restart kiwix 
+    cmd: docker-compose restart kiwix
     chdir: "{{project_root}}/kiwix"

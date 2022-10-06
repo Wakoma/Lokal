@@ -17,6 +17,7 @@ services:
       - traefik
     restart: unless-stopped
     volumes:
+      - {{project_root}}/wordpress/app:/var/www/html
       - {{project_root}}/wordpress/data:/var/www/html/wp-content
     labels:
       traefik.enable: "true"

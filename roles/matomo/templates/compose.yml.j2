@@ -2,10 +2,10 @@ version: "3.8"
 
 services:
   matomo:
-    container_name: matomo
-    hostname: {{subdomain_matomo}}.{{domain}}
-    image: matomo:4.1.1-apache
+    image: matomo:{{version_matomo}}
     restart: unless-stopped
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    hostname: {{subdomain_matomo}}.{{domain}}
     volumes:
       - {{project_root}}/matomo/data:/var/www/html
     environment:
@@ -24,11 +24,9 @@ services:
       traefik.http.routers.matomo.rule: Host(`{{subdomain_matomo}}.{{domain}}`)
       traefik.http.routers.matomo.tls: "true"
       traefik.http.services.matomo.loadbalancer.server.port: 80
-      {% if server_is_live %}
+{% if server_is_live %}
       traefik.http.routers.matomo.tls.certresolver: {{cert_resolver}}
-      {% endif %}
-    depends_on:
-      - mariadb
+{% endif %}
 
 networks:
   traefik:

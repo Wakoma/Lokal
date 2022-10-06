@@ -6,13 +6,6 @@
   - library
   - data
 
-- name: Stop current app if it is already running
-  ansible.builtin.shell:
-    cmd: "docker-compose down"
-    chdir: "{{ project_root }}/kiwix"
-    removes: docker-compose.yml  # runs only when this file exists
-  ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
-
 - name: Init empty library file
   ansible.builtin.copy:
     content: library.xml.tpl
@@ -27,5 +20,5 @@
 
 - name: Docker-compose up
   ansible.builtin.shell: 
-    cmd: "docker-compose up -d"
+    cmd: "docker-compose start"
     chdir: "{{ project_root }}/kiwix"

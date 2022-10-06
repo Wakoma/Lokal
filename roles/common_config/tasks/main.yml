@@ -8,6 +8,9 @@
     - "{{project_root}}"
     - "{{backup_root}}"
   become: yes
+  when: "not backup is defined and not restore is defined and not update is defined"
+  notify:
+  - Restart router
 
 - name: Register uid and gid variables
   set_fact:

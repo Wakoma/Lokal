@@ -13,26 +13,20 @@
 
 - name: "Stop the service"
   ansible.builtin.shell:
-    cmd: "docker-compose down"
+    cmd: "docker-compose stop"
     chdir: "{{project_root}}/wordpress"
-
-- name: "Backup docker-compose"
-  ansible.builtin.copy:
-    src: "{{project_root}}/wordpress/docker-compose.yml"
-    dest: "{{backup_dir}}/docker-compose.yml"
-    remote_src: yes
 
 - name: "Backup data"
   ansible.builtin.shell:
-    cmd: "tar -czf {{backup_dir}}/data.tgz ."
-    chdir: "{{project_root}}/wordpress/data"
+    cmd: "tar -czf {{backup_dir}}/files.tgz ."
+    chdir: "{{project_root}}/wordpress"
   become: yes # we need to become root to preserve docker's user owner of the files
 
 - name: "Backup DB"
   community.mysql.mysql_db:
     state: dump
     name: "{{mysql_database_wordpress}}"
-    target: mysql.dump.sql.gz
+    target: database.sql.gz
     dump_extra_args: "--routines --triggers --protocol=TCP"
     login_user: root
     login_password: "{{mysql_root_password}}"
@@ -42,5 +36,5 @@
 
 - name: "Start the service again"
   ansible.builtin.shell:
-    cmd: "docker-compose up -d"
+    cmd: "docker-compose start"
     chdir: "{{project_root}}/wordpress"
