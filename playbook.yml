@@ -12,7 +12,7 @@
     include_role:
       name: "{{service}}"
       tasks_from: "main"
-    when: "not backup is defined and not restore is defined and not install is defined and not update is defined"
+    when: "not backup is defined and not restore is defined and not install is defined"
 
   - name: Install services
     loop: "{{ install | split(',') }}"
@@ -21,25 +21,7 @@
     include_role:
       name: "{{service}}"
       tasks_from: "main"
-    when: "not backup is defined and not restore is defined and install is defined and not update is defined"
-
-  - name: Update all services
-    when: "update is defined and update == 'all'"
-    loop: "{{services}}"
-    loop_control:
-      loop_var: service
-    include_role:
-      name: "{{service}}"
-      tasks_from: "update"
-
-  - name: Update specified services
-    when: "update is defined and update != 'all'"
-    loop: "{{ update | split(',') }}"
-    loop_control:
-      loop_var: service
-    include_role:
-      name: "{{service}}"
-      tasks_from: "update"
+    when: "not backup is defined and not restore is defined and install is defined"
 
   - name: Backup specified services
     when: "backup is defined and backup != 'all'"

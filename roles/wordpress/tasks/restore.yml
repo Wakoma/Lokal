@@ -7,11 +7,7 @@
 - name: Get the latest backup
   ansible.builtin.set_fact:
     latest_backup: "{{ available_backups.files | sort(attribute='mtime',reverse=true) | first }}"
-  
-- name: Debug latest_backup variable
-  ansible.builtin.debug:
-    var: latest_backup
-    
+
 - name: Get the latest backup
   ansible.builtin.fail:
     msg: No backup was found

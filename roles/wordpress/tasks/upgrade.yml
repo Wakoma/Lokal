@@ -1,21 +1,4 @@
-
-- name: Get the current app version
-  ansible.builtin.shell:
-    cmd: docker-compose exec wordpress grep 'wp_version\s*=' wp-includes/version.php
-    chdir: "{{ project_root }}/wordpress"
-    removes: docker-compose.yml  # runs only when this file exists
-  ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
-  register: version_output
-
-- name: Parse out the version
-  set_fact:
-    version_runtime_wordpress: "{{version_output.stdout|regex_search('([\\d\\.]+)')}}"
-
-- name: Abort if runtime version >= docker version
-  ansible.builtin.fail:
-    msg: Upgrade to {{version_wordpress}} is not possible because it is lower or equal to current version {{version_runtime_wordpress}}
-  when: version_runtime_wordpress is truthy and version_runtime_wordpress is version(version_wordpress, '>=')
-
+---
 - name: Remove old container
   ansible.builtin.shell: 
     cmd: "docker-compose down"

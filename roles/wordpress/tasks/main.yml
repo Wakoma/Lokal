@@ -1,45 +1,35 @@
 ---
-- name: Fail when the app is already installed
-  ansible.builtin.fail:
-    msg: The app is already installed - use upgrade, backup, restore commands only
-  when: project_root+"/wordpress/docker-compose.yml" is file
+- name: Docker-compose destination file
+  ansible.builtin.set_fact:
+    docker_compose_wordpress: "{{project_root}}/wordpress/docker-compose.yml"
+    is_installed_wordpress: true
 
-- name: Create app directory
-  file:
-    path: "{{ project_root }}/wordpress/{{item}}"
-    state: directory
-  loop:
-  - data
-  - app
+- name: Check docker-compose file existence
+  ansible.builtin.set_fact:
+    is_installed_wordpress: false
+  when: docker_compose_wordpress is file
 
-- name: Init database
-  community.mysql.mysql_db:
-    name: "{{mysql_database_wordpress}}"
-    state: present
-    login_user: root
-    login_password: "{{mysql_root_password}}"
-    login_host: localhost
-    login_port: "{{mysql_port}}"
+- name: Install app if it does not exist
+  ansible.builtin.include_tasks:
+    file: install.yml
+  when: not is_installed_wordpress
 
-- name: Grant user privileges to the DB
-  community.mysql.mysql_user:
-    name: "{{mysql_user_wordpress}}"
-    password: "{{mysql_password_wordpress}}"
-    priv: '{{mysql_database_wordpress}}.*:ALL'
-    host: "%"
-    state: present
-    login_user: root
-    login_password: "{{mysql_root_password}}"
-    login_host: localhost
-    login_port: "{{mysql_port}}"
+# Upgrade tasks (all under when: is_installed_wordpress)
+- name: Get the current app version (could have been upgraded via web)
+  ansible.builtin.shell:
+    cmd: docker-compose exec wordpress grep 'wp_version\s*=' wp-includes/version.php
+    chdir: "{{ project_root }}/wordpress"
+    removes: docker-compose.yml  # runs only when this file exists
+  ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
+  register: version_output
+  when: is_installed_wordpress
 
-- name: Render docker-compose.yml
-  ansible.builtin.template:
-    src: "compose.yml.j2"
-    dest: "{{ project_root }}/wordpress/docker-compose.yml"
-    mode: "0600"
+- name: Parse out the version
+  ansible.builtin.set_fact:
+    version_runtime_wordpress: "{{version_output.stdout|regex_search('([\\d\\.]+)')}}"
+  when: is_installed_wordpress
 
-- name: Docker-compose up
-  ansible.builtin.shell: 
-    cmd: "docker-compose up -d"
-    chdir: "{{ project_root }}/wordpress/"
+- name: Upgrade app (if version_wordpress is newer than already running version)
+  ansible.builtin.include_tasks:
+    file: upgrade.yml
+  when: is_installed_wordpress and version_runtime_wordpress is truthy and version_runtime_wordpress is version(version_wordpress, '<')
