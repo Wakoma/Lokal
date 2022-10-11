@@ -28,7 +28,7 @@
 - name: "Restore DB"
   community.mysql.mysql_db:
     state: import
-    name: "{{db}}"
+    name: "{{mysql_db}}"
     target: database.sql.gz
     login_user: root
     login_password: "{{mysql_root_password}}"
@@ -36,7 +36,7 @@
     login_host: localhost
     chdir: "{{latest_backup.path}}"
     force: yes
-  when: db is defined
+  when: mysql_db is defined
 
 - name: "Start the service again"
   ansible.builtin.shell:
