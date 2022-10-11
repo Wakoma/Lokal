@@ -1,35 +1,12 @@
 ---
-- name: Create app directory
-  file:
-    path: "{{ project_root }}/matomo/data"
-    state: directory
-
-- name: Init database
-  community.mysql.mysql_db:
-    name: "{{mysql_database_matomo}}"
-    login_user: root
-    login_password: "{{mysql_root_password}}"
-    login_port: "{{mysql_port}}"
-    state: present
-
-- name: Grant user privileges to the DB
-  community.mysql.mysql_user:
-    name: "{{mysql_user_matomo}}"
-    password: "{{mysql_password_matomo}}"
-    priv: '{{mysql_database_matomo}}.*:ALL'
-    host: '%'
-    state: present
-    login_user: root
-    login_password: "{{mysql_root_password}}"
-    login_port: "{{mysql_port}}"
-
-- name: Render docker-compose.yml
-  ansible.builtin.template:
-    src: "compose.yml.j2"
-    dest: "{{ project_root }}/matomo/docker-compose.yml"
-    mode: "0600"
-
-- name: Docker-compose up
-  ansible.builtin.shell: 
-    cmd: docker-compose up -d
-    chdir: "{{ project_root }}/matomo/"
+- name: Install Matomo
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: matomo
+    mysql_user: "{{mysql_user_matomo}}"
+    mysql_password: "{{mysql_password_matomo}}"
+    mysql_db: "{{mysql_database_matomo}}"
+    data_dirs:
+    - data

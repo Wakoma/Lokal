@@ -2,7 +2,7 @@
 - name: Install lokal
   hosts: all
   roles:
-  - common_config
+  - common
 
   tasks:
   - name: Install services
@@ -21,7 +21,7 @@
     include_role:
       name: "{{service}}"
       tasks_from: "main"
-    when: "not backup is defined and not restore is defined and install is defined"
+    when: "not backup is defined and not restore is defined and install is defined" #  and install|split(',')|difference(services) is falsy
 
   - name: Backup specified services
     when: "backup is defined and backup != 'all'"

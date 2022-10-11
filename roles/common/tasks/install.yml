@@ -1,0 +1,49 @@
+---
+- name: Export app_root variable
+  ansible.builtin.set_fact:
+    app_root: "{{project_root}}/{{app}}"
+
+- name: Create the app directory
+  file:
+    path: "{{app_root}}"
+    state: directory
+
+- name: Create app data directories
+  file:
+    path: "{{app_root}}/{{item}}"
+    state: directory
+  loop: "{{data_dirs}}"
+
+- name: Init database
+  community.mysql.mysql_db:
+    name: "{{mysql_db}}"
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_port: "{{mysql_port}}"
+    state: present
+  when: mysql_db
+
+- name: Grant user privileges to the DB
+  community.mysql.mysql_user:
+    name: "{{mysql_user}}"
+    password: "{{mysql_password}}"
+    priv: '{{mysql_db}}.*:ALL'
+    host: '%'
+    state: present
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_port: "{{mysql_port}}"
+  when: mysql_db
+
+- name: Render docker-compose.yml
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{app_root}}/docker-compose.yml"
+    mode: "0600"
+
+# you can avoid starting the app defining "start: false" in `vars` section
+- name: Docker-compose up
+  ansible.builtin.shell: 
+    cmd: docker-compose up -d
+    chdir: "{{app_root}}"
+  when: not start is defined or start is truthy  # start only when start: false is not a fact

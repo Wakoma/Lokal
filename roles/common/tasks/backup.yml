@@ -1,0 +1,41 @@
+- name: "Get current timestamp"
+  register: timestamp_result
+  shell: date '+%Y%m%dT%H%M%S'
+
+- name: "Get name of backup directory"
+  set_fact:
+    backup_dir: "{{backup_root}}/{{app}}/{{timestamp_result.stdout}}"
+
+- name: "Create backup dir"
+  ansible.builtin.file:
+    path: "{{backup_dir}}"
+    state: directory
+
+- name: "Stop the service"
+  ansible.builtin.shell:
+    cmd: "docker-compose stop"
+    chdir: "{{project_root}}/{{app}}"
+
+- name: "Backup data"
+  ansible.builtin.shell:
+    cmd: "tar -czf {{backup_dir}}/files.tgz ."
+    chdir: "{{project_root}}/{{app}}"
+  become: yes # we need to become root to preserve docker's user owner of the files
+
+- name: "Backup DB"
+  community.mysql.mysql_db:
+    state: dump
+    name: "{{mysql_db}}"
+    target: database.sql.gz
+    dump_extra_args: "--routines --triggers --protocol=TCP"
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_host: localhost
+    login_port: "{{mysql_port}}"
+    chdir: "{{backup_dir}}"
+  when: mysql_db is defined
+
+- name: "Start the service again"
+  ansible.builtin.shell:
+    cmd: "docker-compose start"
+    chdir: "{{project_root}}/{{app}}"
