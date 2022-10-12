@@ -14,3 +14,12 @@ What are essential apps for Lokal to work?
 - unifi-poller ?
 - portainer ?
 - resourcespace ?
+
+# Updates 
+
+Update wordpress. Via internal mechanism and via ansible. Will the result be the same? Will it break if somebody
+updates internally and then va ansible?
+
+Updating services should be predictable.
+
+How does HomelabOS do that?

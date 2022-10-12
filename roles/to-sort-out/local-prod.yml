@@ -66,9 +66,8 @@ services:
       - --providers.file.watch=true
       - --serversTransport.insecureSkipVerify=true
     volumes:
-      - ./config/services/traefik/config/local:/config
-      - {{acme_certs_dir}}/{{domain}}.cer:/certs/lokal.cer
-      - {{acme_certs_dir}}/{{domain}}.key:/certs/lokal.key
+      - {{project_root}}/base/traefik/config/local:/config
+      - {{project_root}}/base/traefik/certs:/certs
     labels:
       traefik.http.middlewares.traefik-auth.basicauth.users: ${TRAEFIK_BASICAUTH_USERS}
       traefik.http.routers.traefik.middlewares: traefik-auth

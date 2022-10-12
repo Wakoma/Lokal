@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  web:
+    environment:
+      APPLICATION_ENV: production
+      COMPOSER_PLUGIN_MODE: "false"
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      MYSQL_SLOW_QUERY_LOG: 0
+      MYSQL_MAX_CONNECTIONS: 100
+      AUTO_ASSIGN_PORT_MIN: {{port_min_azuracast}}
+      AUTO_ASSIGN_PORT_MAX: {{port_max_azuracast}}
+      MYSQL_HOST: {{mysql_host}}
+      MYSQL_PORT: {{mysql_port}}
+      MYSQL_USER: {{mysql_user_azuracast}}
+      MYSQL_PASSWORD: {{mysql_password_azuracast}}
+      MYSQL_DATABASE: {{mysql_database_azuracast}}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.azuracast.entrypoints: websecure
+      traefik.http.routers.azuracast.rule: Host(`{{azuracast_subdomain}}.{{domain}}`)
+      traefik.http.routers.azuracast.tls: "true"
+{% if server_is_live %}
+      traefik.http.routers.azuracast.tls.certresolver: {{cert_resolver}}
+{% endif %}
+      traefik.http.services.azuracast.loadbalancer.server.port: 80
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
