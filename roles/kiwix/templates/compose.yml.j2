@@ -11,7 +11,7 @@ services:
     volumes:
       - {{project_root}}/kiwix/data:/data
       - {{project_root}}/kiwix/library:/library
-      - {{project_root}}/base/transmission/data:/downloads:ro
+      - {{project_root}}/base/transmission/data:/downloads:rw
     networks:
       - traefik
     labels:

@@ -1,0 +1,7 @@
+# Common handlers must be defined here even though they are dependent on
+# other (e.g. base) roles. But only this role gets included every time
+- name: Restart router
+  ansible.builtin.shell:
+    cmd: docker-compose restart traefik
+    chdir: "{{project_root}}/base"
+  ignore_errors: yes

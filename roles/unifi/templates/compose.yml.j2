@@ -7,7 +7,7 @@ services:
       PUID: '{{uid}}'
       PGID: '{{gid}}'
     volumes:
-      - {{project_root}}/unifi/data:/config
+      - {{app_root}}/data:/config
     ports:
       - 8443:8443
       - 3478:3478/udp

@@ -1,6 +1,7 @@
 ---
 - name: Docker-compose destination file
   ansible.builtin.set_fact:
+    app_root: "{{project_root}}/wordpress"
     docker_compose_wordpress: "{{project_root}}/wordpress/docker-compose.yml"
     is_installed_wordpress: true
 
@@ -9,16 +10,24 @@
     is_installed_wordpress: false
   when: docker_compose_wordpress is file
 
+# If the docker-compose does not exist then proceed with normal installation
 - name: Install app if it does not exist
-  ansible.builtin.include_tasks:
-    file: install.yml
+  include_role: {name: common, tasks_from: install}
+  vars:
+    app: wordpress
+    mysql_user: "{{mysql_user_wordpress}}"
+    mysql_password: "{{mysql_password_wordpress}}"
+    mysql_db: "{{mysql_database_wordpress}}"
+    data_dirs:
+    - app
+    - data
   when: not is_installed_wordpress
 
 # Upgrade tasks (all under when: is_installed_wordpress)
 - name: Get the current app version (could have been upgraded via web)
   ansible.builtin.shell:
     cmd: docker-compose exec wordpress grep 'wp_version\s*=' wp-includes/version.php
-    chdir: "{{ project_root }}/wordpress"
+    chdir: "{{ app_root }}"
     removes: docker-compose.yml  # runs only when this file exists
   ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
   register: version_output

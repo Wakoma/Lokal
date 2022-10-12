@@ -4,8 +4,8 @@
     name: common
     tasks_from: install
   vars:
-    app: calibre
+    app: jellyfin
     data_dirs:
     - data
-    - server
-    - web
+    - config
+    #mysql_db not defined for no db 

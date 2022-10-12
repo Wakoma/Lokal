@@ -1,0 +1,7 @@
+---
+- name: Backup calibre
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: backup
+  vars:
+    app: calibre

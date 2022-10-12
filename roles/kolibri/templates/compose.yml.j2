@@ -1,18 +1,22 @@
 version: "3.8"
 services:
   kolibri:
-    image: neethumohan1212/kolibri
+    image: neethumohan1212/kolibri:latest
     container_name: kolibri
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     restart: unless-stopped
     environment:
-      TZ: '{{ ansible_facts["date_time"]["tz"] }}'
+      TZ: '{{ tz }}'
     volumes:
-      - {{project_root}}/kolibri/data:/root:rw
+      - {{app_root}}/data:/root:rw
     labels:
       traefik.enable: "true"
       traefik.http.routers.kolibri.entrypoints: websecure
       traefik.http.routers.kolibri.rule: Host(`{{subdomain_kolibri}}.{{domain}}`)
       traefik.http.routers.kolibri.tls: "true"
       traefik.http.services.kolibri.loadbalancer.server.port: 8080
+{% if server_is_live %}
+      traefik.http.routers.kolibri.tls.certresolver: {{cert_resolver}}
+{% endif %}
     networks:
       - traefik

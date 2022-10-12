@@ -1,16 +1,9 @@
 ---
-- name: Create app directory
-  file:
-    path: "{{ project_root }}/unifi/data"
-    state: directory
-
-- name: Render docker-compose.yml
-  ansible.builtin.template:
-    src: "compose.yml.j2"
-    dest: "{{ project_root }}/unifi/docker-compose.yml"
-    mode: "0600"
-
-- name: Docker-compose up
-  shell: "docker-compose up -d"
-  args:
-    chdir: "{{ project_root }}/unifi/"
+- name: Install Unifi
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: unifi
+    data_dirs:
+    - data

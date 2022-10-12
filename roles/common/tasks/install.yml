@@ -21,7 +21,7 @@
     login_password: "{{mysql_root_password}}"
     login_port: "{{mysql_port}}"
     state: present
-  when: mysql_db
+  when: mysql_db is defined
 
 - name: Grant user privileges to the DB
   community.mysql.mysql_user:
@@ -33,7 +33,7 @@
     login_user: root
     login_password: "{{mysql_root_password}}"
     login_port: "{{mysql_port}}"
-  when: mysql_db
+  when: mysql_db is defined
 
 - name: Render docker-compose.yml
   ansible.builtin.template:

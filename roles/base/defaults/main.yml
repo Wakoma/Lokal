@@ -2,7 +2,7 @@
 # Container Secrets
 acme_email: 
 traefik_basicauth_users: ''
-
+static_certificate:
 
 # Subdomains
 subdomain_traefik: router

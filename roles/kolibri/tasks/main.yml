@@ -1,11 +1,9 @@
 ---
-- name:
-  include_role:
+- name: Install Kolibri
+  ansible.builtin.include_role:
     name: common
     tasks_from: install
   vars:
-    app: calibre
+    app: kolibri
     data_dirs:
     - data
-    - server
-    - web

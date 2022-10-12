@@ -1,7 +1,6 @@
 - name: Backup start
   ansible.builtin.include_role:
-    name: backup
+    name: common
     tasks_from: backup
   vars:
-    app: wordpress
-    db: "{{mysql_database_wordpress}}"
+    app: unifi

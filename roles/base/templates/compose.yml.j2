@@ -98,6 +98,10 @@ services:
       traefik.http.routers.traefik.middlewares: traefik-auth
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
 {% endif %}
+{% if static_certificate is truthy %}
+    traefik.stores.default.defaultCertificate.certFile: {{static_certificate}}.crt
+    traefik.stores.default.defaultCertificate.keyFile: {{static_certificate}}.key
+{% endif %}
     networks:
       - traefik
       - prometheus
@@ -110,6 +114,7 @@ services:
 {% if server_is_live %}
       - {{project_root}}/base/traefik/data/acme:/acme
       - {{project_root}}/base/traefik/data/certs:/certs
+# Those configs are necessary for static key/certificate files
 #      - {{project_root}}/base/traefik/config/live/dynamic.yml:/config/live.yml
 #      - {{project_root}}/base/traefik/config/local/dynamic.yml:/config/local.yml
     command:

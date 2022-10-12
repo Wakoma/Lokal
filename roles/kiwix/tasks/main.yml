@@ -1,24 +1,61 @@
-- name: Create app directory
-  ansible.builtin.file:
-    path: "{{ project_root }}/kiwix/{{item}}"
-    state: directory
-  loop:
-  - library
-  - data
+- name: Backup Kolibri
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: backup
+  vars:
+    app: kolibri
+    data_dirs:
+    - library
+    - data
+    start: false
 
 - name: Init empty library file
   ansible.builtin.copy:
-    content: library.xml.tpl
-    dest: "{{ project_root }}/kiwix/library/library.xml"
+    src: library.xml
+    dest: "{{ app_root }}/library/library.xml"
     force: false
-
-- name: Render docker-compose.yml
-  ansible.builtin.template:
-    src: "compose.yml.j2"
-    dest: "{{ project_root }}/kiwix/docker-compose.yml"
-    mode: "0600"
 
 - name: Docker-compose up
   ansible.builtin.shell: 
-    cmd: "docker-compose start"
-    chdir: "{{ project_root }}/kiwix"
+    cmd: "docker-compose up -d"
+    chdir: "{{ app_root }}"
+
+- name: Find downloaded zim files
+  ansible.builtin.shell:
+    cmd: >
+      docker-compose exec kiwix 
+      find /downloads/complete -name '*.zim'
+    chdir: "{{ app_root }}"
+  register: zims
+
+# luckily, this is an indempotent action
+- name: Update library with transmission-downloaded zim files
+  ansible.builtin.shell:
+    cmd: >
+      docker-compose exec kiwix 
+      kiwix-manage /library/library.xml add {{item}}
+    chdir: "{{ app_root }}"
+  loop: "{{zims.stdout_lines}}" # this is the rule for passing lists
+
+- name: Find data files
+  ansible.builtin.shell:
+    cmd: >
+      docker-compose exec kiwix 
+      find /data -name '*.zim'
+    chdir: "{{ app_root }}"
+  register: zims
+
+# luckily, this is an indempotent action
+- name: Update library with transmission-downloaded zim files
+  ansible.builtin.shell:
+    cmd: >
+      docker-compose exec kiwix 
+      kiwix-manage /library/library.xml add {{item}}
+    chdir: "{{ app_root }}"
+  loop: "{{zims.stdout_lines}}" # this is the rule for passing lists
+
+- name: Restart kiwix service
+  ansible.builtin.shell:
+    cmd: docker-compose restart kiwix
+    chdir: "{{ app_root }}"
+  ignore_errors: yes

@@ -1,7 +1,7 @@
+---
 - name: Restore start
   ansible.builtin.include_role:
-    name: backup
+    name: common
     tasks_from: restore
   vars:
-    app: wordpress
-    mysql_db: "{{mysql_database_wordpress}}"
+    app: unifi

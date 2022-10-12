@@ -7,6 +7,7 @@ are installed in root `playbook.yml`. Every service has three mode-operandi.
 - backup
 - restore
 - uninstall
+- update
 
 If you do not specify anything then installation/update will be performed. Otherwise, specify
 one of `backup` or `restore` runtime variable using `-e` parameter of `ansible-playbook`.
