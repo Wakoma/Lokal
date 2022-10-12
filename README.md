@@ -64,7 +64,7 @@ all:
   hosts: "1.2.3.4"
   vars:
     app_user: ubuntu # the application user under which lokal will run
-    ansible_user: root
+    ansible_user: root # mandatory to connect as root user
     setup_ssh: true # set to true only if app_user does not have SSH setup yet (and fill `ssh_key`)
     ssh_key: <content of your .ssh/id_rsa.pub or wherever you have your public key>
 ```
@@ -96,11 +96,9 @@ ansible-playbook -i hosts/<your-host-file> -e backup=wordpress,matmoto playbook.
 
 ## Restore
 
-## Update
-
-Some services have update tasks (e.g. kiwix to update its library list with newly downloaded files via torent). Use it the same as any other command
+Of course you can restore backed up services via
 ```bash
-ansible-playbook -i hosts/<your-host-file> -e update=kiwix playbook.yml
+ansible-playbook -i hosts/<your-host-file> -e restore=wordpress playbook.yml
 ```
 
 ## Where did Lokal start?
