@@ -1,7 +1,7 @@
-- name: Backup start
+---
+- name: Backup jellyfin
   ansible.builtin.include_role:
     name: common
     tasks_from: backup
   vars:
-    app: wordpress
-    db: "{{mysql_database_wordpress}}"
+    app: jellyfin

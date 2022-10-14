@@ -1,9 +1,9 @@
-- name: Backup Kolibri
+- name: Install kiwix
   ansible.builtin.include_role:
     name: common
-    tasks_from: backup
+    tasks_from: install
   vars:
-    app: kolibri
+    app: kiwix
     data_dirs:
     - library
     - data
@@ -11,8 +11,8 @@
 
 - name: Init empty library file
   ansible.builtin.copy:
-    src: library.xml
-    dest: "{{ app_root }}/library/library.xml"
+    content: "<library/>"
+    dest: "{{app_root}}/library/library.xml"
     force: false
 
 - name: Docker-compose up

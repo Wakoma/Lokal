@@ -25,7 +25,7 @@ We provide ansible playbooks to prepare the target machine (either remote or loc
 
 # How do I try it out?
 
-First, you need ansible installation. We recommend version `>=2.10`. It is a python package so
+First, you need ansible installation. We recommend version `>=2.11`. It is a python package so
 alternatively, you can use pip to install it. Otherwise (since ansible does not work on windows)
 you are free to use our docker container, that contains ansible with all necessary modules.
 ```bash
@@ -80,8 +80,14 @@ service `lokal` and optional services in other folders. You can choose services 
 
 ## Installation
 
+Installation scripts are indempotent. If run multiple times then thay try to update the service. You
+can either install all services defined in `hosts` file using the most simple command
 ```bash
 ansible-playbook -i hosts/<your-host-file> playbook.yml
+```
+or you can specify explicitly services that you want to install/update
+```bash
+ansible-playbook -i hosts/<your-host-file> -e install=wordpress playbook.yml
 ```
 
 ## Backup

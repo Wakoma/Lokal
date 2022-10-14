@@ -24,7 +24,7 @@
     when: "not backup is defined and not restore is defined and install is defined" #  and install|split(',')|difference(services) is falsy
 
   - name: Backup specified services
-    when: "backup is defined and backup != 'all'"
+    when: backup is defined and backup != 'all'
     loop: "{{ backup | split(',') }}"
     loop_control:
       loop_var: service
@@ -33,7 +33,7 @@
       tasks_from: "backup"
 
   - name: Backup all services
-    when: "backup is defined and backup == 'all'"
+    when: backup is defined and backup == 'all'
     loop: "{{services}}"
     loop_control:
       loop_var: service

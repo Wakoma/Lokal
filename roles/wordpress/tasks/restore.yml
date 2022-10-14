@@ -1,6 +1,6 @@
 - name: Restore start
   ansible.builtin.include_role:
-    name: backup
+    name: common
     tasks_from: restore
   vars:
     app: wordpress
