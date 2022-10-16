@@ -2,8 +2,10 @@ version: "3.8"
 services:
   moodledb:
     image: docker.io/bitnami/mariadb:10.5
-    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    user: "{{uid}}:0"  # run the container service as app user (not root)
     environment:
+      - PUID={{uid}}
+      - PGID={{gid}}
       - ALLOW_EMPTY_PASSWORD=yes
       - MARIADB_USER=bn_moodle
       - MARIADB_DATABASE=bitnami_moodle
@@ -13,18 +15,25 @@ services:
       - '{{app_root}}/db:/bitnami/mariadb'
     networks:
       - moodle
-    # we don't actually need to expose the port (nobody connects externally)
-    # ports:
-    #  - 3307:3306
+    ports:
+      - 3307:3306
 
   moodle:
     image: docker.io/bitnami/moodle:3
-    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    user: "{{uid}}:0"  # run the container service as app user (not root)
     environment:
+      - PUID={{uid}}
+      - PGID={{gid}}
       - MOODLE_DATABASE_HOST=moodledb
-      - MOODLE_DATABASE_PORT_NUMBER=3306
+      - MOODLE_DATABASE_PORT_NUMBER=3307
+      - MOODLE_DATABASE_PORT=3307
       - MOODLE_DATABASE_USER=bn_moodle
       - MOODLE_DATABASE_NAME=bitnami_moodle
+      - MYSQL_CLIENT_HOST=moodledb
+      - MYSQL_CLIENT_PORT_NUMBER=3307
+      - MYSQL_CLIENT_PORT=3307
+      - MYSQL_CLIENT_USER=bn_moodle
+      - MYSQL_CLIENT_NAME=bitnami_moodle
       - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - '{{app_root}}/app:/bitnami/moodle'
