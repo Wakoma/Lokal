@@ -84,8 +84,9 @@ services:
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   traefik:
-    container_name: traefik
     image: traefik:v2.3.6
+    # cannot be simply app_user:app_user because of root:docker privileges on /var/run/docker.sock
+    user: "{{uid}}:{{gid_docker}}"  # run the container service as app user (not root)
     labels:
       traefik.enable: "true"
       traefik.http.routers.traefik.entrypoints: websecure
@@ -112,8 +113,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 {% if server_is_live %}
-      - {{project_root}}/base/traefik/data/acme:/acme
-      - {{project_root}}/base/traefik/data/certs:/certs
+      - {{project_root}}/base/traefik/acme:/acme
+      - {{project_root}}/base/traefik/certs:/certs
 # Those configs are necessary for static key/certificate files
 #      - {{project_root}}/base/traefik/config/live/dynamic.yml:/config/live.yml
 #      - {{project_root}}/base/traefik/config/local/dynamic.yml:/config/local.yml

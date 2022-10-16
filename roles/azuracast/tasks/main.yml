@@ -1,91 +1,42 @@
 ---
-# Original tasks file
-- name: Set facts
-  set_fact:
-    lokal_dir: "{{ primary_ssh_user_params.home }}/Lokal"
-    azuracast_dir: "{{ primary_ssh_user_params.home }}/azuracast"
+- name: Install azuracast
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: azuracast
+    mysql_user: '{{mysql_user_azuracast}}'
+    mysql_password: '{{mysql_password_azuracast}}'
+    mysql_db: '{{mysql_database_azuracast}}'
+    data_dirs:
+    - uploads
+    - stations
+    - shoutcast2
+    - stereo_tool
+    - geolite
+    - sftp
+    - backups
+    - acme
+    - db
+    start: true
 
-- name: Download Azuracast Docker wrapper
-  uri:
-    url: https://raw.githubusercontent.com/AzuraCast/AzuraCast/main/docker.sh
-    dest: "{{ azuracast_dir }}/docker.sh"
-    mode: a+x
+# - name: Set variables
+#   ansible.builtin.set_fact:
+#     should_update: false
 
-- name: Get .envrc file content
-  shell: . {{ lokal_dir }}/.envrc && env
-  register: envrc_out
+# - name: Finish installation
+#   ansible.builtin.shell:
+#     cmd: docker-compose run --rm azuracast -- azuracast_install
+#     chdir: "{{app_root}}"
+#   when: not should_update
 
-- name: Parse environment
-  set_fact:
-    envrc: "{{ ('{' + envrc_out.stdout_lines | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
+# - name: Update app
+#   ansible.builtin.shell:
+#     cmd: docker-compose run --rm azuracast -- azuracast_update
+#     chdir: "{{app_root}}"
+#   when: should_update
 
-- name: Set facts
-  set_fact:
-    domain_azuracast: "radio.{{ envrc.DOMAIN }}"
-    cert_resolver: "{{ envrc.CERT_RESOLVER | default('dns') }}"
-    server_is_live: "{{ envrc.SERVER_IS_LIVE | default(false) }}"
-
-- name: Copy .env from template
-  ansible.builtin.template:
-    src: "{{ lokal_dir }}/config/services/azuracast/.env.j2"
-    dest: "{{ azuracast_dir }}/.env"
-    mode: "0600"
-
-- name: Copy azuracast.env from template
-  ansible.builtin.template:
-    src: "{{ lokal_dir }}/config/services/azuracast/azuracast.env.j2"
-    dest: "{{ azuracast_dir }}/azuracast.env"
-    mode: "0600"
-
-- name: Copy docker-compose.override.yml from template
-  ansible.builtin.template:
-    src: "{{ lokal_dir }}/config/services/azuracast/docker-compose.override.yml.j2"
-    dest: "{{ azuracast_dir }}/docker-compose.override.yml"
-    mode: "0600"
-
-- name: "Setup Azuracast for stable releases"
-  shell: bash -c "yes 'Y' | ./docker.sh setup-release"
-  args:
-    chdir: "{{ azuracast_dir }}"
-
-- name: "Basic Azuracast install"
-  shell: bash -c "yes '' | ./docker.sh install"
-  args:
-    chdir: "{{ azuracast_dir }}"
-
-- name: Create app directory
-  file:
-    path: "{{ project_root }}/azuracast/data"
-    state: directory
-
-##############################################################################################
-# New part (copied from wordpress)
-- name: Init database
-  community.mysql.mysql_db:
-    name: "{{mysql_database_azuracast}}"
-    state: present
-    login_user: root
-    login_password: "{{mysql_root_password}}"
-    login_host: localhost
-
-- name: Grant user privileges to the DB
-  community.mysql.mysql_user:
-    name: "{{mysql_user_azuracast}}"
-    password: "{{mysql_password_azuracast}}"
-    priv: '{{mysql_database_azuracast}}.*:ALL'
-    host: '%'
-    state: present
-    login_user: root
-    login_password: "{{mysql_root_password}}"
-    login_host: localhost
-
-- name: Render docker-compose.yml
-  ansible.builtin.template:
-    src: "compose.yml.j2"
-    dest: "{{ project_root }}/azuracast/docker-compose.yml"
-    mode: "0600"
-
-- name: Docker-compose up
-  shell: "docker-compose up -d"
-  args:
-    chdir: "{{ project_root }}/azuracast/"
+# - name: Docker-compose up
+#   ansible.builtin.shell:
+#     cmd: docker-compose up -d
+#     chdir: "{{app_root}}"

@@ -1,0 +1,7 @@
+- name: Backup moodle
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: backup
+  vars:
+    app: moodle
+    mysql_db: "{{mysql_database_moodle}}"

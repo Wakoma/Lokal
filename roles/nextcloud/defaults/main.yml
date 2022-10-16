@@ -1,3 +1,5 @@
+version_nextcloud: latest
+
 subdomain_nextcloud: nextcloud
 
 mysql_user_nextcloud: nextcloud

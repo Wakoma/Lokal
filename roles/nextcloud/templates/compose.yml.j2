@@ -1,21 +1,21 @@
 version: "3.8"
 services:
   nextcloud:
-    image: nextcloud:latest
-    container_name: nextcloud
+    image: nextcloud:{{version_nextcloud}}
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
       MYSQL_PASSWORD: {{mysql_password_nextcloud}}
       MYSQL_DATABASE: {{mysql_database_nextcloud}}
       MYSQL_USER: {{mysql_user_nextcloud}}
       MYSQL_HOST: {{mysql_host}}
     volumes:
-      - {{project_root}}/nextcloud/config:/config
-      - {{project_root}}/nextcloud/data:/var/www/html
+    - {{app_root}}/config:/config
+    - {{app_root}}/data:/var/www/html
     restart: unless-stopped
     networks:
-      - mysql
-      - prometheus
-      - traefik
+    - mysql
+    - prometheus
+    - traefik
     labels:
       traefik.enable: "true"
       traefik.http.routers.nextcloud.entrypoints: websecure

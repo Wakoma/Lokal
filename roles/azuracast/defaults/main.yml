@@ -1,11 +1,12 @@
 compose_project_name: azuracast
 
+azuracast_version: 0.17.3
+
 azuracast_http_port: 65534
 azuracast_https_port: 65535
-
 azuracast_sftp_port: 2022
 
-nginx_timeout: 1800
+azuracast_nginx_timeout: 1800
 
 subdomain_azuracast: radio
 
