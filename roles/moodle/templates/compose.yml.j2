@@ -3,6 +3,7 @@ services:
   moodledb:
     image: docker.io/bitnami/mariadb:10.5
     user: "{{uid}}:0"  # run the container service as app user (not root)
+    # but keep root to be able to write to `/` of the container
     environment:
       - PUID={{uid}}
       - PGID={{gid}}
@@ -21,6 +22,7 @@ services:
   moodle:
     image: docker.io/bitnami/moodle:3
     user: "{{uid}}:0"  # run the container service as app user (not root)
+    # but keep root to be able to write to `/` of the container
     environment:
       - PUID={{uid}}
       - PGID={{gid}}
@@ -38,7 +40,7 @@ services:
     volumes:
       - '{{app_root}}/app:/bitnami/moodle'
       - '{{app_root}}/data:/bitnami/moodledata'
-      # TODO: check the sock name and path
+      # can't bind sock directly because it is created in internal /opt/mariadb/....
       # - '{{app_root}}/db/mysqldb.sock:/var/lib/mysqld/mysqldb.sock'
     depends_on:
       - moodledb

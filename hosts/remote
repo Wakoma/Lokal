@@ -1,5 +1,18 @@
-[remote]
-1.2.3.4
-
-[remote:vars]
-ansible_user=ubuntu
+all:
+  hosts: "1.2.3.4"
+  vars:
+    server_is_live: true
+    domain: lokal.example.com
+    acme_email: admin@example.com
+    ansible_user: ubuntu
+    services:
+    - base
+    - unifi
+    - wordpress
+    - jellyfin
+    - nextcloud
+    - matomo
+    - kiwix
+    - kolibri
+    - moodle
+    - calibre
