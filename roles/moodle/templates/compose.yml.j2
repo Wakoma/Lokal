@@ -16,8 +16,10 @@ services:
       - '{{app_root}}/db:/bitnami/mariadb'
     networks:
       - moodle
-    ports:
-      - 3307:3306
+    # let's not publish 3306 port to the host machine because it is already taken
+    # by the primary MySQL database. Moodle will be able to connect anyway on the
+    # "moodle" network even though the port is not published - publishing is just
+    # for external applications
 
   moodle:
     image: docker.io/bitnami/moodle:3
@@ -27,21 +29,12 @@ services:
       - PUID={{uid}}
       - PGID={{gid}}
       - MOODLE_DATABASE_HOST=moodledb
-      - MOODLE_DATABASE_PORT_NUMBER=3307
-      - MOODLE_DATABASE_PORT=3307
       - MOODLE_DATABASE_USER=bn_moodle
       - MOODLE_DATABASE_NAME=bitnami_moodle
-      - MYSQL_CLIENT_HOST=moodledb
-      - MYSQL_CLIENT_PORT_NUMBER=3307
-      - MYSQL_CLIENT_PORT=3307
-      - MYSQL_CLIENT_USER=bn_moodle
-      - MYSQL_CLIENT_NAME=bitnami_moodle
       - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - '{{app_root}}/app:/bitnami/moodle'
       - '{{app_root}}/data:/bitnami/moodledata'
-      # can't bind sock directly because it is created in internal /opt/mariadb/....
-      # - '{{app_root}}/db/mysqldb.sock:/var/lib/mysqld/mysqldb.sock'
     depends_on:
       - moodledb
     labels:
@@ -52,7 +45,7 @@ services:
 {% if server_is_live %}
       traefik.http.routers.moodle.tls.certresolver: {{cert_resolver}}
 {% endif %}
-      traefik.http.services.moodle.loadbalancer.server.port: 80
+      traefik.http.services.moodle.loadbalancer.server.port: 8080
     networks:
       - moodle
       - traefik
