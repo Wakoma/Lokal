@@ -1,5 +1,5 @@
 ---
-- name:
+- name: Install jellyfin
   include_role:
     name: common
     tasks_from: install
@@ -8,4 +8,4 @@
     data_dirs:
     - data
     - config
-    #mysql_db not defined for no db 
+    #mysql_db not defined for no db

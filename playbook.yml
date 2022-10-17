@@ -4,15 +4,22 @@
   roles:
   - common
 
+  handlers:
+  - name: Restart router
+    ansible.builtin.shell:
+      cmd: docker-compose restart traefik
+      chdir: "{{project_root}}/base"
+    ignore_errors: yes
+
   tasks:
-  - name: Install services
+  - name: Install all services
     loop: "{{services}}"
     loop_control:
       loop_var: service
     include_role:
       name: "{{service}}"
       tasks_from: "main"
-    when: "not backup is defined and not restore is defined and not install is defined"
+    when: '(not install is defined and not remove is defined and not backup is defined and not restore is defined) or (install is defined and install == "all")'
 
   - name: Install services
     loop: "{{ install | split(',') }}"
@@ -21,19 +28,19 @@
     include_role:
       name: "{{service}}"
       tasks_from: "main"
-    when: "not backup is defined and not restore is defined and install is defined" #  and install|split(',')|difference(services) is falsy
+    when: "install is defined and install|split(',')|difference(services) is falsy"
 
   - name: Backup specified services
-    when: "backup is defined and backup != 'all'"
     loop: "{{ backup | split(',') }}"
     loop_control:
       loop_var: service
     include_role:
       name: "{{service}}"
       tasks_from: "backup"
+    when: "backup is defined and backup != 'all' and backup|split(',')|difference(services) is falsy"
 
   - name: Backup all services
-    when: "backup is defined and backup == 'all'"
+    when: backup is defined and backup == 'all'
     loop: "{{services}}"
     loop_control:
       loop_var: service
@@ -42,19 +49,28 @@
       tasks_from: "backup"
 
   - name: Restore specified services
-    when: "restore is defined and restore != 'all'"
     loop: "{{ restore | split(',') }}"
     loop_control:
       loop_var: service
     include_role:
       name: "{{service}}"
       tasks_from: "restore"
+    when: "restore is defined and restore != 'all' and restore|split(',')|difference(services) is falsy"
 
   - name: Restore all services
-    when: "restore is defined and restore == 'all'"
     loop: "{{services}}"
     loop_control:
       loop_var: service
     include_role:
       name: "{{service}}"
       tasks_from: "restore"
+    when: "restore is defined and restore == 'all'"
+
+  - name: Remove services
+    loop: "{{ remove | split(',') }}"
+    loop_control:
+      loop_var: service
+    include_role:
+      name: "{{service}}"
+      tasks_from: "remove"
+    when: "remove is defined"

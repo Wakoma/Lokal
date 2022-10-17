@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  fdroid:
+    image: registry.gitlab.com/fdroid/docker-executable-fdroidserver:master
+    user: "{{uid}}:{{gid}}"
+    volumes:
+    - {{project_root}}/fdroid/data:/repo
+
+  fdroid_server:
+    hostname: "{{subdomain_fdroid}}.{{domain}}"
+    image: caddy
+    user: "{{uid}}:{{gid}}"
+    restart: always
+    networks:
+      - traefik
+    volumes:
+      - {{project_root}}/fdroid/data/repo:/usr/share/caddy/
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.fdroid.entrypoints: websecure
+      traefik.http.routers.fdroid.rule: Host(`{{subdomain_fdroid}}.{{domain}}`) && Path(`/repo`))
+      traefik.http.routers.fdroid.tls: "true"
+      traefik.http.services.fdroid.loadbalancer.server.port: 80
+{% if server_is_live %}
+      traefik.http.routers.fdroid.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+  fdroid_repomaker:
+    image: registry.gitlab.com/fdroid/repomaker:latest
+    hostname: "{{subdomain_fdroid}}.{{domain}}"
+    domainname: "{{subdomain_fdroid}}.{{domain}}"
+    command: bash -c 'python3 manage.py migrate && ./httpd-foreground'
+    environment:
+      REPOMAKER_HOSTNAME: "{{subdomain_fdroid}}.{{domain}}"
+      REPOMAKER_SECRET_KEY: "{{secret_fdroid}}"
+    volumes:
+      - {{project_root}}/fdroid/repomaker:/repomaker/data
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.fdroid.entrypoints: websecure
+      traefik.http.routers.fdroid.rule: Host(`{{subdomain_fdroid}}.{{domain}}`) && Path(`/maker`))
+      traefik.http.routers.fdroid.tls: "true"
+      traefik.http.services.fdroid.loadbalancer.server.port: 80
+
+  tasks:
+    image: registry.gitlab.com/fdroid/repomaker:latest
+    command: python3 manage.py process_tasks
+    environment:
+      REPOMAKER_HOSTNAME: "{{subdomain_fdroid}}.{{domain}}"
+      REPOMAKER_SECRET_KEY: "{{secret_fdroid}}"
+    volumes:
+      - {{project_root}}/fdroid/repomaker:/repomaker/data
+    depends_on:
+      - fdroid_repomaker
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true

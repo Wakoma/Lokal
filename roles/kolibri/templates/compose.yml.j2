@@ -3,9 +3,12 @@ services:
   kolibri:
     image: neethumohan1212/kolibri:latest
     container_name: kolibri
-    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    # colibri tries to write create /.pex so it needs to start as root
+    # user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     restart: unless-stopped
     environment:
+      PUID: '{{uid}}'
+      PGID: '{{gid}}'
       TZ: '{{ tz }}'
     volumes:
       - {{app_root}}/data:/root:rw
@@ -20,3 +23,7 @@ services:
 {% endif %}
     networks:
       - traefik
+
+networks:
+  traefik:
+    external: true

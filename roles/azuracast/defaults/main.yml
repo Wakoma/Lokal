@@ -1,0 +1,22 @@
+compose_project_name: azuracast
+
+azuracast_version: 0.17.3
+
+azuracast_http_port: 65534
+azuracast_https_port: 65535
+azuracast_sftp_port: 2022
+
+azuracast_nginx_timeout: 1800
+
+subdomain_azuracast: radio
+
+port_min_azuracast: 8000
+port_max_azuracast: 8499
+
+mysql_user_azuracast: azuracast
+mysql_password_azuracast: azur4c457
+mysql_database_azuracast: azuracast
+
+mysql_random_root_password: yes
+mysql_slow_query_log: 0
+mysql_max_connections: 100

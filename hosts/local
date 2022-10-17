@@ -1,7 +1,16 @@
-[local]
-127.0.0.1
-
-[local:vars]
-ansible_connection=local
-is_server_live=false
-ansible_user=ubuntu
+all:
+  hosts: "localhost"
+  vars:
+    server_is_live: false
+    domain: lokal.localhost
+    ansible_user: ubuntu
+    ansible_connection: local
+    services:
+    - base
+    - calibre
+    - wordpress
+    - jellyfin
+    - matomo
+    - kiwix
+    - kolibri
+    - moodle

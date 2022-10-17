@@ -25,7 +25,7 @@ We provide ansible playbooks to prepare the target machine (either remote or loc
 
 # How do I try it out?
 
-First, you need ansible installation. We recommend version `>=2.10`. It is a python package so
+First, you need ansible installation. We recommend version `>=2.11`. It is a python package so
 alternatively, you can use pip to install it. Otherwise (since ansible does not work on windows)
 you are free to use our docker container, that contains ansible with all necessary modules.
 ```bash
@@ -64,7 +64,7 @@ all:
   hosts: "1.2.3.4"
   vars:
     app_user: ubuntu # the application user under which lokal will run
-    ansible_user: root
+    ansible_user: root # mandatory to connect as root user
     setup_ssh: true # set to true only if app_user does not have SSH setup yet (and fill `ssh_key`)
     ssh_key: <content of your .ssh/id_rsa.pub or wherever you have your public key>
 ```
@@ -80,8 +80,14 @@ service `lokal` and optional services in other folders. You can choose services 
 
 ## Installation
 
+Installation scripts are indempotent. If run multiple times then thay try to update the service. You
+can either install all services defined in `hosts` file using the most simple command
 ```bash
 ansible-playbook -i hosts/<your-host-file> playbook.yml
+```
+or you can specify explicitly services that you want to install/update
+```bash
+ansible-playbook -i hosts/<your-host-file> -e install=wordpress playbook.yml
 ```
 
 ## Backup
@@ -96,11 +102,9 @@ ansible-playbook -i hosts/<your-host-file> -e backup=wordpress,matmoto playbook.
 
 ## Restore
 
-## Update
-
-Some services have update tasks (e.g. kiwix to update its library list with newly downloaded files via torent). Use it the same as any other command
+Of course you can restore backed up services via
 ```bash
-ansible-playbook -i hosts/<your-host-file> -e update=kiwix playbook.yml
+ansible-playbook -i hosts/<your-host-file> -e restore=wordpress playbook.yml
 ```
 
 ## Where did Lokal start?

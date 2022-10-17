@@ -1,0 +1,42 @@
+---
+- name: Install azuracast
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: azuracast
+    mysql_user: '{{mysql_user_azuracast}}'
+    mysql_password: '{{mysql_password_azuracast}}'
+    mysql_db: '{{mysql_database_azuracast}}'
+    data_dirs:
+    - uploads
+    - stations
+    - shoutcast2
+    - stereo_tool
+    - geolite
+    - sftp
+    - backups
+    - acme
+    - db
+    start: true
+
+# - name: Set variables
+#   ansible.builtin.set_fact:
+#     should_update: false
+
+# - name: Finish installation
+#   ansible.builtin.shell:
+#     cmd: docker-compose run --rm azuracast -- azuracast_install
+#     chdir: "{{app_root}}"
+#   when: not should_update
+
+# - name: Update app
+#   ansible.builtin.shell:
+#     cmd: docker-compose run --rm azuracast -- azuracast_update
+#     chdir: "{{app_root}}"
+#   when: should_update
+
+# - name: Docker-compose up
+#   ansible.builtin.shell:
+#     cmd: docker-compose up -d
+#     chdir: "{{app_root}}"

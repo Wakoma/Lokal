@@ -47,3 +47,5 @@
     cmd: docker-compose up -d
     chdir: "{{app_root}}"
   when: not start is defined or start is truthy  # start only when start: false is not a fact
+  notify:
+    - Restart router
