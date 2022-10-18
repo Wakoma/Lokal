@@ -77,7 +77,6 @@
         # unifi-controller
         - 8080
         - 6789
-        - 8443
         # transmission
         - 9091
         - 51413

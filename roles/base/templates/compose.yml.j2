@@ -11,7 +11,7 @@ networks:
 services:
   grafana:
     container_name: grafana
-    image: grafana/grafana:7.3.7
+    image: grafana/grafana:9.2.1
     user: "{{uid}}:{{gid}}"
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,natel-discrete-panel,grafana-piechart-panel
@@ -62,7 +62,7 @@ services:
 
   prometheus:
     container_name: prometheus
-    image: prom/prometheus:v2.24.1
+    image: prom/prometheus:v2.39.1
     user: "{{uid}}:{{gid}}"
     labels:
       traefik.enable: "true"
@@ -84,7 +84,7 @@ services:
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   traefik:
-    image: traefik:v2.3.6
+    image: traefik:v2.9.1
     # cannot be simply app_user:app_user because of root:docker privileges on /var/run/docker.sock
     user: "{{uid}}:{{gid_docker}}"  # run the container service as app user (not root)
     labels:
@@ -94,14 +94,16 @@ services:
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
+{% if traefik_basicauth_users is truthy %}
+#     traefik.http.routers.traefik.middlewares: traefik-auth
+#     traefik.http.middlewares.traefik-auth.basicauth.users: "{{traefik_basicauth_users}}"
+{% endif %}
 {% if server_is_live %}
-      traefik.http.middlewares.traefik-auth.basicauth.users: {{traefik_basicauth_users}}
-      traefik.http.routers.traefik.middlewares: traefik-auth
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
 {% endif %}
 {% if static_certificate is truthy %}
-    traefik.stores.default.defaultCertificate.certFile: {{static_certificate}}.crt
-    traefik.stores.default.defaultCertificate.keyFile: {{static_certificate}}.key
+      traefik.stores.default.defaultCertificate.certFile: {{project_root}}/base/traefik/certs/{{static_certificate}}.crt
+      traefik.stores.default.defaultCertificate.keyFile: {{project_root}}/base/traefik/certs/{{static_certificate}}.key
 {% endif %}
     networks:
       - traefik
@@ -113,8 +115,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 {% if server_is_live %}
-      - {{project_root}}/base/traefik/acme:/acme
-      - {{project_root}}/base/traefik/certs:/certs
+      - "{{project_root}}/base/traefik/acme:/acme"
+      - "{{project_root}}/base/traefik/certs:/certs"
 # Those configs are necessary for static key/certificate files
 #      - {{project_root}}/base/traefik/config/live/dynamic.yml:/config/live.yml
 #      - {{project_root}}/base/traefik/config/local/dynamic.yml:/config/local.yml
@@ -155,9 +157,9 @@ services:
 #      - --providers.file.directory=/config
 #      - --providers.file.watch=true
       - --serversTransport.insecureSkipVerify=true
-    environment:
-      - NAMECHEAP_API_USER
-      - NAMECHEAP_API_KEY
+#    environment:
+#      - NAMECHEAP_API_USER
+#      - NAMECHEAP_API_KEY
 {% endif %}
 
   mariadb:
@@ -186,7 +188,7 @@ services:
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
-    user: "{{uid}}:{{gid}}"
+    user: "{{uid}}:{{gid_docker}}"
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

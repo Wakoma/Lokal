@@ -9,8 +9,8 @@ services:
       - /library/library.xml
     restart: unless-stopped
     volumes:
-      - {{project_root}}/kiwix/data:/data
-      - {{project_root}}/kiwix/library:/library
+      - {{app_root}}/data:/data
+      - {{app_root}}/library:/library
       - {{project_root}}/base/transmission/data:/downloads:rw
     networks:
       - traefik

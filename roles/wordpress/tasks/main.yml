@@ -3,11 +3,11 @@
   ansible.builtin.set_fact:
     app_root: "{{project_root}}/wordpress"
     docker_compose_wordpress: "{{project_root}}/wordpress/docker-compose.yml"
-    is_installed_wordpress: true
-
-- name: Check docker-compose file existence
-  ansible.builtin.set_fact:
     is_installed_wordpress: false
+
+- name: Skip if docker-compose already exists
+  ansible.builtin.set_fact:
+    is_installed_wordpress: true
   when: docker_compose_wordpress is file
 
 # If the docker-compose does not exist then proceed with normal installation

@@ -33,14 +33,3 @@ mysql_port: 3306
 # UID: ''{{ ansible_facts["user_uid"] }}''
 # GID: '{{ ansible_facts["user_gid"] }}'
 # TZ: '{{ ansible_facts["date_time"]["tz"] }}'
-
-
-# TO BE SEPARATED TO STANDALONE PLAYS
-# Cloud Provider Secrets
-hcloud_token:
-vagrant_ip: 10.180.0.102
-
-## Cloud Provider Variables
-hcloud_image: ubuntu-20.04
-hcloud_location: nbg1
-hcloud_server_type: cpx11
