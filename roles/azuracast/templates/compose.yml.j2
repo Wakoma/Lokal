@@ -3,9 +3,10 @@ services:
   azuracast:
     image: "ghcr.io/azuracast/azuracast:{{azuracast_version}}"
     ports:
-    - '{{azuracast_http_port}}:80'
-    - '{{azuracast_https_port}}:443'
-    - '{{azuracast_sftp_port}}:2022'
+#
+#    - '{{azuracast_http_port}}:80'
+#    - '{{azuracast_https_port}}:443'
+#    - '{{azuracast_sftp_port}}:2022'
     # This default mapping is the outgoing and incoming ports for the first 50 stations.
     # You can override this port mapping in your own docker-compose.override.yml file.
     # For instructions, see:
@@ -168,15 +169,15 @@ services:
       PUID: {{uid}}
       PGID: {{gid}}
     volumes:
-    - {{app_root}}/uploads:/var/azuracast/uploads
-    - {{app_root}}/stations:/var/azuracast/stations
-    - {{app_root}}/shoutcast2:/var/azuracast/servers/shoutcast2
-    - {{app_root}}/stereo_tool:/var/azuracast/servers/stereo_tool
-    - {{app_root}}/geolite:/var/azuracast/geoip
-    - {{app_root}}/sftp:/var/azuracast/sftpgo/persist
-    - {{app_root}}/backups:/var/azuracast/backups
-    - {{app_root}}/acme:/var/azuracast/acme
-    - {{app_root}}/db:/var/lib/mysql
+    - "{{app_root}}/uploads:/var/azuracast/uploads"
+    - "{{app_root}}/stations:/var/azuracast/stations"
+    - "{{app_root}}/shoutcast2:/var/azuracast/servers/shoutcast2"
+    - "{{app_root}}/stereo_tool:/var/azuracast/servers/stereo_tool"
+    - "{{app_root}}/geolite:/var/azuracast/geoip"
+    - "{{app_root}}/sftp:/var/azuracast/sftpgo/persist"
+    - "{{app_root}}/backups:/var/azuracast/backups"
+    - "{{app_root}}/acme:/var/azuracast/acme"
+    - "{{app_root}}/db:/var/lib/mysql"
     restart: unless-stopped
     environment:
       APPLICATION_ENV: production
@@ -201,6 +202,7 @@ services:
       DOMAIN_AZURACAST: {{azuracast_subdomain}}.{{domain}}
       CERT_RESOLVER: {{cert_resolver}}
       NGINX_TIMEOUT: 1800
+      PHP_MEMORY_LIMIT: {{ memory_limit_azuracast }}
     labels:
       traefik.enable: "true"
       traefik.http.routers.azuracast.entrypoints: websecure

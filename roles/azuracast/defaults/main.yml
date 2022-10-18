@@ -20,3 +20,5 @@ mysql_database_azuracast: azuracast
 mysql_random_root_password: yes
 mysql_slow_query_log: 0
 mysql_max_connections: 100
+
+memory_limit_azuracast: "256M"

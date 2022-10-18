@@ -1,7 +1,7 @@
-- name: Backup Matomo
+- name: Backup azuracast
   ansible.builtin.include_role:
     name: common
     tasks_from: backup
   vars:
-    app: matomo
-    mysql_db: "{{mysql_database_matomo}}"
+    app: azuracast
+    mysql_db: "{{mysql_database_azuracast}}"

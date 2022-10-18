@@ -1,0 +1,278 @@
+version: '3'
+
+services:
+  # Frontend
+  web:
+    image: jitsi/web:stable-5870
+    restart: unless-stopped
+    volumes:
+    - "{{app_root}}/web:/config:Z"
+    - "{{app_root}}/transcripts:/usr/share/jitsi-meet/transcripts:Z"
+    environment:
+    - ENABLE_COLIBRI_WEBSOCKET
+    - ENABLE_FLOC
+    - ENABLE_LETSENCRYPT
+    - ENABLE_HTTP_REDIRECT
+    - ENABLE_HSTS
+    - ENABLE_XMPP_WEBSOCKET
+    - DISABLE_HTTPS
+    - DISABLE_DEEP_LINKING
+    - LETSENCRYPT_DOMAIN={{ letsencrypt_domain | default("") }}
+    - LETSENCRYPT_EMAIL={{ letsencrypt_email | default("") }}
+    - LETSENCRYPT_USE_STAGING={{ letsencrypt_use_staging | default("") }}
+    - PUBLIC_URL={{ subdomain_jitsi }}.{{ domain }}
+    - TZ={{ tz }}
+    - AMPLITUDE_ID={{ amplitude_id | default("") }}
+    - ANALYTICS_SCRIPT_URLS={{ analytics_script_urls | default("") }}
+    - ANALYTICS_WHITELISTED_EVENTS={{ analytics_whitelisted_events | default("") }}
+    - CALLSTATS_CUSTOM_SCRIPT_URL={{ callstats_custom_script_url | default("") }}
+    - CALLSTATS_ID={{ callstats_id | default("") }}
+    - CALLSTATS_SECRET={{ callstats_secret | default("") }}
+    - CHROME_EXTENSION_BANNER_JSON={{ chrome_extension_banner_json | default("") }}
+    - CONFCODE_URL={{ confcode_url | default("") }}
+    - CONFIG_EXTERNAL_CONNECT={{ config_external_connect | default("") }}
+    - DEFAULT_LANGUAGE={{ default_language | default("") }}
+    - DEPLOYMENTINFO_ENVIRONMENT={{ deploymentinfo_environment | default("") }}
+    - DEPLOYMENTINFO_ENVIRONMENT_TYPE={{ deploymentinfo_environment_type | default("") }}
+    - DEPLOYMENTINFO_REGION={{ deploymentinfo_region | default("") }}
+    - DEPLOYMENTINFO_SHARD={{ deploymentinfo_shard | default("") }}
+    - DEPLOYMENTINFO_USERREGION={{ deploymentinfo_userregion | default("") }}
+    - DIALIN_NUMBERS_URL={{ dialin_numbers_url | default("") }}
+    - DIALOUT_AUTH_URL={{ dialout_auth_url | default("") }}
+    - DIALOUT_CODES_URL={{ dialout_codes_url | default("") }}
+    - DROPBOX_APPKEY={{ dropbox_appkey | default("") }}
+    - DROPBOX_REDIRECT_URI={{ dropbox_redirect_uri | default("") }}
+    - DYNAMIC_BRANDING_URL={{ dynamic_branding_url | default("") }}
+    - ENABLE_AUDIO_PROCESSING
+    - ENABLE_AUTH
+    - ENABLE_CALENDAR
+    - ENABLE_FILE_RECORDING_SERVICE
+    - ENABLE_FILE_RECORDING_SERVICE_SHARING
+    - ENABLE_GUESTS
+    - ENABLE_IPV6
+    - ENABLE_LIPSYNC
+    - ENABLE_NO_AUDIO_DETECTION
+    - ENABLE_P2P
+    - ENABLE_PREJOIN_PAGE
+    - ENABLE_WELCOME_PAGE
+    - ENABLE_CLOSE_PAGE
+    - ENABLE_RECORDING
+    - ENABLE_REMB
+    - ENABLE_REQUIRE_DISPLAY_NAME
+    - ENABLE_SIMULCAST
+    - ENABLE_STATS_ID
+    - ENABLE_STEREO
+    - ENABLE_SUBDOMAINS
+    - ENABLE_TALK_WHILE_MUTED
+    - ENABLE_TCC
+    - ENABLE_TRANSCRIPTIONS
+    - ETHERPAD_PUBLIC_URL={{ etherpad_public_url | default("") }}
+    - ETHERPAD_URL_BASE={{ etherpad_url_base | default("") }}
+    - GOOGLE_ANALYTICS_ID={{ google_analytics_id | default("") }}
+    - GOOGLE_API_APP_CLIENT_ID={{ google_api_app_client_id | default("") }}
+    - INVITE_SERVICE_URL={{ invite_service_url | default("") }}
+    - JICOFO_AUTH_USER={{ jicofo_auth_user | default("") }}
+    - MATOMO_ENDPOINT={{ matomo_endpoint | default("") }}
+    - MATOMO_SITE_ID={{ matomo_site_id | default("") }}
+    - MICROSOFT_API_APP_CLIENT_ID={{ microsoft_api_app_client_id | default("") }}
+    - NGINX_RESOLVER={{ nginx_resolver | default("") }}
+    - NGINX_WORKER_PROCESSES={{ nginx_worker_processes | default("") }}
+    - NGINX_WORKER_CONNECTIONS={{ nginx_worker_connections | default("") }}
+    - PEOPLE_SEARCH_URL={{ people_search_url | default("") }}
+    - RESOLUTION={{ resolution | default("") }}
+    - RESOLUTION_MIN={{ resolution_min | default("") }}
+    - RESOLUTION_WIDTH={{ resolution_width | default("") }}
+    - RESOLUTION_WIDTH_MIN={{ resolution_width_min | default("") }}
+    - START_AUDIO_ONLY={{ start_audio_only | default("") }}
+    - START_AUDIO_MUTED={{ start_audio_muted | default("") }}
+    - START_WITH_AUDIO_MUTED={{ start_with_audio_muted | default("") }}
+    - START_SILENT={{ start_silent | default("") }}
+    - DISABLE_AUDIO_LEVELS={{ disable_audio_levels | default("") }}
+    - ENABLE_NOISY_MIC_DETECTION={{ enable_noisy_mic_detection | default("") }}
+    - START_BITRATE={{ start_bitrate | default("") }}
+    - DESKTOP_SHARING_FRAMERATE_MIN={{ desktop_sharing_framerate_min | default("") }}
+    - DESKTOP_SHARING_FRAMERATE_MAX={{ desktop_sharing_framerate_max | default("") }}
+    - START_VIDEO_MUTED={{ start_video_muted | default("") }}
+    - START_WITH_VIDEO_MUTED={{ start_with_video_muted | default("") }}
+    - TESTING_CAP_SCREENSHARE_BITRATE={{ testing_cap_screenshare_bitrate | default("") }}
+    - TESTING_OCTO_PROBABILITY={{ testing_octo_probability | default("") }}
+    - XMPP_AUTH_DOMAIN={{ xmpp_auth_domain | default("") }}
+    - XMPP_BOSH_URL_BASE={{ xmpp_bosh_url_base | default("") }}
+    - XMPP_DOMAIN={{ xmpp_domain | default("") }}
+    - XMPP_GUEST_DOMAIN={{ xmpp_guest_domain | default("") }}
+    - XMPP_MUC_DOMAIN={{ xmpp_muc_domain | default("") }}
+    - XMPP_RECORDER_DOMAIN={{ xmpp_recorder_domain | default("") }}
+    - TOKEN_AUTH_URL={{ token_auth_url | default("") }}
+    networks:
+      meet.jitsi:
+      traefik:
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.jitsi.entrypoints: websecure
+      traefik.http.routers.jitsi.rule: Host(`{{subdomain_jitsi}}.{{domain}}`)
+      traefik.http.routers.jitsi.tls: "true"
+{% if server_is_live %}
+      traefik.http.routers.jitsi.tls.certresolver: {{cert_resolver}}
+{% endif %}
+      traefik.http.services.jitsi.loadbalancer.server.port: 80
+
+  # XMPP server
+  prosody:
+    image: jitsi/prosody:stable-5870
+    restart: unless-stopped
+    expose:
+    - '5222'
+    - '5347'
+    - '5280'
+    volumes:
+    - "{{app_root}}/prosody:/config:Z"
+    - "{{app_root}}/prosody-plugins-custom:/prosody-plugins-custom:Z"
+    environment:
+    - AUTH_TYPE={{auth_type}}
+    - ENABLE_AUTH
+    - ENABLE_GUESTS
+    - ENABLE_LOBBY
+    - ENABLE_XMPP_WEBSOCKET
+    - GLOBAL_MODULES
+    - GLOBAL_CONFIG
+    - LDAP_URL={{ldap_url}}
+    - LDAP_BASE={{ldap_base}}
+    - LDAP_BINDDN={{ldap_binddn}}
+    - LDAP_BINDPW={{ldap_bindpw}}
+    - LDAP_FILTER={{ldap_filter}}
+    - LDAP_AUTH_METHOD={{ldap_auth_method}}
+    - LDAP_VERSION={{ldap_version}}
+    - LDAP_USE_TLS={{ldap_use_tls}}
+    - LDAP_TLS_CIPHERS={{ldap_tls_ciphers}}
+    - LDAP_TLS_CHECK_PEER={{ldap_tls_check_peer}}
+    - LDAP_TLS_CACERT_FILE={{ldap_tls_cacert_file}}
+    - LDAP_TLS_CACERT_DIR={{ldap_tls_cacert_dir}}
+    - LDAP_START_TLS={{ldap_start_tls}}
+    - XMPP_DOMAIN={{xmpp_domain}}
+    - XMPP_AUTH_DOMAIN={{xmpp_auth_domain}}
+    - XMPP_GUEST_DOMAIN={{xmpp_guest_domain}}
+    - XMPP_MUC_DOMAIN={{xmpp_muc_domain}}
+    - XMPP_INTERNAL_MUC_DOMAIN={{xmpp_internal_muc_domain}}
+    - XMPP_MODULES={{xmpp_modules}}
+    - XMPP_MUC_MODULES={{xmpp_muc_modules}}
+    - XMPP_INTERNAL_MUC_MODULES={{xmpp_internal_muc_modules}}
+    - XMPP_RECORDER_DOMAIN={{xmpp_recorder_domain}}
+    - XMPP_CROSS_DOMAIN={{xmpp_cross_domain}}
+    - JICOFO_COMPONENT_SECRET={{jicofo_component_secret}}
+    - JICOFO_AUTH_USER={{jicofo_auth_user}}
+    - JICOFO_AUTH_PASSWORD={{jicofo_auth_password}}
+    - JVB_AUTH_USER={{jvb_auth_user}}
+    - JVB_AUTH_PASSWORD={{jvb_auth_password}}
+    - JIGASI_XMPP_USER={{jigasi_xmpp_user}}
+    - JIGASI_XMPP_PASSWORD={{jigasi_xmpp_password}}
+    - JIBRI_XMPP_USER={{jibri_xmpp_user}}
+    - JIBRI_XMPP_PASSWORD={{jibri_xmpp_password}}
+    - JIBRI_RECORDER_USER={{jibri_recorder_user}}
+    - JIBRI_RECORDER_PASSWORD={{jibri_recorder_password}}
+    - JWT_APP_ID={{jwt_app_id}}
+    - JWT_APP_SECRET={{jwt_app_secret}}
+    - JWT_ACCEPTED_ISSUERS={{jwt_accepted_issuers}}
+    - JWT_ACCEPTED_AUDIENCES={{jwt_accepted_audiences}}
+    - JWT_ASAP_KEYSERVER={{jwt_asap_keyserver}}
+    - JWT_ALLOW_EMPTY={{jwt_allow_empty}}
+    - JWT_AUTH_TYPE={{jwt_auth_type}}
+    - JWT_TOKEN_AUTH_MODULE={{jwt_token_auth_module}}
+    - LOG_LEVEL={{log_level}}
+    - PUBLIC_URL={{public_url}}
+    - TZ={{tz}}
+    networks:
+      meet.jitsi:
+        aliases:
+        - "{{xmpp_server}}"
+
+  # Focus component
+  jicofo:
+    image: jitsi/jicofo:stable-5870
+    restart: unless-stopped
+    volumes:
+    - "{{app_root}}/jicofo:/config:Z"
+    environment:
+    - AUTH_TYPE={{auth_type}}
+    - BRIDGE_AVG_PARTICIPANT_STRESS={{bridge_avg_participant_stress}}
+    - BRIDGE_STRESS_THRESHOLD={{bridge_stress_threshold}}
+    - ENABLE_AUTH
+    - ENABLE_AUTO_OWNER
+    - ENABLE_CODEC_VP8
+    - ENABLE_CODEC_VP9
+    - ENABLE_CODEC_H264
+    - ENABLE_OCTO
+    - ENABLE_RECORDING
+    - ENABLE_SCTP
+    - JICOFO_AUTH_USER={{jicofo_auth_user}}
+    - JICOFO_AUTH_PASSWORD={{jicofo_auth_password}}
+    - JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS
+    - JICOFO_CONF_INITIAL_PARTICIPANT_WAIT_TIMEOUT={{jicofo_conf_initial_participant_wait_timeout}}
+    - JICOFO_CONF_SINGLE_PARTICIPANT_TIMEOUT={{jicofo_conf_single_participant_timeout}}
+    - JICOFO_ENABLE_HEALTH_CHECKS
+    - JICOFO_SHORT_ID={{jicofo_short_id}}
+    - JICOFO_RESERVATION_ENABLED={{jicofo_reservation_enabled}}
+    - JICOFO_RESERVATION_REST_BASE_URL={{jicofo_reservation_rest_base_url}}
+    - JIBRI_BREWERY_MUC={{jibri_brewery_muc}}
+    - JIBRI_REQUEST_RETRIES={{jibri_request_retries}}
+    - JIBRI_PENDING_TIMEOUT={{jibri_pending_timeout}}
+    - JIGASI_BREWERY_MUC={{jigasi_brewery_muc}}
+    - JIGASI_SIP_URI={{jigasi_sip_uri}}
+    - JVB_BREWERY_MUC={{jvb_brewery_muc}}
+    - MAX_BRIDGE_PARTICIPANTS={{max_bridge_participants}}
+    - OCTO_BRIDGE_SELECTION_STRATEGY={{octo_bridge_selection_strategy}}
+    - TZ={{tz}}
+    - XMPP_DOMAIN={{xmpp_domain}}
+    - XMPP_AUTH_DOMAIN={{xmpp_auth_domain}}
+    - XMPP_INTERNAL_MUC_DOMAIN={{xmpp_internal_muc_domain}}
+    - XMPP_MUC_DOMAIN={{xmpp_muc_domain}}
+    - XMPP_SERVER={{xmpp_server}}
+    depends_on:
+    - prosody
+    networks:
+      meet.jitsi:
+
+  # Video bridge
+  jvb:
+    image: jitsi/jvb:stable-5870
+    restart: unless-stopped
+    ports:
+    - '{{jvb_port}}/udp'
+    - '{jvb_tcp_port}'
+    volumes:
+    - "{{app_root}}/jvb:/config:Z"
+    environment:
+    - ENABLE_COLIBRI_WEBSOCKET
+    - ENABLE_OCTO
+    - DOCKER_HOST_ADDRESS={{docker_host_address}}
+    - XMPP_AUTH_DOMAIN={{xmpp_auth_domain}}
+    - XMPP_INTERNAL_MUC_DOMAIN={{xmpp_internal_muc_domain}}
+    - XMPP_SERVER={{xmpp_server}}
+    - JVB_AUTH_USER={{jvb_auth_user}}
+    - JVB_AUTH_PASSWORD={{jvb_auth_password}}
+    - JVB_BREWERY_MUC={{jvb_brewery_muc}}
+    - JVB_PORT={{jvb_port}}
+    - JVB_TCP_HARVESTER_DISABLED={{jvb_tcp_harvester_disabled}}
+    - JVB_TCP_PORT={{jvb_tcp_port}}
+    - JVB_TCP_MAPPED_PORT={{jvb_tcp_mapped_port}}
+    - JVB_STUN_SERVERS={{jvb_stun_servers}}
+    - JVB_ENABLE_APIS={{jvb_enable_apis}}
+    - JVB_WS_DOMAIN={{jvb_ws_domain}}
+    - JVB_WS_SERVER_ID={{jvb_ws_server_id}}
+    - PUBLIC_URL={{public_url}}
+    - JVB_OCTO_BIND_ADDRESS={{jvb_octo_bind_address}}
+    - JVB_OCTO_PUBLIC_ADDRESS={{jvb_octo_public_address}}
+    - JVB_OCTO_BIND_PORT={{jvb_octo_bind_port}}
+    - JVB_OCTO_REGION={{jvb_octo_region}}
+    - TZ={{tz}}
+    depends_on:
+    - prosody
+    networks:
+      meet.jitsi:
+        aliases:
+        - jvb.meet.jitsi
+
+# Custom network so all services can communicate using a FQDN
+networks:
+  meet.jitsi:
+  traefik:
+    external: true
