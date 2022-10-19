@@ -33,10 +33,11 @@ services:
 
   netdata:
     container_name: netdata
+    user: "0:{{gid}}"
     cap_add:
     - SYS_PTRACE
     environment:
-      PUID: '{{ ansible_facts["user_uid"] }}'
+      PUID: '{{ uid }}'
     hostname: {{subdomain_netdata}}.{{domain}}
     image: netdata/netdata:v1.28.0-amd64
     labels:
@@ -101,10 +102,6 @@ services:
 {% if server_is_live %}
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
 {% endif %}
-{% if static_certificate is truthy %}
-      traefik.stores.default.defaultCertificate.certFile: {{project_root}}/base/traefik/certs/{{static_certificate}}.crt
-      traefik.stores.default.defaultCertificate.keyFile: {{project_root}}/base/traefik/certs/{{static_certificate}}.key
-{% endif %}
     networks:
       - traefik
       - prometheus
@@ -114,12 +111,9 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-{% if server_is_live %}
       - "{{project_root}}/base/traefik/acme:/acme"
       - "{{project_root}}/base/traefik/certs:/certs"
-# Those configs are necessary for static key/certificate files
-#      - {{project_root}}/base/traefik/config/live/dynamic.yml:/config/live.yml
-#      - {{project_root}}/base/traefik/config/local/dynamic.yml:/config/local.yml
+      - "{{project_root}}/base/traefik/conf:/config"
     command:
       - --accessLog=true
       - --api.insecure=false
@@ -133,11 +127,15 @@ services:
       - --certificatesresolvers.http.acme.httpchallenge.entrypoint=web
       - --certificatesresolvers.http.acme.email={{acme_email}}
       - --certificatesresolvers.http.acme.storage=/acme/acme.json
-#      - --certificatesresolvers.http.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+{% if staging_acme %}
+      - --certificatesresolvers.http.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+{% endif %}
       - --certificatesresolvers.tls.acme.tlschallenge=true
       - --certificatesresolvers.tls.acme.email={{acme_email}}
       - --certificatesresolvers.tls.acme.storage=/acme/acme.json
-#      - --certificatesresolvers.tls.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+{% if staging_acme %}
+      - --certificatesresolvers.tls.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+{% endif %}
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --entryPoints.metrics.address=:8082
@@ -154,12 +152,10 @@ services:
       - --providers.docker.endpoint=unix:///var/run/docker.sock
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=traefik
-#      - --providers.file.directory=/config
-#      - --providers.file.watch=true
       - --serversTransport.insecureSkipVerify=true
-#    environment:
-#      - NAMECHEAP_API_USER
-#      - NAMECHEAP_API_KEY
+{% if static_certificate is truthy %}
+      - --providers.file.directory=/config
+      - --providers.file.watch=true
 {% endif %}
 
   mariadb:
@@ -167,7 +163,6 @@ services:
     image: mariadb:10.5.8-focal
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
-      MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
       MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
       MARIADB_MYSQL_LOCALHOST_USER: "true"
     ports:

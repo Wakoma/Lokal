@@ -1,0 +1,14 @@
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+    mintls13:
+      minVersion: VersionTLS13
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/{{static_certificate}}.crt
+        keyFile: /certs/{{static_certificate}}.key
+#  certificates:
+#    - certFile: /certs/{{static_certificate}}.crt
+#      keyFile: /certs/{{static_certificate}}.key
