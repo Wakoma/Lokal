@@ -39,8 +39,6 @@ config: ~/.jitsi-meet-cfg
 
 # Public URL for the web service (required)
 subdomain_jitsi: meet
-public_url: https://${DOMAIN_JITSI}
-cert_resolver: {{ cert_resolver }}
 
 # IP address of the Docker host
 # See the "Running behind NAT or on a LAN environment" section in the Handbook:
@@ -226,7 +224,7 @@ xmpp_guest_domain: guest.meet.jitsi
 
 # Comma separated list of domains for cross domain policy or "true" to allow all
 # The PUBLIC_URL is always allowed
-#xmpp_cross_domain: true
+xmpp_cross_domain: false
 
 # Custom Prosody modules for XMPP_DOMAIN (comma separated)
 xmpp_modules:
@@ -266,7 +264,7 @@ jicofo_auth_user: focus
 #jicofo_reservation_rest_base_url: http://reservation.example.com
 
 # Enable Jicofo's health check REST API (http://<jicofo_base_url>:8888/about/health)
-#jicofo_enable_health_checks: true
+jicofo_enable_health_checks: true
 
 # XMPP user for Jigasi MUC client connections
 jigasi_xmpp_user: jigasi

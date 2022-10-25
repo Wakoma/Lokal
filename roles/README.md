@@ -1,23 +1,32 @@
 # Services
 
-Lokal comes with one mandatory `lokal` service and other optional. You control which services
-are installed in root `playbook.yml`. Every service has three mode-operandi.
+Lokal comes with one mandatory `base` service. All others are optional. You control which services
+are installed in root `playbook.yml`. Every service has a few mode-operandi that you select using `-e`
+parameter when running the `playbook.yml`.
 
 - install
 - backup
 - restore
-- uninstall
-- update
+- (remove) /only some/
 
-If you do not specify anything then installation/update will be performed. Otherwise, specify
-one of `backup` or `restore` runtime variable using `-e` parameter of `ansible-playbook`.
+If you do not specify anything then install/update will be performed on all services specified
+in the `host` file inside `services` field.
+```bash
+ansible-playbook -i hosts/your-host playbook.yml
+```
+## Install
+
+Installation should be an indempotent operation (the author of installation tasks is responsible).
+Installation either installs or updates the application. For example wordpress has more complicated
+upgrade logic because it could have been manually updated via the web interface and its role takes
+this into account.
 
 ## Backup
 
 You control what is being run by ansible-playbook's command line argument `-e backup`. Variable
 backup should contain comma-separated services that you want to backup e.g.:
 ```bash
-ansible-playbook -i host/mini1 -e backup=wordpress,matmoto playbook.yml
+ansible-playbook -i host/your-host -e backup=wordpress,matmoto playbook.yml
 ```
 
 ## Restore
@@ -25,7 +34,7 @@ ansible-playbook -i host/mini1 -e backup=wordpress,matmoto playbook.yml
 Restore is controlled by property `restore` with the same syntax as `backup` - it should contain also
 comma-separated services that you want to restore.
 ```bash
-ansible-playbook -i host/mini1 -e restore=wordpress,matmoto playbook.yml
+ansible-playbook -i host/your-host -e restore=wordpress,matmoto playbook.yml
 ``` 
 
 ## Uninstall

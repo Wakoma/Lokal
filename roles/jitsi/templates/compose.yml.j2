@@ -1,4 +1,4 @@
-version: '3'
+version: "3.8"
 
 services:
   # Frontend
@@ -11,16 +11,16 @@ services:
     environment:
     - ENABLE_COLIBRI_WEBSOCKET
     - ENABLE_FLOC
-    - ENABLE_LETSENCRYPT
+    - ENABLE_LETSENCRYPT=0
     - ENABLE_HTTP_REDIRECT
     - ENABLE_HSTS
     - ENABLE_XMPP_WEBSOCKET
     - DISABLE_HTTPS
     - DISABLE_DEEP_LINKING
-    - LETSENCRYPT_DOMAIN={{ letsencrypt_domain | default("") }}
-    - LETSENCRYPT_EMAIL={{ letsencrypt_email | default("") }}
-    - LETSENCRYPT_USE_STAGING={{ letsencrypt_use_staging | default("") }}
-    - PUBLIC_URL={{ subdomain_jitsi }}.{{ domain }}
+    - LETSENCRYPT_DOMAIN={{subdomain_jitsi}}.{{domain}}
+    - LETSENCRYPT_EMAIL={{ email_acme }}
+    - LETSENCRYPT_USE_STAGING={{ staging_acme }}
+    - PUBLIC_URL=https://{{subdomain_jitsi}}.{{domain}}
     - TZ={{ tz }}
     - AMPLITUDE_ID={{ amplitude_id | default("") }}
     - ANALYTICS_SCRIPT_URLS={{ analytics_script_urls | default("") }}
@@ -104,8 +104,8 @@ services:
     - XMPP_RECORDER_DOMAIN={{ xmpp_recorder_domain | default("") }}
     - TOKEN_AUTH_URL={{ token_auth_url | default("") }}
     networks:
-      meet.jitsi:
-      traefik:
+    - meet.jitsi
+    - traefik
     labels:
       traefik.enable: "true"
       traefik.http.routers.jitsi.entrypoints: websecure
@@ -121,33 +121,33 @@ services:
     image: jitsi/prosody:stable-5870
     restart: unless-stopped
     expose:
-    - '5222'
-    - '5347'
-    - '5280'
+    - '5222' # do we really want to expose the ports on our host?
+    - '5347' # since it is the same machine where the gateway runs
+    - '5280' # this is directly visible from the internet (if FW allows)
     volumes:
     - "{{app_root}}/prosody:/config:Z"
     - "{{app_root}}/prosody-plugins-custom:/prosody-plugins-custom:Z"
     environment:
-    - AUTH_TYPE={{auth_type}}
+    - AUTH_TYPE=internal
     - ENABLE_AUTH
     - ENABLE_GUESTS
     - ENABLE_LOBBY
     - ENABLE_XMPP_WEBSOCKET
     - GLOBAL_MODULES
     - GLOBAL_CONFIG
-    - LDAP_URL={{ldap_url}}
-    - LDAP_BASE={{ldap_base}}
-    - LDAP_BINDDN={{ldap_binddn}}
-    - LDAP_BINDPW={{ldap_bindpw}}
-    - LDAP_FILTER={{ldap_filter}}
-    - LDAP_AUTH_METHOD={{ldap_auth_method}}
-    - LDAP_VERSION={{ldap_version}}
-    - LDAP_USE_TLS={{ldap_use_tls}}
-    - LDAP_TLS_CIPHERS={{ldap_tls_ciphers}}
-    - LDAP_TLS_CHECK_PEER={{ldap_tls_check_peer}}
-    - LDAP_TLS_CACERT_FILE={{ldap_tls_cacert_file}}
-    - LDAP_TLS_CACERT_DIR={{ldap_tls_cacert_dir}}
-    - LDAP_START_TLS={{ldap_start_tls}}
+    - LDAP_URL={{ldap_url | default("") }}
+    - LDAP_BASE={{ldap_base | default("") }}
+    - LDAP_BINDDN={{ldap_binddn | default("") }}
+    - LDAP_BINDPW={{ldap_bindpw | default("") }}
+    - LDAP_FILTER={{ldap_filter | default("") }}
+    - LDAP_AUTH_METHOD={{ldap_auth_method | default("") }}
+    - LDAP_VERSION={{ldap_version | default("") }}
+    - LDAP_USE_TLS={{ldap_use_tls | default("") }}
+    - LDAP_TLS_CIPHERS={{ldap_tls_ciphers | default("") }}
+    - LDAP_TLS_CHECK_PEER={{ldap_tls_check_peer | default("") }}
+    - LDAP_TLS_CACERT_FILE={{ldap_tls_cacert_file | default("") }}
+    - LDAP_TLS_CACERT_DIR={{ldap_tls_cacert_dir | default("") }}
+    - LDAP_START_TLS={{ldap_start_tls | default("") }}
     - XMPP_DOMAIN={{xmpp_domain}}
     - XMPP_AUTH_DOMAIN={{xmpp_auth_domain}}
     - XMPP_GUEST_DOMAIN={{xmpp_guest_domain}}
@@ -158,27 +158,27 @@ services:
     - XMPP_INTERNAL_MUC_MODULES={{xmpp_internal_muc_modules}}
     - XMPP_RECORDER_DOMAIN={{xmpp_recorder_domain}}
     - XMPP_CROSS_DOMAIN={{xmpp_cross_domain}}
-    - JICOFO_COMPONENT_SECRET={{jicofo_component_secret}}
-    - JICOFO_AUTH_USER={{jicofo_auth_user}}
-    - JICOFO_AUTH_PASSWORD={{jicofo_auth_password}}
+    - JICOFO_COMPONENT_SECRET={{jicofo_component_secret | default('s3cr37')}}
+    - JICOFO_AUTH_USER={{jicofo_auth_user | default('focus') }}
+    - JICOFO_AUTH_PASSWORD="{{jicofo_auth_password}}"
     - JVB_AUTH_USER={{jvb_auth_user}}
-    - JVB_AUTH_PASSWORD={{jvb_auth_password}}
-    - JIGASI_XMPP_USER={{jigasi_xmpp_user}}
-    - JIGASI_XMPP_PASSWORD={{jigasi_xmpp_password}}
+    - JVB_AUTH_PASSWORD="{{jvb_auth_password}}"
+    - JIGASI_XMPP_USER={{jigasi_xmpp_user | default('') }}
+    - JIGASI_XMPP_PASSWORD="{{jigasi_xmpp_password | default('') }}"
     - JIBRI_XMPP_USER={{jibri_xmpp_user}}
-    - JIBRI_XMPP_PASSWORD={{jibri_xmpp_password}}
+    - JIBRI_XMPP_PASSWORD="{{jibri_xmpp_password}}"
     - JIBRI_RECORDER_USER={{jibri_recorder_user}}
-    - JIBRI_RECORDER_PASSWORD={{jibri_recorder_password}}
-    - JWT_APP_ID={{jwt_app_id}}
-    - JWT_APP_SECRET={{jwt_app_secret}}
-    - JWT_ACCEPTED_ISSUERS={{jwt_accepted_issuers}}
-    - JWT_ACCEPTED_AUDIENCES={{jwt_accepted_audiences}}
-    - JWT_ASAP_KEYSERVER={{jwt_asap_keyserver}}
-    - JWT_ALLOW_EMPTY={{jwt_allow_empty}}
-    - JWT_AUTH_TYPE={{jwt_auth_type}}
-    - JWT_TOKEN_AUTH_MODULE={{jwt_token_auth_module}}
-    - LOG_LEVEL={{log_level}}
-    - PUBLIC_URL={{public_url}}
+    - JIBRI_RECORDER_PASSWORD="{{jibri_recorder_password}}"
+    - JWT_APP_ID={{jwt_app_id | default('') }}
+    - JWT_APP_SECRET={{jwt_app_secret | default('') }}
+    - JWT_ACCEPTED_ISSUERS={{jwt_accepted_issuers | default('') }}
+    - JWT_ACCEPTED_AUDIENCES={{jwt_accepted_audiences | default('') }}
+    - JWT_ASAP_KEYSERVER={{jwt_asap_keyserver | default('') }}
+    - JWT_ALLOW_EMPTY={{jwt_allow_empty | default('') }}
+    - JWT_TOKEN_AUTH_MODULE={{jwt_token_auth_module | default('') }}
+    - JWT_AUTH_TYPE=internal
+    - LOG_LEVEL={{log_level | default('info') }}
+    - PUBLIC_URL=https://{{subdomain_jitsi}}.{{domain}}
     - TZ={{tz}}
     networks:
       meet.jitsi:
@@ -192,9 +192,7 @@ services:
     volumes:
     - "{{app_root}}/jicofo:/config:Z"
     environment:
-    - AUTH_TYPE={{auth_type}}
-    - BRIDGE_AVG_PARTICIPANT_STRESS={{bridge_avg_participant_stress}}
-    - BRIDGE_STRESS_THRESHOLD={{bridge_stress_threshold}}
+    - AUTH_TYPE=internal
     - ENABLE_AUTH
     - ENABLE_AUTO_OWNER
     - ENABLE_CODEC_VP8
@@ -204,22 +202,22 @@ services:
     - ENABLE_RECORDING
     - ENABLE_SCTP
     - JICOFO_AUTH_USER={{jicofo_auth_user}}
-    - JICOFO_AUTH_PASSWORD={{jicofo_auth_password}}
+    - JICOFO_AUTH_PASSWORD="{{jicofo_auth_password}}"
+{%if jicofo_enable_health_checks%}
     - JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS
-    - JICOFO_CONF_INITIAL_PARTICIPANT_WAIT_TIMEOUT={{jicofo_conf_initial_participant_wait_timeout}}
-    - JICOFO_CONF_SINGLE_PARTICIPANT_TIMEOUT={{jicofo_conf_single_participant_timeout}}
     - JICOFO_ENABLE_HEALTH_CHECKS
-    - JICOFO_SHORT_ID={{jicofo_short_id}}
+{%endif%}
+    - JICOFO_SHORT_ID={{jicofo_short_id | default('') }}
+{%if jicofo_reservation_enabled is defined and jicofo_reservation_enabled%}
     - JICOFO_RESERVATION_ENABLED={{jicofo_reservation_enabled}}
-    - JICOFO_RESERVATION_REST_BASE_URL={{jicofo_reservation_rest_base_url}}
+{%endif%}
+    - JICOFO_RESERVATION_REST_BASE_URL={{jicofo_reservation_rest_base_url | default('') }}
     - JIBRI_BREWERY_MUC={{jibri_brewery_muc}}
-    - JIBRI_REQUEST_RETRIES={{jibri_request_retries}}
-    - JIBRI_PENDING_TIMEOUT={{jibri_pending_timeout}}
     - JIGASI_BREWERY_MUC={{jigasi_brewery_muc}}
-    - JIGASI_SIP_URI={{jigasi_sip_uri}}
+    - JIGASI_SIP_URI={{jigasi_sip_uri | default('') }}
     - JVB_BREWERY_MUC={{jvb_brewery_muc}}
-    - MAX_BRIDGE_PARTICIPANTS={{max_bridge_participants}}
-    - OCTO_BRIDGE_SELECTION_STRATEGY={{octo_bridge_selection_strategy}}
+    - MAX_BRIDGE_PARTICIPANTS={{max_bridge_participants | default('10')}}
+    - OCTO_BRIDGE_SELECTION_STRATEGY={{octo_bridge_selection_strategy | default('') }}
     - TZ={{tz}}
     - XMPP_DOMAIN={{xmpp_domain}}
     - XMPP_AUTH_DOMAIN={{xmpp_auth_domain}}
@@ -229,7 +227,7 @@ services:
     depends_on:
     - prosody
     networks:
-      meet.jitsi:
+    - meet.jitsi
 
   # Video bridge
   jvb:
@@ -237,32 +235,40 @@ services:
     restart: unless-stopped
     ports:
     - '{{jvb_port}}/udp'
-    - '{jvb_tcp_port}'
+    - '{{jvb_tcp_port}}'
     volumes:
     - "{{app_root}}/jvb:/config:Z"
     environment:
     - ENABLE_COLIBRI_WEBSOCKET
     - ENABLE_OCTO
-    - DOCKER_HOST_ADDRESS={{docker_host_address}}
+    - DOCKER_HOST_ADDRESS={{public_ip | default('') }}
     - XMPP_AUTH_DOMAIN={{xmpp_auth_domain}}
     - XMPP_INTERNAL_MUC_DOMAIN={{xmpp_internal_muc_domain}}
     - XMPP_SERVER={{xmpp_server}}
     - JVB_AUTH_USER={{jvb_auth_user}}
-    - JVB_AUTH_PASSWORD={{jvb_auth_password}}
+    - JVB_AUTH_PASSWORD="{{jvb_auth_password}}"
     - JVB_BREWERY_MUC={{jvb_brewery_muc}}
     - JVB_PORT={{jvb_port}}
     - JVB_TCP_HARVESTER_DISABLED={{jvb_tcp_harvester_disabled}}
     - JVB_TCP_PORT={{jvb_tcp_port}}
     - JVB_TCP_MAPPED_PORT={{jvb_tcp_mapped_port}}
     - JVB_STUN_SERVERS={{jvb_stun_servers}}
+{% if jvb_enable_apis is defined %}
     - JVB_ENABLE_APIS={{jvb_enable_apis}}
+{% endif %}
+{% if jvb_ws_domain is defined %}
     - JVB_WS_DOMAIN={{jvb_ws_domain}}
+{% endif %}
+{% if jvb_ws_server_id is defined %}
     - JVB_WS_SERVER_ID={{jvb_ws_server_id}}
-    - PUBLIC_URL={{public_url}}
-    - JVB_OCTO_BIND_ADDRESS={{jvb_octo_bind_address}}
-    - JVB_OCTO_PUBLIC_ADDRESS={{jvb_octo_public_address}}
+{% endif %}
+    - PUBLIC_URL=https://{{subdomain_jitsi}}.{{domain}}
+    - JVB_OCTO_BIND_ADDRESS={{jvb_octo_bind_address | default('') }}
+    - JVB_OCTO_PUBLIC_ADDRESS={{jvb_octo_public_address | default('') }}
+{%if jvb_octo_bind_port is defined %}
     - JVB_OCTO_BIND_PORT={{jvb_octo_bind_port}}
-    - JVB_OCTO_REGION={{jvb_octo_region}}
+{%endif%}
+    - JVB_OCTO_REGION={{jvb_octo_region | default('') }}
     - TZ={{tz}}
     depends_on:
     - prosody
@@ -276,3 +282,11 @@ networks:
   meet.jitsi:
   traefik:
     external: true
+
+{% if 0 %}
+# zero is true
+{% endif %}
+
+{% if 1 %}
+# one is true
+{% endif %}
