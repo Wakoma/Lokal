@@ -15,7 +15,7 @@
     privatekey_path: "{{ project_root }}/base/traefik/certs/{{domain}}.key"
     organization_name: "Wakoma"
     commonName: "{{domain}}"
-    email_address: "{{acme_email}}"
+    email_address: "{{email_acme}}"
     country_name: "US"
 
 - name: Create SSL certificate

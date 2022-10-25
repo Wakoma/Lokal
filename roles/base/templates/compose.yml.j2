@@ -76,12 +76,12 @@ services:
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
 {% endif %}
     networks:
-      - traefik
-      - prometheus
+    - traefik
+    - prometheus
     restart: unless-stopped
     volumes:
-      - {{project_root}}/base/prometheus/etc:/etc/prometheus
-      - {{project_root}}/base/prometheus/data:/prometheus
+    - {{project_root}}/base/prometheus/etc:/etc/prometheus
+    - {{project_root}}/base/prometheus/data:/prometheus
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   traefik:
@@ -103,59 +103,59 @@ services:
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
 {% endif %}
     networks:
-      - traefik
-      - prometheus
+    - traefik
+    - prometheus
     ports:
-      - 80:80
-      - 443:443
+    - 80:80
+    - 443:443
     restart: unless-stopped
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - "{{project_root}}/base/traefik/acme:/acme"
-      - "{{project_root}}/base/traefik/certs:/certs"
-      - "{{project_root}}/base/traefik/conf:/config"
+    - /var/run/docker.sock:/var/run/docker.sock
+    - "{{project_root}}/base/traefik/acme:/acme"
+    - "{{project_root}}/base/traefik/certs:/certs"
+    - "{{project_root}}/base/traefik/conf:/config"
     command:
-      - --accessLog=true
-      - --api.insecure=false
-      - --api.dashboard=true
-      - --api.debug=false
-      - --certificatesResolvers.dns.acme.dnsChallenge.delayBeforeCheck=60
-      - --certificatesResolvers.dns.acme.dnsChallenge.provider={{dns_provider}}
-      - --certificatesResolvers.dns.acme.email={{acme_email}}
-      - --certificatesResolvers.dns.acme.storage=/acme/acme.json
-      - --certificatesresolvers.http.acme.httpchallenge=true
-      - --certificatesresolvers.http.acme.httpchallenge.entrypoint=web
-      - --certificatesresolvers.http.acme.email={{acme_email}}
-      - --certificatesresolvers.http.acme.storage=/acme/acme.json
+    - --accessLog=true
+    - --api.insecure=false
+    - --api.dashboard=true
+    - --api.debug=false
+    - --certificatesResolvers.dns.acme.dnsChallenge.delayBeforeCheck=60
+    - --certificatesResolvers.dns.acme.dnsChallenge.provider={{dns_provider}}
+    - --certificatesResolvers.dns.acme.email={{email_acme}}
+    - --certificatesResolvers.dns.acme.storage=/acme/acme.json
+    - --certificatesresolvers.http.acme.httpchallenge=true
+    - --certificatesresolvers.http.acme.httpchallenge.entrypoint=web
+    - --certificatesresolvers.http.acme.email={{email_acme}}
+    - --certificatesresolvers.http.acme.storage=/acme/acme.json
 {% if staging_acme %}
-      - --certificatesresolvers.http.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+    - --certificatesresolvers.http.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
 {% endif %}
-      - --certificatesresolvers.tls.acme.tlschallenge=true
-      - --certificatesresolvers.tls.acme.email={{acme_email}}
-      - --certificatesresolvers.tls.acme.storage=/acme/acme.json
+    - --certificatesresolvers.tls.acme.tlschallenge=true
+    - --certificatesresolvers.tls.acme.email={{email_acme}}
+    - --certificatesresolvers.tls.acme.storage=/acme/acme.json
 {% if staging_acme %}
-      - --certificatesresolvers.tls.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+    - --certificatesresolvers.tls.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
 {% endif %}
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --entryPoints.metrics.address=:8082
-      - --entrypoints.web.http.redirections.entryPoint.to=websecure
-      - --entrypoints.web.http.redirections.entryPoint.scheme=https
-      - --entrypoints.web.http.redirections.entrypoint.permanent=true
-      - --log.level=WARNING
-      - --metrics.prometheus=true
-      - --metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
-      - --metrics.prometheus.addEntryPointsLabels=true
-      - --metrics.prometheus.addServicesLabels=true
-      - --metrics.prometheus.entryPoint=metrics
-      - --providers.docker=true
-      - --providers.docker.endpoint=unix:///var/run/docker.sock
-      - --providers.docker.exposedbydefault=false
-      - --providers.docker.network=traefik
-      - --serversTransport.insecureSkipVerify=true
+    - --entrypoints.web.address=:80
+    - --entrypoints.websecure.address=:443
+    - --entryPoints.metrics.address=:8082
+    - --entrypoints.web.http.redirections.entryPoint.to=websecure
+    - --entrypoints.web.http.redirections.entryPoint.scheme=https
+    - --entrypoints.web.http.redirections.entrypoint.permanent=true
+    - --log.level=WARNING
+    - --metrics.prometheus=true
+    - --metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
+    - --metrics.prometheus.addEntryPointsLabels=true
+    - --metrics.prometheus.addServicesLabels=true
+    - --metrics.prometheus.entryPoint=metrics
+    - --providers.docker=true
+    - --providers.docker.endpoint=unix:///var/run/docker.sock
+    - --providers.docker.exposedbydefault=false
+    - --providers.docker.network=traefik
+    - --serversTransport.insecureSkipVerify=true
 {% if static_certificate is truthy %}
-      - --providers.file.directory=/config
-      - --providers.file.watch=true
+    - --providers.file.directory=/config
+    - --providers.file.watch=true
 {% endif %}
 
   mariadb:
@@ -166,10 +166,10 @@ services:
       MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
       MARIADB_MYSQL_LOCALHOST_USER: "true"
     ports:
-      - '{{mysql_port}}:3306'  # necessary to manipulate mariadb locally
+    - '{{mysql_port}}:3306'  # necessary to manipulate mariadb locally
     networks:
-      - mysql
-      - prometheus
+    - mysql
+    - prometheus
     healthcheck:
       test: mysql --protocol tcp -u root --password={{mysql_root_password}} -e "SELECT 1 FROM DUAL" mysql
       interval: 60s
@@ -178,7 +178,7 @@ services:
       timeout: 1s
     restart: unless-stopped
     volumes:
-      - {{project_root}}/base/mysql/data:/var/lib/mysql
+    - {{project_root}}/base/mysql/data:/var/lib/mysql
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -186,14 +186,14 @@ services:
     user: "{{uid}}:{{gid_docker}}"
     restart: unless-stopped
     security_opt:
-      - no-new-privileges:true
+    - no-new-privileges:true
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - {{project_root}}/base/portainer/data:/data
+    - /etc/localtime:/etc/localtime:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - {{project_root}}/base/portainer/data:/data
     networks:
-      - prometheus
-      - traefik
+    - prometheus
+    - traefik
     labels:
       traefik.enable: "true"
       traefik.http.routers.portainer.entrypoints: websecure
@@ -214,18 +214,18 @@ services:
       PGID: "{{gid}}"
       TZ: "{{tz}}"
     volumes:
-      - {{project_root}}/base/transmission/config:/config
-      - {{project_root}}/base/transmission/data:/downloads
-      - {{project_root}}/base/transmission/watch:/watch
+    - {{project_root}}/base/transmission/config:/config
+    - {{project_root}}/base/transmission/data:/downloads
+    - {{project_root}}/base/transmission/watch:/watch
     ports:
-      - 9091:9091
-      - 51413:51413
-      - 51413:51413/udp
+    - 9091:9091
+    - 51413:51413
+    - 51413:51413/udp
     restart: unless-stopped
     depends_on:
-      - traefik
+    - traefik
     networks:
-      - traefik
+    - traefik
     labels:
       traefik.enable: "true"
       traefik.http.routers.transmission.entrypoints: websecure

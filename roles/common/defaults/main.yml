@@ -6,6 +6,12 @@ domain: vnet.lan
 lang: en_US
 locale: en_US.utf-8
 
+# HTTPS certificate handling
+email_acme:
+staging_acme: false
+traefik_basicauth_users: ''
+static_certificate:
+
 # deploy HTTPS certificates obtained from public ACME service
 server_is_live: false
 # cert resolver can be "dns", "http", or "tls"
