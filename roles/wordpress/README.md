@@ -2,29 +2,28 @@
 
 ## Install
 
-The basic install can be run only once. Afterwards, there is a danger of downgrading your
-installation. Installation will thus fail if there is any wordpress installation found.
-The code that prevents downgrade is hidden in `upgrade` command. Use that after installation.
+The basic install can be run only once. Afterwards, would be the danger of downgrading your
+installation that could have been updated manually via the web interface. Luckily, this role
+takes that into account and run an upgrade step if possible.
 
-## Upgrading
+## Upgrade
 
-Wordpress has two volumes
-- `/var/www/html/` for the application code
+Wordpress' docker has two volume points (see `docker inspect wordpress:latest`)
+- `/var/www/html/` for the application code (populated from the container if empty on startup)
 - `/var/www/html/wp-content` for user's modification (done via the web UI)
 
 There are two ways of arranging the docker-compose for upgrades
 
-1. Having two volumes thus if somebody does `down` and `up` the manually updated code stays
-2. Having only `content` volume thus image version will always set the code version
+1. Having two persistent volumes thus if somebody does `down` and `up` the app code stays the same
+2. Having only `wp-content` volume thus the app will always match the code in the image
 
-Both ways have own disadvantage. With two volumes, we cannot accidentaly have different
-DB schema and code. Because code and DB schema stays between restarts and even `up&down`s.
-But to actually upgrade the code, one need to clear the content of `/var/www/html/` before
-launching a new container.
-With one volume, the upgrade is more straightforward because the code gets updated automagically.
-The problem is if somebody `down&up`s a container then the code might get reverted to older version
-(if it wasd updated manually via the web interface) but the DB stays in the later version.
+Both options have own pros&cons regarding wordpress upgrade. Wordpress can be upgraded via the web
+interface - that upgrades the code in `/var/ww/html` and run db migrations. We must ensure that code continue to matche the DB no matter what. Therefor, if somebody runs `docker-compose down`
+and `docker-compose up` the database will be the same. So the code must stay the same as well.
 
+For that reason, we need a persistent volume for the application code as well as for the `wp-content`.
+To actually update the code from newer image, one need to clear the content of `/var/www/html/` manually
+and then start a new container from the new image.
 
 The docker-commpose is done in such way that only persistent volume is mounted to
 `/var/www/html/wp-content` as recommended by the wordpress team. This directory
@@ -34,7 +33,7 @@ automatic updates. Manual updates via web interface are still allowed. In order 
 cope woth that the installation tasks will fail if the wordpress version is higher
 than thr container's version.
 
-## Migration guide
+## Migration guide from Lokal 1.0 to Lokal 2.0
 
 We need to port the database and files inside `/var/www/html/wp-content`. Currently,
 whole `/var/www/html` was mounted into a persistent volume. Thus we need to take only
