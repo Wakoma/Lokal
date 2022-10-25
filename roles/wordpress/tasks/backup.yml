@@ -4,4 +4,4 @@
     tasks_from: backup
   vars:
     app: wordpress
-    db: "{{mysql_database_wordpress}}"
+    mysql_db: "{{mysql_database_wordpress}}"
