@@ -6,7 +6,7 @@ services:
     image: jitsi/web:stable-5870
     restart: unless-stopped
     volumes:
-    - "{{app_root}}/web:/config:Z"
+    - "{{app_root}}/web/letsencrypt:/config:Z"
     - "{{app_root}}/transcripts:/usr/share/jitsi-meet/transcripts:Z"
     environment:
     - ENABLE_COLIBRI_WEBSOCKET
@@ -125,8 +125,8 @@ services:
     - '5347' # since it is the same machine where the gateway runs
     - '5280' # this is directly visible from the internet (if FW allows)
     volumes:
-    - "{{app_root}}/prosody:/config:Z"
-    - "{{app_root}}/prosody-plugins-custom:/prosody-plugins-custom:Z"
+    - "{{app_root}}/prosody/config:/config:Z"
+    - "{{app_root}}/prosody/prosody-plugins-custom:/prosody-plugins-custom:Z"
     environment:
     - AUTH_TYPE=internal
     - ENABLE_AUTH
@@ -164,7 +164,7 @@ services:
     - JVB_AUTH_USER={{jvb_auth_user}}
     - JVB_AUTH_PASSWORD="{{jvb_auth_password}}"
     - JIGASI_XMPP_USER={{jigasi_xmpp_user | default('') }}
-    - JIGASI_XMPP_PASSWORD="{{jigasi_xmpp_password | default('') }}"
+    - JIGASI_XMPP_PASSWORD="{{jigasi_xmpp_password}}"
     - JIBRI_XMPP_USER={{jibri_xmpp_user}}
     - JIBRI_XMPP_PASSWORD="{{jibri_xmpp_password}}"
     - JIBRI_RECORDER_USER={{jibri_recorder_user}}

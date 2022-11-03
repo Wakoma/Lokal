@@ -12,6 +12,8 @@ jitsi_release: "stable-6865"
 # You may skip the Jigasi and Jibri passwords if you are not using those
 # DO NOT reuse passwords
 #
+# Actually those passwords are auto-generated on the first installation try
+# thus no need to set those nor here neither in the hosts variables
 
 # XMPP password for Jicofo client connections
 jicofo_auth_password: "sah973dnakjlBJDW)"

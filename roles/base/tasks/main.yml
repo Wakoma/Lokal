@@ -13,11 +13,11 @@
 
 - name: "Setup traefik"
   include_tasks:
-    file: setup-traefik.yml
+    file: include/setup-traefik.yml
 
 - name: "Setup prometheus"
   include_tasks:
-    file: setup-prometheus.yml
+    file: include/setup-prometheus.yml
 
 - name: "Install necessary base software"
   package:

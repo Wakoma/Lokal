@@ -3,7 +3,7 @@ all:
   vars:
     server_is_live: true
     domain: lokal.example.com
-    acme_email: admin@example.com
+    email_acme: admin@example.com
     ansible_user: ubuntu
     services:
     - base
