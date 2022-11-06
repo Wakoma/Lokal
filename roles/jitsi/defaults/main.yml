@@ -16,19 +16,19 @@ jitsi_release: "stable-6865"
 # thus no need to set those nor here neither in the hosts variables
 
 # XMPP password for Jicofo client connections
-jicofo_auth_password: "sah973dnakjlBJDW)"
+jicofo_auth_password: "sah973dnakjlBJDW"
 
 # XMPP password for JVB client connections
-jvb_auth_password: "hd*&dqid1_qid)"
+jvb_auth_password: "hddqid1qi980nlad"
 
 # XMPP password for Jigasi MUC client connections
-jigasi_xmpp_password: "dhiuq!-013nd!M!_]"
+jigasi_xmpp_password: "dhiuq013G72sqndM"
 
 # XMPP recorder password for Jibri client connections
-jibri_recorder_password: "wih+_Sadqv2134d"
+jibri_recorder_password: "wihSadqQNZPp1282134d"
 
 # XMPP password for Jibri client connections
-jibri_xmpp_password: "wodu981_qdwHBUY!Y"
+jibri_xmpp_password: "wodu981qdwHBUYYas3jsAQLZ"
 
 
 #

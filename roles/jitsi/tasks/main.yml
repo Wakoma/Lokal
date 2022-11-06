@@ -1,31 +1,4 @@
 ---
-# this task can be romeved once all Lokal instances has been updated to version 2.0+
-- name: Create app dir here cuz we need to prepare some files for migration/installation
-  file:
-    path: "{{project_root}}/jitsi/"
-    status: directory
-
-- name: Restore old passwords if they exist
-  become_user: root
-  copy:
-    src: "~/.ansible.pass"
-    dest: "{{project_root}}/jitsi/"
-    remote_src: true
-    chown: {{ansible_user}}
-    move: true
-  when: "~/.ansible.pass" is directory
-  become_user: root
-
-- name: Get or Set passwords
-  become: yes
-  become_user: root
-  set_fact:
-    jicofo_auth_password: "{{ lookup('password', '~/.ansible.pass/jicofo_auth_password length=16 chars=ascii_letters') }}"
-    jvb_auth_password: "{{ lookup('password', '~/.ansible.pass/jvb_auth_password length=16 chars=ascii_letters') }}"
-    jigasi_xmpp_password: "{{ lookup('password', '~/.ansible.pass/jigasi_xmpp_password length=16 chars=ascii_letters') }}"
-    jibri_recorder_password: "{{ lookup('password', '~/.ansible.pass/jibri_recorder_password length=16 chars=ascii_letters') }}"
-    jibri_xmpp_password: "{{ lookup('password', '~/.ansible.pass/jibri_xmpp_password length=16 chars=ascii_letters') }}"
-
 - name: Install jitsi
   ansible.builtin.include_role:
     name: common
@@ -33,7 +6,7 @@
   vars:
     app: jitsi
     data_dirs:
-    - web/letsencrypt
+    - web
     - transcripts
     - prosody
     - prosody-plugins-custom

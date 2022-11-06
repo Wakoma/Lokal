@@ -1,13 +1,12 @@
 version: "3.8"
 
 services:
-  # Frontend
   web:
     image: jitsi/web:stable-5870
     restart: unless-stopped
     volumes:
-    - "{{app_root}}/web/letsencrypt:/config:Z"
-    - "{{app_root}}/transcripts:/usr/share/jitsi-meet/transcripts:Z"
+    - "{{app_root}}/web:/config"
+    - "{{app_root}}/transcripts:/usr/share/jitsi-meet/transcripts"
     environment:
     - ENABLE_COLIBRI_WEBSOCKET
     - ENABLE_FLOC
@@ -121,12 +120,12 @@ services:
     image: jitsi/prosody:stable-5870
     restart: unless-stopped
     expose:
-    - '5222' # do we really want to expose the ports on our host?
-    - '5347' # since it is the same machine where the gateway runs
-    - '5280' # this is directly visible from the internet (if FW allows)
+    - '5222'
+    - '5347'
+    - '5280'
     volumes:
-    - "{{app_root}}/prosody/config:/config:Z"
-    - "{{app_root}}/prosody/prosody-plugins-custom:/prosody-plugins-custom:Z"
+    - "{{app_root}}/prosody:/config"
+    - "{{app_root}}/prosody-plugins-custom:/prosody-plugins-custom"
     environment:
     - AUTH_TYPE=internal
     - ENABLE_AUTH
@@ -160,15 +159,15 @@ services:
     - XMPP_CROSS_DOMAIN={{xmpp_cross_domain}}
     - JICOFO_COMPONENT_SECRET={{jicofo_component_secret | default('s3cr37')}}
     - JICOFO_AUTH_USER={{jicofo_auth_user | default('focus') }}
-    - JICOFO_AUTH_PASSWORD="{{jicofo_auth_password}}"
+    - JICOFO_AUTH_PASSWORD={{jicofo_auth_password}}
     - JVB_AUTH_USER={{jvb_auth_user}}
-    - JVB_AUTH_PASSWORD="{{jvb_auth_password}}"
+    - JVB_AUTH_PASSWORD={{jvb_auth_password}}
     - JIGASI_XMPP_USER={{jigasi_xmpp_user | default('') }}
-    - JIGASI_XMPP_PASSWORD="{{jigasi_xmpp_password}}"
+    - JIGASI_XMPP_PASSWORD={{jigasi_xmpp_password}}
     - JIBRI_XMPP_USER={{jibri_xmpp_user}}
-    - JIBRI_XMPP_PASSWORD="{{jibri_xmpp_password}}"
+    - JIBRI_XMPP_PASSWORD={{jibri_xmpp_password}}
     - JIBRI_RECORDER_USER={{jibri_recorder_user}}
-    - JIBRI_RECORDER_PASSWORD="{{jibri_recorder_password}}"
+    - JIBRI_RECORDER_PASSWORD={{jibri_recorder_password}}
     - JWT_APP_ID={{jwt_app_id | default('') }}
     - JWT_APP_SECRET={{jwt_app_secret | default('') }}
     - JWT_ACCEPTED_ISSUERS={{jwt_accepted_issuers | default('') }}
@@ -190,7 +189,7 @@ services:
     image: jitsi/jicofo:stable-5870
     restart: unless-stopped
     volumes:
-    - "{{app_root}}/jicofo:/config:Z"
+    - "{{app_root}}/jicofo:/config"
     environment:
     - AUTH_TYPE=internal
     - ENABLE_AUTH
@@ -202,7 +201,7 @@ services:
     - ENABLE_RECORDING
     - ENABLE_SCTP
     - JICOFO_AUTH_USER={{jicofo_auth_user}}
-    - JICOFO_AUTH_PASSWORD="{{jicofo_auth_password}}"
+    - JICOFO_AUTH_PASSWORD={{jicofo_auth_password}}
 {%if jicofo_enable_health_checks%}
     - JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS
     - JICOFO_ENABLE_HEALTH_CHECKS
@@ -237,7 +236,7 @@ services:
     - '{{jvb_port}}/udp'
     - '{{jvb_tcp_port}}'
     volumes:
-    - "{{app_root}}/jvb:/config:Z"
+    - "{{app_root}}/jvb:/config"
     environment:
     - ENABLE_COLIBRI_WEBSOCKET
     - ENABLE_OCTO
@@ -246,7 +245,7 @@ services:
     - XMPP_INTERNAL_MUC_DOMAIN={{xmpp_internal_muc_domain}}
     - XMPP_SERVER={{xmpp_server}}
     - JVB_AUTH_USER={{jvb_auth_user}}
-    - JVB_AUTH_PASSWORD="{{jvb_auth_password}}"
+    - JVB_AUTH_PASSWORD={{jvb_auth_password}}
     - JVB_BREWERY_MUC={{jvb_brewery_muc}}
     - JVB_PORT={{jvb_port}}
     - JVB_TCP_HARVESTER_DISABLED={{jvb_tcp_harvester_disabled}}
@@ -282,11 +281,3 @@ networks:
   meet.jitsi:
   traefik:
     external: true
-
-{% if 0 %}
-# zero is true
-{% endif %}
-
-{% if 1 %}
-# one is true
-{% endif %}
