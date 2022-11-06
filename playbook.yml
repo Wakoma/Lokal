@@ -21,7 +21,12 @@
       tasks_from: "main"
     when: '(not install is defined and not remove is defined and not backup is defined and not restore is defined) or (install is defined and install == "all")'
 
-  - name: Install services
+  - name: Check selected service is listed in services variable
+    ansible.builtin.fail:
+      msg: "Services to install: {{install}} are not defined in services variable: {{services}}"
+    when: "install is defined and install|split(',')|difference(services) is truthy"
+
+  - name: Install specified services
     loop: "{{ install | split(',') }}"
     loop_control:
       loop_var: service
@@ -29,6 +34,11 @@
       name: "{{service}}"
       tasks_from: "main"
     when: "install is defined and install|split(',')|difference(services) is falsy"
+
+  - name: Check selected services for backup were installed
+    ansible.builtin.fail:
+      msg: "Services to backup: {{backup}} are not defined in services variable: {{services}}"
+    when: "backup is defined and backup != 'all' and backup|split(',')|difference(services) is truthy"
 
   - name: Backup specified services
     loop: "{{ backup | split(',') }}"
@@ -47,6 +57,11 @@
     include_role:
       name: "{{service}}"
       tasks_from: "backup"
+
+  - name: Check selected services for restore were at least installed
+    ansible.builtin.fail:
+      msg: "Services to restore: {{restore}} are not defined in services variable: {{services}}"
+    when: "restore is defined and restore != 'all' and restore|split(',')|difference(services) is truthy"
 
   - name: Restore specified services
     loop: "{{ restore | split(',') }}"
