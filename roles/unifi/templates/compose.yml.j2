@@ -9,12 +9,13 @@ services:
     volumes:
       - {{app_root}}/data:/config
     ports:
-      - 3478:3478/udp
-      - 10001:10001/udp
-      - 8080:8080
-      - 1900:1900/udp
-      - 6789:6789
-      - 5514:5514/udp
+      - 8443:8443        # web admin port
+      - 3478:3478/udp    # STUN port
+      - 10001:10001/udp  # AP discovery
+      - 8080:8080        # device communication
+      - 1900:1900/udp    # makes controller discoverable on L2 network
+      - 6789:6789        # mobile throughput test
+      - 5514:5514/udp    # remote syslog
     restart: unless-stopped
     networks:
       - prometheus
