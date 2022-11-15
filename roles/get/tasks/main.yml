@@ -1,0 +1,15 @@
+---
+- name: Install get
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: get
+    data_dirs:
+    - web
+
+- name: Copy all files into web
+  ansible.builtin.copy:
+    src: files/
+    dest: "{{app_root}}/web/"
+    force: false

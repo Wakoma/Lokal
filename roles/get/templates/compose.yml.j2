@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  get:
+    image: halverneus/static-file-server
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    volumes:
+      - "{{app_root}}/web:/web"
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.get.entrypoints: websecure
+      traefik.http.routers.get.rule: Host(`get.{{domain}}`)
+      traefik.http.routers.get.tls: "true"
+      traefik.http.services.get.loadbalancer.server.port: 8080
+{% if server_is_live %}
+      traefik.http.routers.get.tls.certresolver: {{cert_resolver}}
+{% endif %}
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true

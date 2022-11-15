@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Secure WireGuard server installer for Debian, Ubuntu, CentOS, Fedora and Arch Linux
-# https://github.com/angristan/wireguard-install
+# Add current machine into Wakoma's WireGuard VPN to be able to receive
+# updated certificates for the domain wakoma.lokal and for the Wakoma
+# employees to be able to manage the instance if necessary
 
 RED='\033[0;31m'
 ORANGE='\033[0;33m'

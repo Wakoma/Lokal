@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Secure WireGuard server installer for Debian, Ubuntu, CentOS, Fedora and Arch Linux
-# https://github.com/angristan/wireguard-install
+# Install a wireguard server for development purposes
 
 RED='\033[0;31m'
 ORANGE='\033[0;33m'
