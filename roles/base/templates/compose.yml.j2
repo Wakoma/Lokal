@@ -71,8 +71,10 @@ services:
       traefik.http.routers.prometheus.rule: Host(`{{subdomain_prometheus}}.{{domain}}`)
       traefik.http.routers.prometheus.tls: "true"
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
-{% if server_is_live %}
+{% if traefik_basicauth_users is truthy %}
       traefik.http.routers.prometheus.middlewares: traefik-auth
+{% endif %}
+{% if server_is_live %}
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
 {% endif %}
     networks:
@@ -96,8 +98,8 @@ services:
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
 {% if traefik_basicauth_users is truthy %}
-#     traefik.http.routers.traefik.middlewares: traefik-auth
-#     traefik.http.middlewares.traefik-auth.basicauth.users: "{{traefik_basicauth_users}}"
+#      traefik.http.routers.traefik.middlewares: traefik-auth
+#      traefik.http.middlewares.traefik-auth.basicauth.users: {{traefik_basicauth_users}}
 {% endif %}
 {% if server_is_live %}
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
