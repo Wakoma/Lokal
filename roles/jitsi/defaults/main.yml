@@ -1,8 +1,7 @@
 # shellcheck disable: SC2034
 
 # Facts from old ansible install script
-jitsi_project: "docker-jitsi-meet"
-jitsi_release: "stable-6865"
+version_jitsi: "stable-5870"
 
 # Security
 #
@@ -34,10 +33,6 @@ jibri_xmpp_password: "wodu981qdwHBUYYas3jsAQLZ"
 #
 # Basic configuration options
 #
-
-# Directory where all configuration will be stored
-config: ~/.jitsi-meet-cfg
-
 
 # Public URL for the web service (required)
 subdomain_jitsi: meet

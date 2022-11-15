@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   web:
-    image: jitsi/web:stable-5870
+    image: jitsi/web:{{version_jitsi}}
     restart: unless-stopped
     volumes:
     - "{{app_root}}/web:/config"
@@ -117,7 +117,7 @@ services:
 
   # XMPP server
   prosody:
-    image: jitsi/prosody:stable-5870
+    image: jitsi/prosody:{{version_jitsi}}
     restart: unless-stopped
     expose:
     - '5222'
@@ -186,7 +186,7 @@ services:
 
   # Focus component
   jicofo:
-    image: jitsi/jicofo:stable-5870
+    image: jitsi/jicofo:{{version_jitsi}}
     restart: unless-stopped
     volumes:
     - "{{app_root}}/jicofo:/config"
@@ -230,7 +230,7 @@ services:
 
   # Video bridge
   jvb:
-    image: jitsi/jvb:stable-5870
+    image: jitsi/jvb:{{version_jitsi}}
     restart: unless-stopped
     ports:
     - '{{jvb_port}}/udp'
