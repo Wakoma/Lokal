@@ -4,16 +4,35 @@
     app_root: "{{project_root}}/{{app}}"
 
 - name: Create the app directory
-  file:
+  ansible.builtin.file:
     path: "{{app_root}}"
     state: directory
 
 - name: Create app data directories
-  file:
+  ansible.builtin.file:
     path: "{{app_root}}/{{item}}"
     state: directory
   loop: "{{data_dirs}}"
 
+- name: Get previous version
+  ansible.builtin.slurp:
+    src: "{{app_root}}/version"
+  register: version_file
+  when: app_version is defined
+  ignore_errors: true
+
+- name: Parse previous version
+  ansible.builtin.set_fact:
+    version_previous: "{{version_file['content'] | b64decode}}"
+    app_upgraded: "{{(version_file['content'] | b64decode) is version(app_version, '<')}}"
+  when: app_version is defined and version_file is defined and version_file.content is defined
+
+- name: Set current version
+  ansible.builtin.copy:
+    dest: "{{app_root}}/version"
+    content: "{{app_version}}"
+  when: app_version is defined
+   
 - name: Init database
   community.mysql.mysql_db:
     name: "{{mysql_db}}"

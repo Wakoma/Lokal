@@ -25,8 +25,8 @@ We provide ansible playbooks to prepare the target machine (either remote or loc
 
 # How do I try it out?
 
-First, you need ansible installation. We recommend version `>=2.11`. It is a python package so
-alternatively, you can use pip to install it. Otherwise (since ansible does not work on windows)
+First, you need `ansible` installation. We recommend version `>=2.11`. It is a python package so
+alternatively, you can use `pip` to install it. Otherwise (since ansible does not work on windows)
 you are free to use our docker container, that contains ansible with all necessary modules.
 ```bash
 docker build -t lokal:latest .
@@ -57,8 +57,9 @@ want to check out `lokal` service because it contains all the most basic variabl
 
 ## Prepare a fresh server
 
-This supposes that you already have created an application user and setup your SSH key in it's `authorized_keys` file. If this is not the case, we have a playbook that does everything for you. 
-Create different `hosts/` file - I name it `server-root` and the content is following
+This is an optional step. It's a helper for you, if you have a fresh machine with only root user. This play creates an application user and setup your SSH key in it's `authorized_keys` file. It also secures your server with some basic
+firewall rules and installs necessary basic software.
+You need to create a separate `hosts/` file because this play connects as `root`. The content of the hosts file is following
 ```YAML
 all:
   hosts: "1.2.3.4"

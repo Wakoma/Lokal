@@ -7,7 +7,7 @@
   loop:
     - "{{project_root}}"
     - "{{backup_root}}"
-  become: yes
+  become: true
   when: "not backup is defined and not restore is defined and not update is defined"
 
 - name: Get docker gid

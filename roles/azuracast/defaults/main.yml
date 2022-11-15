@@ -1,6 +1,6 @@
 compose_project_name: azuracast
 
-azuracast_version: 0.17.3
+version_azuracast: "0.17.3"
 
 azuracast_http_port: 65534
 azuracast_https_port: 65535

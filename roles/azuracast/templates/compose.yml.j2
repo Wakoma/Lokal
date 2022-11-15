@@ -1,12 +1,8 @@
 version: "3.8"
 services:
   azuracast:
-    image: "ghcr.io/azuracast/azuracast:{{azuracast_version}}"
+    image: "ghcr.io/azuracast/azuracast:{{version_azuracast}}"
     ports:
-#
-#    - '{{azuracast_http_port}}:80'
-#    - '{{azuracast_https_port}}:443'
-#    - '{{azuracast_sftp_port}}:2022'
     # This default mapping is the outgoing and incoming ports for the first 50 stations.
     # You can override this port mapping in your own docker-compose.override.yml file.
     # For instructions, see:
@@ -158,16 +154,6 @@ services:
     - '8490:8490'
     - '8495:8495'
     - '8496:8496'
-    environment:
-      LANG: {{locale}}
-      AZURACAST_DC_REVISION: 14
-      AZURACAST_VERSION: {{azuracast_version}}
-      AZURACAST_SFTP_PORT: {{azuracast_sftp_port}}
-      NGINX_TIMEOUT: {{azuracast_nginx_timeout}}
-#     LETSENCRYPT_HOST: ${LETSENCRYPT_HOST:-}
-#     LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
-      PUID: {{uid}}
-      PGID: {{gid}}
     volumes:
     - "{{app_root}}/uploads:/var/azuracast/uploads"
     - "{{app_root}}/stations:/var/azuracast/stations"
@@ -180,33 +166,37 @@ services:
     - "{{app_root}}/db:/var/lib/mysql"
     restart: unless-stopped
     environment:
+      # vars from original environment section
+      LANG: {{locale}}
+      AZURACAST_DC_REVISION: 14
+      AZURACAST_VERSION: {{version_azuracast}}
+      # variables from original .env
       APPLICATION_ENV: production
       COMPOSER_PLUGIN_MODE: "false"
-      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_SLOW_QUERY_LOG: 0
       MYSQL_MAX_CONNECTIONS: 100
       AUTO_ASSIGN_PORT_MIN: {{port_min_azuracast}}
       AUTO_ASSIGN_PORT_MAX: {{port_max_azuracast}}
-      MYSQL_HOST: {{mysql_host}}
-      MYSQL_PORT: {{mysql_port}}
+#     MYSQL_HOST: {{mysql_host}}
+#     MYSQL_PORT: {{mysql_port}}
       MYSQL_USER: {{mysql_user_azuracast}}
       MYSQL_PASSWORD: {{mysql_password_azuracast}}
       MYSQL_DATABASE: {{mysql_database_azuracast}}
       # env vars from sample.env
-      AZURACAST_VERSION: stable
       AZURACAST_HTTP_PORT: 80
       AZURACAST_HTTPS_PORT: 443
-      AZURACAST_SFTP_PORT: 2022
+      AZURACAST_SFTP_PORT: {{azuracast_sftp_port | default('2022') }}
       AZURACAST_PUID: {{uid}}
       AZURACAST_PGID: {{gid}}
-      DOMAIN_AZURACAST: {{azuracast_subdomain}}.{{domain}}
+      DOMAIN_AZURACAST: {{subdomain_azuracast}}.{{domain}}
       CERT_RESOLVER: {{cert_resolver}}
-      NGINX_TIMEOUT: 1800
+      NGINX_TIMEOUT: {{azuracast_nginx_timeout | default('1000') }}
       PHP_MEMORY_LIMIT: {{ memory_limit_azuracast }}
     labels:
       traefik.enable: "true"
       traefik.http.routers.azuracast.entrypoints: websecure
-      traefik.http.routers.azuracast.rule: Host(`{{azuracast_subdomain}}.{{domain}}`)
+      traefik.http.routers.azuracast.rule: Host(`{{subdomain_azuracast}}.{{domain}}`)
       traefik.http.routers.azuracast.tls: "true"
 {% if server_is_live %}
       traefik.http.routers.azuracast.tls.certresolver: {{cert_resolver}}

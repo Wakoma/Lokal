@@ -1,13 +1,16 @@
 ---
+# - name: Open firewall ports
+#   include_tasks:
+#     file: include/firewall.yml
+
 - name: Install azuracast
   ansible.builtin.include_role:
     name: common
     tasks_from: install
   vars:
     app: azuracast
-    mysql_user: '{{mysql_user_azuracast}}'
-    mysql_password: '{{mysql_password_azuracast}}'
-    mysql_db: '{{mysql_database_azuracast}}'
+    app_version: "{{version_azuracast}}"
+    # local mysql is included in the container and there is no way using our own
     data_dirs:
     - uploads
     - stations
@@ -18,25 +21,22 @@
     - backups
     - acme
     - db
-    start: true
+    start: false
 
-# - name: Set variables
-#   ansible.builtin.set_fact:
-#     should_update: false
+- name: Prepare installation
+  ansible.builtin.shell:
+    cmd: docker-compose run --rm azuracast -- azuracast_install && touch installed
+    chdir: "{{app_root}}"
+    creates: "installed"
+  when: not app_upgraded is defined or not app_upgraded
 
-# - name: Finish installation
-#   ansible.builtin.shell:
-#     cmd: docker-compose run --rm azuracast -- azuracast_install
-#     chdir: "{{app_root}}"
-#   when: not should_update
+- name: Update app
+  ansible.builtin.shell:
+    cmd: docker-compose run --rm azuracast -- azuracast_update
+    chdir: "{{app_root}}"
+  when: app_upgraded is defined and app_upgraded is truthy
 
-# - name: Update app
-#   ansible.builtin.shell:
-#     cmd: docker-compose run --rm azuracast -- azuracast_update
-#     chdir: "{{app_root}}"
-#   when: should_update
-
-# - name: Docker-compose up
-#   ansible.builtin.shell:
-#     cmd: docker-compose up -d
-#     chdir: "{{app_root}}"
+- name: Docker-compose up
+  ansible.builtin.shell:
+    cmd: docker-compose up -d
+    chdir: "{{app_root}}"
