@@ -2,6 +2,9 @@ version_nextcloud: latest
 
 subdomain_nextcloud: nextcloud
 
+admin_nextcloud: admin
+admin_password_nextcloud: N3xtcloud!
+
 mysql_user_nextcloud: nextcloud
 mysql_password_nextcloud: nextcloud
 mysql_database_nextcloud: nextcloud

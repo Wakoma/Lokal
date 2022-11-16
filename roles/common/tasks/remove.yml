@@ -32,6 +32,7 @@
   when: mysql_db is defined
 
 - name: Remove the app directory
-  file:
+  ansible.builtin.file:
     path: "{{app_root}}"
     state: absent
+  become: true

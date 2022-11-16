@@ -8,6 +8,10 @@ services:
       MYSQL_DATABASE: {{mysql_database_nextcloud}}
       MYSQL_USER: {{mysql_user_nextcloud}}
       MYSQL_HOST: {{mysql_host}}
+      NEXTCLOUD_ADMIN_USER: {{admin_nextcloud}}
+      NEXTCLOUD_ADMIN_PASSWORD: {{admin_password_nextcloud}}
+      OVERWRITEHOST: "{{subdomain_nextcloud}}.{{domain}}"
+      OVERWRITEPROTOCOL: https
     volumes:
     - {{app_root}}/config:/config
     - {{app_root}}/data:/var/www/html

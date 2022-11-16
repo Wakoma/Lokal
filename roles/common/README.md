@@ -1,11 +1,31 @@
+# Common
 
+Welcome in the role, that helps you to install, backup and restore services
+in Lokal. Each app should have following structure
+```
+roles/
+  - your-app/
+    - defaults/
+       main.yml // defaults for templates & tasks
+    - tasks/
+      - main.yml (install/upgrade)
+      - restore.yml
+      - backup.yml
+    - templates/
+      - compose.yml.j2
+      - anything.else.j2
+    - files/
+      - static.file1.txt
+      - maybe.binary.zip
+```
 
 # Volumes
 
-We use volume mounts in `{{project_root}}/<service-name>`. If you use install
-from the `common` role then this location will be available to you as {{app_root}}.
-Put all your mount points into `data_dirs` list when using the standard `install`
-If your service uses those mount points, then you need to start thinking about privileges.
+Please use only bind mounts and only inside `{{app_root}}` otherwise the builtin
+backup and restore will not work. All app files should be places in `{{project_root}}/<service-name>`. 
+Once you call `common.install` in your task then this location will be available to you as `{{app_root}}`.
+You can specify `data_dirs` for the `common.install` and those directories will be created inside `{{app_root}}`
+and available for being bind-mounted into your docker containers.
 
 # Privileges
 
@@ -18,8 +38,22 @@ services:
   your-service:
     user: "{{uid}}:{{gid}}"
 ```
-in your docker-compose.yml. Those variables `uid` and `gid` are prepared for
+in your compose.yml.j2. Those variables `uid` and `gid` are prepared for
 you by the `common` role again and are available everywhere.
+
+Sometimes the image allows you to specify `PUID/PGID` env variables. That
+means that the container will be privileges-aware and will automatically
+drop the root privileges after it has done what it needed to do. In this
+case, do not use the `user` as recomended above but pass the `uid/gid` as
+env vars. This is true for example for most of linuxserver docker images
+```yaml
+services:
+  your-service:
+    # no user: {{uid}}:{{gid}}
+    environment:
+      PUID: '{{uid}}'
+      PGID: '{{gid}}'
+```
 
 # Firewall
 

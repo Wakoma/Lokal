@@ -29,7 +29,7 @@
     cmd: docker-compose exec wordpress grep 'wp_version\s*=' wp-includes/version.php
     chdir: "{{ app_root }}"
     removes: docker-compose.yml  # runs only when this file exists
-  ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
+  ignore_errors: true # in case of corrupted docker-compose.yml this would interrupt the whole playbook
   register: version_output
   when: is_installed_wordpress
 

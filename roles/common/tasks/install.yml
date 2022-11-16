@@ -23,8 +23,8 @@
 
 - name: Parse previous version
   ansible.builtin.set_fact:
-    version_previous: "{{version_file['content'] | b64decode}}"
-    app_upgraded: "{{(version_file['content'] | b64decode) is version(app_version, '<')}}"
+    app_version_prev: "{{version_file['content'] | b64decode}}"
+    app_upgrade: "{{(version_file['content'] | b64decode) is version(app_version, '<')}}"
   when: app_version is defined and version_file is defined and version_file.content is defined
 
 - name: Set current version

@@ -4,11 +4,10 @@ services:
   jellyfin:
     image: linuxserver/jellyfin
     container_name: jellyfin
-    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
-      PUID: '{{ uid }}'
-      PGID: '{{ gid }}'
-      TZ: '{{ tz }}'
+      PUID: '{{uid}}'
+      PGID: '{{gid}}'
+      TZ: '{{tz}}'
       JELLYFIN_PublishedServerUrl: https://{{subdomain_jellyfin}}.{{domain}}
     volumes:
       - "{{project_root}}/jellyfin/config:/config"
