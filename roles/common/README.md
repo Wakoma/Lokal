@@ -16,15 +16,44 @@ roles/
       - anything.else.j2
     - files/
       - static.file1.txt
-      - maybe.binary.zip
+      - a.binary.zip
 ```
 
-# Compose.yml.j2
+If you follow this structure and recomendations given bellow, you will be able
+to use the logic provided by the common role. It helps with the usual tasks as
+creating folders, database and obtaining the most used information such as `uid`
+and `gid`.
 
-Lokal services must be completely written as docker-compose files. The `base` gives you a database
-and a traefik instance for routing the requests.
+# Install
 
-## Volumes
+The `common.install` performs following steps
+- creates and registers `{{app_root}}` so you can use it later;
+- creates all `data_dirs` that you have specified inside `app_root`
+- if you set `app_version`
+  - saves the version specified in `app_version` into `{{app_root}}/version`
+  - specifies app_upgrade if the version changed from the last time
+- creates mysql database from `mysql_db`, `mysql_user`, and `mysql_password` variables for you
+- renders `templates/compose.yml.j2` as `{{app_root}}/docker-compose.yml`
+- starts the docker-compose (unless you specify `start:false`)
+
+By default, the app_root is `{{project_root}}/{{app}}` where `project_root` is
+by default at `/opt/lokal`. This folder (together with `/opt/lokal-backup`) are
+created automatically on the first run by the common role.
+
+## Database
+
+If you specified `mysql_db`, `mysql_user`, and `mysql_password` then your database
+will be available at `mysql_host` and `mysql_port` with the credentials provided.
+Don't forget to add `mysql` external network to your docker-compose if you want to
+connect to it.
+
+## templates/compose.yml.j2
+
+Lokal services must be completely written as docker-compose files. The `base` 
+gives you a database and a traefik instance for routing the requests. Please
+see the [compose.yml.j2](examples/compose.yml.j2) in examples directory.
+
+### Volumes
 
 Please use only bind mounts and only inside `{{app_root}}` otherwise the builtin
 backup and restore will not work. All app files should be places in `{{project_root}}/<service-name>`. 
@@ -32,7 +61,7 @@ Once you call `common.install` in your task then this location will be available
 You can specify `data_dirs` for the `common.install` and those directories will be created inside `{{app_root}}`
 and available for being bind-mounted into your docker containers.
 
-# Privileges
+### Privileges
 
 Docker-compose has a way of specifying the UID/GID that is used to run the
 service inside a container. That's the UID/GID that will create folders in
@@ -56,11 +85,11 @@ services:
   your-service:
     # no user: {{uid}}:{{gid}}
     environment:
-      PUID: '{{uid}}'
-      PGID: '{{gid}}'
+      PUID: "{{uid}}"
+      PGID: "{{gid}}"
 ```
 
-# Network and Firewall
+### Network and Firewall
 There are few external networks
 - `traefik` - to be able to use traefik labels for routing external traffic
 - `prometheus` - so your service exports monitoring data to prometheus
@@ -82,3 +111,10 @@ therefore you cannot just append new rules once the role has run. You need
 to INSERT them but they will not persist after a restart. Unfortunatelly, 
 you need to add your service's ports into `prepare.yml` playbook to ensure 
 everything works. Or to set them up (and persist) using `iptables` command.
+
+
+# Backup and Restore
+
+Those tasks are rather simple - they compress/restore whole `{{app_root}}`
+together with the database, if it was specified. The storage for those data
+is at `/opt/lokal-backup` and follows the structure of `/opt/lokal`.

@@ -19,5 +19,5 @@
   set_fact:
     uid: '{{ansible_facts["user_uid"]}}'
     gid: '{{ansible_facts["user_gid"]}}'
-    tz: '{{ ansible_facts["date_time"]["tz"] }}'
+    tz: '{{ansible_facts["date_time"]["tz"]}}'
     gid_docker: '{{docker_gid_output.stdout}}'

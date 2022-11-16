@@ -10,7 +10,7 @@ services:
       MYSQL_HOST: {{mysql_host}}
     ports:
     - '9099' # exported ports will be accessible from outside, if you allow them in firewall as well
-    volumes:
+    volumes:  # use only bind-mounts inside {{app_root}} folder as shown below
     - {{app_root}}/config:/config
     - {{app_root}}/data:/var/www/html
     restart: unless-stopped

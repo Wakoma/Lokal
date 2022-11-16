@@ -19,6 +19,8 @@
     dest: "{{app_root}}/config/necessary-config.conf" # {{app_root}} is accessible because the common.install already ran
     force: false
 
+# You can do more steps before finally launching your application
+
 # This is the command to start your app manually
 - name: Start the app
   ansible.builtin.shell: 
