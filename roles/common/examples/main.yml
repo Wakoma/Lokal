@@ -1,0 +1,26 @@
+---
+- name: Install your-app
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: your-app
+    data_dirs:
+    - data
+    - config
+    mysql_db: "{{mysql_yourapp}}"
+    mysql_user: "{{mysql_user_yourapp}}"
+    mysql_password: "{{mysql_password_yourapp}}"
+    start: false # you can postpone starting (by defaults the app starts as the last step)
+
+- name: Example copy of a file in your files/ folder
+  ansible.builtin.copy:
+    src: "files/your-file.zip"
+    dest: "{{app_root}}/config/necessary-config.conf" # {{app_root}} is accessible because the common.install already ran
+    force: false
+
+# This is the command to start your app manually
+- name: Start the app
+  ansible.builtin.shell: 
+    cmd: docker-compose up -d
+    chdir: "{{app_root}}"

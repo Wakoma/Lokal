@@ -1,19 +1,53 @@
 # Services
 
-Lokal comes with one mandatory `base` service. All others are optional. You control which services
-are installed in root `playbook.yml`. Every service has a few mode-operandi that you select using `-e`
-parameter when running the `playbook.yml`.
+Lokal provides software as sepatare `roles`. There are two special roles. Maybe we should have moved
+the `common` role to a separate module. We'll see if we do in the future.
 
-- install
+## Common role
+But, speaking of `common` - this is the only role that does
+not install any software - it contains logic to install/backup/restore/remove applications. Therefore
+it is hard-wired in playbook.yml and all other roles are taken from the `services` variable. If you
+want to add a new software to Lokal stack please visit this role for more information.
+
+## Base role
+The other special role is `base`. It is special because it is mandatory. It contains necessary software
+for running Lokal and a database that majority apps is using because it is setup via common.install task.
+
+## Other roles
+In order to add more software to your host server it is necessary to add them into `services` variable
+that is simply an array of strings where the values are names of the roles. Therefore the most basic
+setup for a host would be
+
+```yaml
+all:
+  hosts: "x.y.z.a"
+  vars:
+    server_is_live: true
+    domain: your.domain.com
+    email_acme: your@email.com
+    ansible_user: ubuntu
+    services:
+    - base
+    - unifi
+```
+
+# Running stuff
+`playbook.yml` has multiple mode-operandi it works in:
+
+- install (default)
 - backup
 - restore
-- (remove) /only some/
+- remove (only some services)
 
-If you do not specify anything then install/update will be performed on all services specified
-in the `host` file inside `services` field.
 ```bash
 ansible-playbook -i hosts/your-host playbook.yml
 ```
+This command will install/update all applications specified in the `services` variable.
+
+To issue something else than installation, you need to specify the action using `-e` 
+together with services, that you want to affect. It is discussed in detail in the 
+following sections.
+
 ## Install
 
 Installation should be an indempotent operation (the author of installation tasks is responsible).
@@ -44,10 +78,10 @@ uninstalled program from `services` variable before or after running the `uninst
 
 # Creating your own service
 
-Please take a look at our `example` role. There is extensive documentation on all caveats
-concerning adding a new service.
+Please take a look in the `common` role that provides necessary logic for apps instalations and handling.
 
 # What services does it include so far?
+
 You can find the full list of services here: https://wakoma.co/lokal/#services
 
 ## Current Services

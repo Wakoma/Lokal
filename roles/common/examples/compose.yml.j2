@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  yourapp:
+    image: yourapp:{{version_yourapp}}
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    environment:
+      MYSQL_USER: {{mysql_user_yourapp}}
+      MYSQL_PASSWORD: {{mysql_password_yourapp}}
+      MYSQL_DATABASE: {{mysql_database_yourapp}}
+      MYSQL_HOST: {{mysql_host}}
+    ports:
+    - '9099' # exported ports will be accessible from outside, if you allow them in firewall as well
+    volumes:
+    - {{app_root}}/config:/config
+    - {{app_root}}/data:/var/www/html
+    restart: unless-stopped
+    networks:
+    - traefik # necessary for extenal access to your app (via a domain name)
+    - mysql # necessary if you want to use the external mysql database
+    - prometheus
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.yourapp.entrypoints: websecure
+      traefik.http.routers.yourapp.rule: Host(`{{subdomain_yourapp}}.{{domain}}`)
+      traefik.http.routers.yourapp.tls: "true"
+      traefik.http.services.yourapp.loadbalancer.server.port: 80
+{% if server_is_live %} # please keep this part to have automatic certificate issue and renewal
+      traefik.http.routers.yourapp.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+networks:
+  traefik:
+    external: true
+  mysql:
+    external: true
+  prometheus:
+    external: true

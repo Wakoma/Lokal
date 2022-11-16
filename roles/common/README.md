@@ -19,7 +19,12 @@ roles/
       - maybe.binary.zip
 ```
 
-# Volumes
+# Compose.yml.j2
+
+Lokal services must be completely written as docker-compose files. The `base` gives you a database
+and a traefik instance for routing the requests.
+
+## Volumes
 
 Please use only bind mounts and only inside `{{app_root}}` otherwise the builtin
 backup and restore will not work. All app files should be places in `{{project_root}}/<service-name>`. 
@@ -55,13 +60,25 @@ services:
       PGID: '{{gid}}'
 ```
 
-# Firewall
+# Network and Firewall
+There are few external networks
+- `traefik` - to be able to use traefik labels for routing external traffic
+- `prometheus` - so your service exports monitoring data to prometheus
+- `mysql` - needed to have access to external MariaDB instance
+
+You can export ports but pay attention that you need to allow them in firewall
+so they can receive to connection from the outside. You don't need to export
+ports that will be accessed only within docker networks. Therefore you don't 
+need to export the HTTP port that traefik will bind to using the label
+```yaml
+traefik.http.services.your-service.loadbalancer.server.port: your-http-port
+```
 
 Only possible firewall with dockerd in production is actually raw `iptables`.
 We use `geerlingguy.firewall` role that is a bit of a hack around iptables.
-It serializes all firewall rules into a bash script, that is run on startup
-by `systemd`. The issue is that it ends with `DROP ALL` therefore you cannot
-addjust append new rules once the role has run. You need to INSERT them but
-they will not persist after a restart. Unfortunatelly, you need to add your
-service's ports into `prepare.yml` playbook to ensure everything works. Or
-to set them up (and persist) manually using `iptables` command.
+It serializes all firewall rules into a script in `/etc/firewall.bash`, that 
+is run on startup by `systemd`. The issue is that it ends with `DROP ALL` 
+therefore you cannot just append new rules once the role has run. You need 
+to INSERT them but they will not persist after a restart. Unfortunatelly, 
+you need to add your service's ports into `prepare.yml` playbook to ensure 
+everything works. Or to set them up (and persist) using `iptables` command.
