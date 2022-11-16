@@ -209,8 +209,7 @@ services:
   transmission:
     image: linuxserver/transmission
     container_name: transmission
-#    transmission must not be run as ordinary user because it drops the privileges itself
-#    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+#   no user: "{{uid}}:{{gid}}" because it drops the privileges itself
     environment:
       PUID: "{{uid}}"
       PGID: "{{gid}}"
