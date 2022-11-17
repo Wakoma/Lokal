@@ -36,3 +36,8 @@
     path: "{{app_root}}"
     state: absent
   become: true
+
+- name: Docker purge unused images
+  ansible.builtin.shell: 
+    cmd: docker image prune -f
+    chdir: "{{project_root}}"

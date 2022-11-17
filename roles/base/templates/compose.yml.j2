@@ -7,14 +7,66 @@ networks:
     name: mysql
   prometheus:
     name: prometheus
+  mail:
+    name: mail
 
 services:
+{% if debug_smtp %}
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog:latest
+    networks:
+      - traefik
+      - mail
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mailhog.entrypoints: websecure
+      traefik.http.routers.mailhog.rule: Host(`{{subdomain_mailhog}}.{{domain}}`)
+      traefik.http.routers.mailhog.tls: "true"
+      traefik.http.services.mailhog.loadbalancer.server.port: 8025
+{% if server_is_live %}
+      traefik.http.routers.mailhog.tls.certresolver: {{cert_resolver}}
+{% endif %}
+{% if traefik_basicauth_users is truthy %}
+      traefik.http.routers.mailhog.middlewares: traefik-auth
+{% endif %}
+    restart: unless-stopped
+{% endif %}
+
+  mariadb:
+    container_name: {{mysql_host}}
+    image: mariadb:10.5.8-focal
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    environment:
+      MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
+      MARIADB_MYSQL_LOCALHOST_USER: "true"
+    ports:
+    - '{{mysql_port}}:3306'  # necessary to manipulate mariadb locally
+    networks:
+    - mysql
+    - prometheus
+    healthcheck:
+      test: mysql --protocol tcp -u root --password={{mysql_root_password}} -e "SELECT 1 FROM DUAL" mysql
+      interval: 60s
+      retries: 5
+      start_period: 5s
+      timeout: 1s
+    restart: unless-stopped
+    volumes:
+    - {{project_root}}/base/mysql/data:/var/lib/mysql
+
   grafana:
     container_name: grafana
     image: grafana/grafana:9.2.1
     user: "{{uid}}:{{gid}}"
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,natel-discrete-panel,grafana-piechart-panel
+#     GF_AUTH_DISABLE_LOGIN_FORM: "true"
+#     GF_AUTH_ANONYMOUS_ENABLED: "true"
+#     GF_AUTH_ANONYMOUS_ORG_NAME: Main Org.
+#     GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+#     GF_USERS_ALLOW_SIGN_UP: "false"
+#     GF_LOG_LEVEL: debug
     labels:
       traefik.enable: "true"
       traefik.http.routers.grafana.entrypoints: websecure
@@ -29,6 +81,7 @@ services:
     networks:
       - traefik
       - prometheus
+      - mail
     restart: unless-stopped
 
   netdata:
@@ -46,8 +99,10 @@ services:
       traefik.http.routers.netdata.rule: Host(`{{subdomain_netdata}}.{{domain}}`)
       traefik.http.routers.netdata.tls: "true"
       traefik.http.services.netdata.loadbalancer.server.port: 19999
-{% if server_is_live %}
+{% if traefik_basicauth_users is truthy %}
       traefik.http.routers.netdata.middlewares: traefik-auth
+{% endif %}
+{% if server_is_live %}
       traefik.http.routers.netdata.tls.certresolver: {{cert_resolver}}
 {% endif %}
     networks:
@@ -98,8 +153,8 @@ services:
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
 {% if traefik_basicauth_users is truthy %}
-#      traefik.http.routers.traefik.middlewares: traefik-auth
-#      traefik.http.middlewares.traefik-auth.basicauth.users: {{traefik_basicauth_users}}
+      traefik.http.routers.traefik.middlewares: traefik-auth
+      traefik.http.middlewares.traefik-auth.basicauth.users: {{traefik_basicauth_users}}
 {% endif %}
 {% if server_is_live %}
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
@@ -160,28 +215,6 @@ services:
     - --providers.file.watch=true
 {% endif %}
 
-  mariadb:
-    container_name: {{mysql_host}}
-    image: mariadb:10.5.8-focal
-    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
-    environment:
-      MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
-      MARIADB_MYSQL_LOCALHOST_USER: "true"
-    ports:
-    - '{{mysql_port}}:3306'  # necessary to manipulate mariadb locally
-    networks:
-    - mysql
-    - prometheus
-    healthcheck:
-      test: mysql --protocol tcp -u root --password={{mysql_root_password}} -e "SELECT 1 FROM DUAL" mysql
-      interval: 60s
-      retries: 5
-      start_period: 5s
-      timeout: 1s
-    restart: unless-stopped
-    volumes:
-    - {{project_root}}/base/mysql/data:/var/lib/mysql
-
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
@@ -235,4 +268,7 @@ services:
       traefik.http.services.transmission.loadbalancer.server.port: 9091
 {% if server_is_live %}
       traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
+{% endif %}
+{% if traefik_basicauth_users is truthy %}
+      traefik.http.routers.transmission.middlewares: traefik-auth
 {% endif %}

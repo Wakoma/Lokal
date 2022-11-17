@@ -18,6 +18,7 @@ services:
     networks:
       - mysql
       - traefik
+      - mail
     labels:
       traefik.enable: "true"
       traefik.http.routers.matomo.entrypoints: websecure
@@ -32,4 +33,6 @@ networks:
   traefik:
     external: true
   mysql:
+    external: true
+  mail:
     external: true

@@ -17,6 +17,10 @@ server_is_live: false
 # cert resolver can be "dns", "http", or "tls"
 cert_resolver: http
 
+# Whether mailhog should be installed - then a pass-through SMTP will
+# be installed and accessible at mailhog.{{domain}}
+debug_smtp: false
+
 # If you are using "cert_resolver: dns" then you need to give API access to
 # your DNS (domain) provider so the cert resolver can create domains and certificates
 dns_provider: namecheap

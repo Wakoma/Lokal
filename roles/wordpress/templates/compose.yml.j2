@@ -15,6 +15,7 @@ services:
     networks:
       - mysql
       - traefik
+      - mail
     restart: unless-stopped
     volumes:
       - {{app_root}}/app:/var/www/html
@@ -33,4 +34,6 @@ networks:
   traefik:
     external: true
   mysql:
+    external: true
+  mail:
     external: true

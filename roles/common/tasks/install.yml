@@ -68,3 +68,9 @@
   when: not start is defined or start is truthy  # start only when start: false is not a fact
   notify:
     - Restart router
+
+- name: Docker purge unused images
+  ansible.builtin.shell: 
+    cmd: docker image prune -f
+    chdir: "{{app_root}}"
+  when: app_version is defined and app_upgrade is defined and app_upgrade is truthy

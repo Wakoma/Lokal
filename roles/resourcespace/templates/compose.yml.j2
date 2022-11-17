@@ -1,28 +1,28 @@
 version: "3.8"
 services:
   resourcespace:
-    container_name: resourcespace
     image: suntorytimed/resourcespace:latest
     restart: unless-stopped
-    depends_on:
-      - mariadb
     volumes:
-      - {{project_root}}/resourcespace/data:/var/www/html
+      - {{app_root}}/data:/var/www/html
     networks:
       - traefik
       - mysql
+      - mail
     labels:
       traefik.enable: "true"
       traefik.http.routers.resourcespace.entrypoints: websecure
       traefik.http.routers.resourcespace.rule: Host(`{{subdomain_resourcespace}}.{{domain}}`)
       traefik.http.routers.resourcespace.tls: "true"
       traefik.http.services.resourcespace.loadbalancer.server.port: 80
-      {% if server_is_live %}
+{% if server_is_live %}
       traefik.http.routers.resourcespace.tls.certresolver: {{cert_resolver}}
-      {% endif %}
+{% endif %}
 
 networks:
   traefik:
     external: true
   mysql:
+    external: true
+  mail:
     external: true
