@@ -1,18 +1,18 @@
 ---
 - name: Make acme certs directory if it does not yet exist
   file:
-    path: "{{ project_root }}/base/traefik/certs"
+    path: "{{project_root}}/base/traefik/certs"
     state: directory
     mode: 0700
 
 - name: Ensure SSL private key
   community.crypto.openssl_privatekey:
-    path: "{{ project_root }}/base/traefik/certs/{{domain}}.key"
+    path: "{{project_root}}/base/traefik/certs/{{domain}}.key"
 
 - name: Create SSL CSR
   community.crypto.openssl_csr:
-    path: "{{ project_root }}/base/traefik/certs/{{domain}}.csr"
-    privatekey_path: "{{ project_root }}/base/traefik/certs/{{domain}}.key"
+    path: "{{project_root}}/base/traefik/certs/{{domain}}.csr"
+    privatekey_path: "{{project_root}}/base/traefik/certs/{{domain}}.key"
     organization_name: "Wakoma"
     commonName: "{{domain}}"
     email_address: "{{email_acme}}"
@@ -21,6 +21,11 @@
 - name: Create SSL certificate
   community.crypto.x509_certificate:
     provider: "selfsigned"
-    path: "{{ project_root }}/base/traefik/certs/{{domain}}.crt"
-    privatekey_path: "{{ project_root }}/base/traefik/certs/{{domain}}.key"
-    csr_path: "{{ project_root }}/base/traefik/certs/{{domain}}.csr"
+    path: "{{project_root}}/base/traefik/certs/{{domain}}.crt"
+    privatekey_path: "{{project_root}}/base/traefik/certs/{{domain}}.key"
+    csr_path: "{{project_root}}/base/traefik/certs/{{domain}}.csr"
+
+- name: "Use the self-signed certs"
+  ansible.builtin.template:
+    src: self-signed.yml.j2
+    dest: '{{project_root}}/base/traefik/conf/dynamic.yml'

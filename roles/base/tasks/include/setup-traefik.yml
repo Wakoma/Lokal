@@ -20,7 +20,7 @@
     dest: '{{project_root}}/base/traefik/conf/dynamic.yml'
   when: static_certificate is truthy
 
-- name: "Self signed certs"
+- name: "Use self signed certs"
   include_tasks:
     file: setup-traefik-with-self-signed-certs.yml
-  when: not server_is_live
+  when: not server_is_live and static_certificate is falsy
