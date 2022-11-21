@@ -1,0 +1,4 @@
+site_name: Lokal documentation
+site_url: https://{{domain}}
+repo_url: https://github.com/Wakoma/Lokal/
+theme: readthedocs
