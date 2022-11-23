@@ -166,6 +166,12 @@ services:
     - 80:80
     - 443:443
     restart: unless-stopped
+    environment:
+      CERT_RESOLVER: {{cert_resolver}}
+{% if cert_resolver == "dns" and dns_provider == "namecheap" %}
+      NAMECHEAP_API_USER: {{namecheap_api_user}}
+      NAMECHEAP_API_KEY: {{namecheap_api_key}}
+{% endif %}
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - "{{project_root}}/base/traefik/acme:/acme"
