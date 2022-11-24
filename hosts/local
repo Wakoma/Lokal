@@ -3,7 +3,8 @@ all:
   vars:
     server_is_live: false
     domain: lokal.localhost
-    ansible_user: ubuntu
+    project_root: "$HOME/lokal"
+    backup_root: "$HOME/lokal-backup"
     ansible_connection: local
     services:
     - base

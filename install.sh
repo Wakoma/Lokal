@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# This is an example script that turns your computer into Lokal client (by installing ansible)
+# and then it turns it into Lokal server by installing the most basic services (monitoring and wordpress)
 set -euo pipefail
 
 if (( EUID != 0 )); then
@@ -18,4 +20,4 @@ pip install ansible
 ansible-galaxy install -r requirements.yml
 
 # run the installation
-ansible-playbook -i hosts/local playbook.yml
+ansible-playbook --ask-become-pass -i hosts/local playbook.yml

@@ -3,12 +3,12 @@
   ansible.builtin.file:
     path: '{{item}}'
     state: directory
-    owner: '{{ansible_user}}'
+    owner: '{{ansible_facts["user_id"]}}'
   loop:
     - "{{project_root}}"
     - "{{backup_root}}"
   become: true
-  when: "not backup is defined and not restore is defined and not update is defined"
+  when: "not backup is defined and not restore is defined"
 
 - name: Get docker gid
   ansible.builtin.shell:

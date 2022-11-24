@@ -1,8 +1,8 @@
 ## Common base settings
-project_name: vnet
+project_name: lokal
 project_root: "/opt/lokal"
 backup_root: "/opt/lokal-backup"
-domain: vnet.lan
+domain: lokal.network
 lang: en_US
 locale: en_US.utf-8
 
