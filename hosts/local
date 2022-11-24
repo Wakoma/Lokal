@@ -7,10 +7,4 @@ all:
     ansible_connection: local
     services:
     - base
-    - calibre
     - wordpress
-    - jellyfin
-    - matomo
-    - kiwix
-    - kolibri
-    - moodle

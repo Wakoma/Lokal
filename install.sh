@@ -18,4 +18,4 @@ pip install ansible
 ansible-galaxy install -r requirements.yml
 
 # run the installation
-ansible-playbook -c local -i hosts/local playbook.yml
+ansible-playbook -i hosts/local playbook.yml
