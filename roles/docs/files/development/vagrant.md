@@ -1,10 +1,11 @@
-## Development Environment
+# Vagrant
+
+**This documentation is out-of-date because we don't have a way how to sync certificates
+from a host machine to the remote machine. We need to just come to a conslusion how to do it.**
 
 Vagrant was chosen to make development environments as close to production as possible and also to minimise differences
 between operating systems. Mkcert is used to allow ssl to be valid on development system browsers (Do not use mkcert outside 
 development)
-
-1. Install Direnv - once-off
 
 1. Install Ansible - once-off
    ```
@@ -13,12 +14,6 @@ development)
    sudo apt-add-repository --yes --update ppa:ansible/ansible
    sudo apt install ansible
    ```
-
-1. `cp .envrc.tpl .envrc` - once-off
-
-1. Modify .envrc with correct values - once-off
-
-1. `direnv allow .` - once-off, or every time .envrc is modified
 
 1. `ansible-galaxy install -r config/ansible/requirements.yml` - each time requirements change
 

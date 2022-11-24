@@ -1,15 +1,14 @@
-# Domains and certificates
+# Domains & SSL
 
-Lokal provides 4 ways of securing your communication. You need SSL certificates
-for your domain to be able to use HTTPS protocol. Lokal uses traefik for routing
-traffic to docker containers and thus is using traefik's capabilities.
+Lokal provides a few ways of providing HTTPS. You need SSL certificates for your
+domain to be able to use HTTPS protocol. Lokal uses [traefik](https://traefik.io)
+for routing thus we are using its capabilities.
 
 ## HTTP challenge
 
-This is the simplest method that obtains certificates from Let's Encrypt using
-HTTP challenge. You need to own a domain and point it (and it's subdomains) to
-the Lokal's server IP. Set those variables inside your hosts files in vars 
-sections.
+The simplest method for obtaining certificates from Let's Encrypt is using the 
+HTTP challenge. Before you use this, you need to prepare your DNS A entries to 
+point to your Lokal server. On Lokal side, use this as your [hosts vars](configuration.md).
 
 ```yaml
 email_acme: your@email.com
@@ -25,10 +24,10 @@ application uses. It even handles automatic renewal before expiration.
 
 ## DNS challenge
 
-DNS challenge still uses Let's Encrypt but doesn't require you to pre-set your
-DNS records to Lokal server. Since somebody has to do it, then your DNS provider
-must support API access and traefik handles this. Currently, the only supported
-DNS provider is Namecheap. Following variables are necessary in the hosts file.
+DNS challenge still uses Let's Encrypt but it doesn't require you to pre-set your
+DNS records. Since somebody has to do it, then your DNS provider must support API
+access and traefik handles this. Currently, the only supported DNS provider is 
+Namecheap. Following variables are necessary in the hosts file.
 
 ```yaml
 email_acme: your@email.com
@@ -41,11 +40,12 @@ namecheap_api_key: your-key
 
 ## Static certificates
 
-Suppose you have set your domain's DNS to your server IP and you already have
-the certificate generated. It must be two files - a key and certificate. Those
-files MUST have standard extensions `.key` and `.crt`. The certificate must be
-a wildcard certificate because Local currently does not support multiple static
-certificates - one for each subdomain. Your hosts vars would look following
+Suppose you have set your domain's DNS to your Lokal server IP and you have a 
+wildcard certificate for your domain. Then you can use this certificate and 
+matching key for Lokal. Both files MUST have standard extensions `.key` and `.crt`. 
+The certificate must be a wildcard certificate because Local currently does not 
+support multiple static certificates - one for each subdomain. The only host var
+that needs to be setup is `static_certificate`.
 
 ```yaml
 static_certificate: "certificate-filename-without-suffix"
@@ -61,8 +61,8 @@ Recommendations are welcome.
 ## Self-signed certificates
 
 If you don't setup anything then this is the default option. It supposes default
-value `server_is_live: true` and empty `static_certificate`. Then a self-signed
-certificates are generated.
+value `server_is_live: false` and empty `static_certificate`. Then a self-signed
+certificate is generated.
 
 The disadvantage is, that your temporal certificate authority, that Lokal uses
 to generate those certificate, will definitely not be trusted by browsers.
