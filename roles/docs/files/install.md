@@ -1,18 +1,29 @@
 # Installation
 
 Lokal is installed using `ansible`. We recommend version `>=2.11`. Ansible is a python package so
-alternatively, you can use `pip` to install it. Otherwise (since ansible does not work on windows)
-you are free to use our docker container, that contains ansible with all necessary modules.
+alternatively, you can use `pip` to install it. In the rest of the document, we suppose that you did
+```bash
+git checkout https://github.com/Wakoma/Lokal.git Lokal
+cd Lokal
+```
+
+In case you are on windows or just don't want to install ansible and python on your computer,
+feel free to use our docker container, that contains all necessary software for the client.
 ```bash
 docker build -t lokal:latest .
 docker run --rm -itv ${PWD}:/lokal lokal:latest
 ```
 This will give you a bash terminal where you can access lokal files and run all commands described below.
-__This is just a "client" that you use to actually install Lokal on your server. It is not Lokal installation.__
 
-Next, you need a fresh ubuntu server to run Lokal on. In order to install Lokal, you need to know the IP and root password of your server. Have your SSH key ready as well.
+_This is just a "client" that you use to actually install Lokal on your server. It is not Lokal installation._
 
-First, create a new file in `Lokal/hosts/`. I use server's nickname or domain, if it is short. 
+# Getting an Ubuntu server
+
+Next, you need a (fresh) ubuntu server to run Lokal on. In order to install Lokal,
+you need to know the IP and root password of your server. Have your SSH key ready
+as well.
+
+First, create a new file in `hosts/`. I use server's nickname or domain, if it is short. 
 This file will contain the IP, domain and other details about your server so Lokal can be setup 
 correctly. It needs to be in YAML format so you can specify services in this nice way. 
 The minimal example is bellow. For complete setup see [configuration section](configuration.md)
