@@ -6,5 +6,3 @@
   vars:
     app: resourcespace
     mysql_db: '{{mysql_database_resourcespace}}'
-    mysql_user: '{{mysql_user_resourcespace}}'
-    mysql_password: '{{mysql_password_resourcespace}}'
