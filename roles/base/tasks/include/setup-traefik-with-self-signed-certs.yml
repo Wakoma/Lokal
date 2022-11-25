@@ -1,6 +1,6 @@
 ---
-- name: Make acme certs directory if it does not yet exist
-  file:
+- name: Ensure directory for certificates exists
+  ansible.builtin.file:
     path: "{{project_root}}/base/traefik/certs"
     state: directory
     mode: 0700

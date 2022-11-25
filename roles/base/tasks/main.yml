@@ -19,6 +19,12 @@
   include_tasks:
     file: include/setup-prometheus.yml
 
+- name: Warn if a non-linux OS is used
+  debug:
+    msg: "You are installing Lokal on unsuported OS {{ansible_facts['system']}}!
+      Make sure to have mysql client and python3-pymysql installed"
+  when: ansible_facts['system'] != "Linux"
+
 - name: "Install necessary base software"
   package:
     name:
@@ -26,6 +32,7 @@
       - python3-pymysql
     state: present
   become: true
+  when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
 
 - name: "Force local MySQL client to connect via TCP"
   ansible.builtin.copy:
