@@ -1,0 +1,43 @@
+---
+- name: Export app_root variable
+  ansible.builtin.set_fact:
+    app_root: "{{project_root}}/{{app}}"
+
+- name: Docker-compose down
+  ansible.builtin.shell: 
+    cmd: docker-compose down
+    chdir: "{{app_root}}"
+  notify:
+    - Restart router
+
+- name: Remove MySQL user
+  community.mysql.mysql_user:
+    name: "{{mysql_user}}"
+    password: "{{mysql_password}}"
+    priv: '{{mysql_db}}.*:ALL'
+    host: '%'
+    state: absent
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_port: "{{mysql_port}}"
+  when: mysql_db is defined
+
+- name: Remove database
+  community.mysql.mysql_db:
+    name: "{{mysql_db}}"
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_port: "{{mysql_port}}"
+    state: absent
+  when: mysql_db is defined
+
+- name: Remove the app directory
+  ansible.builtin.file:
+    path: "{{app_root}}"
+    state: absent
+  become: true
+
+- name: Docker purge unused images
+  ansible.builtin.shell: 
+    cmd: docker image prune -f
+    chdir: "{{project_root}}"

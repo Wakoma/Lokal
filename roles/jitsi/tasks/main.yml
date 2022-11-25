@@ -1,0 +1,16 @@
+---
+- name: Install jitsi
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: jitsi
+    data_dirs:
+    - web
+    - transcripts
+    - prosody
+    - prosody-plugins-custom
+    - jicofo
+    - jvb
+    - jigasi
+    - jibri

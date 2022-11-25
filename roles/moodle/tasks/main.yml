@@ -1,0 +1,12 @@
+---
+- name: Install moodle
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: moodle
+    data_dirs:
+    - app
+    - data
+    - db
+    start: true

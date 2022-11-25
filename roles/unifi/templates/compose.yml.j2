@@ -1,0 +1,52 @@
+version: "3.8"
+services:
+  unifi-controller:
+    image: linuxserver/unifi-controller
+    container_name: unifi-controller
+    environment:
+      PUID: '{{uid}}'
+      PGID: '{{gid}}'
+    volumes:
+      - {{app_root}}/data:/config
+    ports:
+      - 8443:8443        # web admin port
+      - 3478:3478/udp    # STUN port
+      - 10001:10001/udp  # AP discovery
+      - 8080:8080        # device communication
+      - 1900:1900/udp    # makes controller discoverable on L2 network
+      - 6789:6789        # mobile throughput test
+      - 5514:5514/udp    # remote syslog
+    restart: unless-stopped
+    networks:
+      - prometheus
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.unifi-controller.entrypoints: websecure
+      traefik.http.routers.unifi-controller.rule: Host(`{{subdomain_unifi_controller}}.{{domain}}`)
+      traefik.http.routers.unifi-controller.tls: "true"
+      traefik.http.services.unifi-controller.loadbalancer.server.scheme: https
+      traefik.http.services.unifi-controller.loadbalancer.server.port: 8443
+{% if server_is_live %}
+      traefik.http.routers.unifi-controller.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+  unifi-poller:
+    container_name: unifi-poller
+    restart: unless-stopped
+    image: golift/unifi-poller:latest
+    environment:
+      UP_INFLUXDB_DISABLE: "true"
+      UP_UNIFI_DEFAULT_URL: '{{up_unifi_default_url}}'
+      UP_UNIFI_DEFAULT_USER: '{{up_unifi_default_user}}'
+      UP_UNIFI_DEFAULT_PASS: '{{up_unifi_default_pass}}'
+    networks:
+      - prometheus
+    depends_on:
+      - unifi-controller
+
+networks:
+  traefik:
+    external: true
+  prometheus:
+    external: true

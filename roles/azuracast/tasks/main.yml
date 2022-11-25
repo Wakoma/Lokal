@@ -1,0 +1,42 @@
+---
+# - name: Open firewall ports
+#   include_tasks:
+#     file: include/firewall.yml
+
+- name: Install azuracast
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: azuracast
+    app_version: "{{version_azuracast}}"
+    # local mysql is included in the container and there is no way using our own
+    data_dirs:
+    - uploads
+    - stations
+    - shoutcast2
+    - stereo_tool
+    - geolite
+    - sftp
+    - backups
+    - acme
+    - db
+    start: false
+
+- name: Prepare installation
+  ansible.builtin.shell:
+    cmd: docker-compose run --rm azuracast -- azuracast_install && touch installed
+    chdir: "{{app_root}}"
+    creates: "installed"
+  when: not app_upgrade is defined or not app_upgrade
+
+- name: Update app
+  ansible.builtin.shell:
+    cmd: docker-compose run --rm azuracast -- azuracast_update
+    chdir: "{{app_root}}"
+  when: app_upgrade is defined and app_upgrade is truthy
+
+- name: Docker-compose up
+  ansible.builtin.shell:
+    cmd: docker-compose up -d
+    chdir: "{{app_root}}"

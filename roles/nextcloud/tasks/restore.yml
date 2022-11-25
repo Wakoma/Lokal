@@ -1,0 +1,7 @@
+- name: Restore nextcloud
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: restore
+  vars:
+    app: nextcloud
+    mysql_db: "{{mysql_database_nextcloud}}"

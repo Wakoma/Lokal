@@ -1,0 +1,371 @@
+# shellcheck disable: SC2034
+
+# Facts from old ansible install script
+version_jitsi: "stable-5870"
+
+# Security
+#
+# Set these to strong passwords to avoid intruders from impersonating a service account
+# The service(s) won't start unless these are specified
+# Running ./gen-passwords.sh will update .env with strong passwords
+# You may skip the Jigasi and Jibri passwords if you are not using those
+# DO NOT reuse passwords
+#
+# Actually those passwords are auto-generated on the first installation try
+# thus no need to set those nor here neither in the hosts variables
+
+# XMPP password for Jicofo client connections
+jicofo_auth_password: "sah973dnakjlBJDW"
+
+# XMPP password for JVB client connections
+jvb_auth_password: "hddqid1qi980nlad"
+
+# XMPP password for Jigasi MUC client connections
+jigasi_xmpp_password: "dhiuq013G72sqndM"
+
+# XMPP recorder password for Jibri client connections
+jibri_recorder_password: "wihSadqQNZPp1282134d"
+
+# XMPP password for Jibri client connections
+jibri_xmpp_password: "wodu981qdwHBUYYas3jsAQLZ"
+
+
+#
+# Basic configuration options
+#
+
+# Public URL for the web service (required)
+subdomain_jitsi: meet
+
+# IP address of the Docker host
+# See the "Running behind NAT or on a LAN environment" section in the Handbook:
+# https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-docker#running-behind-nat-or-on-a-lan-environment
+#docker_host_address: 192.168.1.1
+
+# Control whether the lobby feature should be enabled or not
+#enable_lobby: 1
+
+# Show a prejoin page before entering a conference
+#enable_prejoin_page: 0
+
+# Enable the welcome page
+#enable_welcome_page: 1
+
+# Enable the close page
+#enable_close_page: 0
+
+# Disable measuring of audio levels
+#disable_audio_levels: 0
+
+# Enable noisy mic detection
+#enable_noisy_mic_detection: 1
+
+#
+# Let's Encrypt configuration
+#
+
+# Enable Let's Encrypt certificate generation
+#enable_letsencrypt: 1
+
+# Domain for which to generate the certificate
+#letsencrypt_domain: meet.example.com
+
+# E-Mail for receiving important account notifications (mandatory)
+#letsencrypt_email: alice@atlanta.net
+
+# Use the staging server (for avoiding rate limits while testing)
+#letsencrypt_use_staging: 1
+
+
+#
+# Etherpad integration (for document sharing)
+#
+
+# Set etherpad-lite URL in docker local network (uncomment to enable)
+#etherpad_url_base: http://etherpad.meet.jitsi:9001
+
+# Set etherpad-lite public URL (uncomment to enable)
+#etherpad_public_url: https://etherpad.my.domain
+
+# Name your etherpad instance!
+etherpad_title: Video Chat
+
+# The default text of a pad
+etherpad_default_pad_text: Welcome to Web Chat!\n\n
+
+# Name of the skin for etherpad
+etherpad_skin_name: colibris
+
+# Skin variants for etherpad
+etherpad_skin_variants: super-light-toolbar super-light-editor light-background full-width-editor
+
+
+#
+# Basic Jigasi configuration options (needed for SIP gateway support)
+#
+
+# SIP URI for incoming / outgoing calls
+#jigasi_sip_uri: test@sip2sip.info
+
+# Password for the specified SIP account as a clear text
+#jigasi_sip_password: passw0rd
+
+# SIP server (use the SIP account domain if in doubt)
+#jigasi_sip_server: sip2sip.info
+
+# SIP server port
+#jigasi_sip_port: 5060
+
+# SIP server transport
+#jigasi_sip_transport: UDP
+
+#
+# Authentication configuration (see handbook for details)
+#
+
+# Enable authentication
+#enable_auth: 1
+
+# Enable guest access
+#enable_guests: 1
+
+# Select authentication type: internal, jwt or ldap
+#auth_type: internal
+
+# JWT authentication
+#
+
+# Application identifier
+#jwt_app_id: my_jitsi_app_id
+
+# Application secret known only to your token generator
+#jwt_app_secret: my_jitsi_app_secret
+
+# (Optional) Set asap_accepted_issuers as a comma separated list
+#jwt_accepted_issuers: my_web_client,my_app_client
+
+# (Optional) Set asap_accepted_audiences as a comma separated list
+#jwt_accepted_audiences: my_server1,my_server2
+
+
+# LDAP authentication (for more information see the Cyrus SASL saslauthd.conf man page)
+#
+
+# LDAP url for connection
+#ldap_url: ldaps://ldap.domain.com/
+
+# LDAP base DN. Can be empty
+#ldap_base: dc: example,dc: domain,dc: com
+
+# LDAP user DN. Do not specify this parameter for the anonymous bind
+#ldap_binddn: cn: binduser,ou: users,dc: example,dc: domain,dc: com
+
+# LDAP user password. Do not specify this parameter for the anonymous bind
+#ldap_bindpw: LdapUserPassw0rd
+
+# LDAP filter. Tokens example:
+# %1-9 - if the input key is user@mail.domain.com, then %1 is com, %2 is domain and %3 is mail
+# %s - %s is replaced by the complete service string
+# %r - %r is replaced by the complete realm string
+#ldap_filter: (samaccountname: %u)
+
+# LDAP authentication method
+#ldap_auth_method: bind
+
+# LDAP version
+#ldap_version: 3
+
+# LDAP TLS using
+#ldap_use_tls: 1
+
+# List of SSL/TLS ciphers to allow
+#ldap_tls_ciphers: SECURE256:SECURE128:!AES-128-CBC:!ARCFOUR-128:!CAMELLIA-128-CBC:!3DES-CBC:!CAMELLIA-128-CBC
+
+# Require and verify server certificate
+#ldap_tls_check_peer: 1
+
+# Path to CA cert file. Used when server certificate verify is enabled
+#ldap_tls_cacert_file: /etc/ssl/certs/ca-certificates.crt
+
+# Path to CA certs directory. Used when server certificate verify is enabled
+#ldap_tls_cacert_dir: /etc/ssl/certs
+
+# Wether to use starttls, implies LDAPv3 and requires ldap:// instead of ldaps://
+# ldap_start_tls: 1
+
+
+#
+# Advanced configuration options (you generally don't need to change these)
+#
+
+# Internal XMPP domain
+xmpp_domain: meet.jitsi
+
+# Internal XMPP server
+xmpp_server: xmpp.meet.jitsi
+
+# Internal XMPP server URL
+xmpp_bosh_url_base: http://xmpp.meet.jitsi:5280
+
+# Internal XMPP domain for authenticated services
+xmpp_auth_domain: auth.meet.jitsi
+
+# XMPP domain for the MUC
+xmpp_muc_domain: muc.meet.jitsi
+
+# XMPP domain for the internal MUC used for jibri, jigasi and jvb pools
+xmpp_internal_muc_domain: internal-muc.meet.jitsi
+
+# XMPP domain for unauthenticated users
+xmpp_guest_domain: guest.meet.jitsi
+
+# Comma separated list of domains for cross domain policy or "true" to allow all
+# The PUBLIC_URL is always allowed
+xmpp_cross_domain: false
+
+# Custom Prosody modules for XMPP_DOMAIN (comma separated)
+xmpp_modules:
+
+# Custom Prosody modules for MUC component (comma separated)
+xmpp_muc_modules:
+
+# Custom Prosody modules for internal MUC component (comma separated)
+xmpp_internal_muc_modules:
+
+# MUC for the JVB pool
+jvb_brewery_muc: jvbbrewery
+
+# XMPP user for JVB client connections
+jvb_auth_user: jvb
+
+# STUN servers used to discover the server's public IP
+jvb_stun_servers: meet-jit-si-turnrelay.jitsi.net:443
+
+# Media port for the Jitsi Videobridge
+jvb_port: 10000
+
+# TCP Fallback for Jitsi Videobridge for when UDP isn't available
+jvb_tcp_harvester_disabled: true
+jvb_tcp_port: 4443
+jvb_tcp_mapped_port: 4443
+
+# A comma separated list of APIs to enable when the JVB is started [default: none]
+# See https://github.com/jitsi/jitsi-videobridge/blob/master/doc/rest.md for more information
+#jvb_enable_apis: rest,colibri
+
+# XMPP user for Jicofo client connections.
+# NOTE: this option doesn't currently work due to a bug
+jicofo_auth_user: focus
+
+# Base URL of Jicofo's reservation REST API
+#jicofo_reservation_rest_base_url: http://reservation.example.com
+
+# Enable Jicofo's health check REST API (http://<jicofo_base_url>:8888/about/health)
+jicofo_enable_health_checks: true
+
+# XMPP user for Jigasi MUC client connections
+jigasi_xmpp_user: jigasi
+
+# MUC name for the Jigasi pool
+jigasi_brewery_muc: jigasibrewery
+
+# Minimum port for media used by Jigasi
+jigasi_port_min: 20000
+
+# Maximum port for media used by Jigasi
+jigasi_port_max: 20050
+
+# Enable SDES srtp
+#jigasi_enable_sdes_srtp: 1
+
+# Keepalive method
+#jigasi_sip_keep_alive_method: OPTIONS
+
+# Health-check extension
+#jigasi_health_check_sip_uri: keepalive
+
+# Health-check interval
+#jigasi_health_check_interval: 300000
+#
+# Enable Jigasi transcription
+#enable_transcriptions: 1
+
+# Jigasi will record audio when transcriber is on [default: false]
+#jigasi_transcriber_record_audio: true
+
+# Jigasi will send transcribed text to the chat when transcriber is on [default: false]
+#jigasi_transcriber_send_txt: true
+
+# Jigasi will post an url to the chat with transcription file [default: false]
+#jigasi_transcriber_advertise_url: true
+
+# Credentials for connect to Cloud Google API from Jigasi
+# Please read https://cloud.google.com/text-to-speech/docs/quickstart-protocol
+# section "Before you begin" paragraph 1 to 5
+# Copy the values from the json to the related env vars
+#gc_project_id:
+#gc_private_key_id:
+#gc_private_key:
+#gc_client_email:
+#gc_client_id:
+#gc_client_cert_url:
+
+# Enable recording
+#enable_recording: 1
+
+# XMPP domain for the jibri recorder
+xmpp_recorder_domain: recorder.meet.jitsi
+
+# XMPP recorder user for Jibri client connections
+jibri_recorder_user: recorder
+
+# Directory for recordings inside Jibri container
+jibri_recording_dir: /config/recordings
+
+# The finalizing script. Will run after recording is complete
+#jibri_finalize_recording_script_path: /config/finalize.sh
+
+# XMPP user for Jibri client connections
+jibri_xmpp_user: jibri
+
+# MUC name for the Jibri pool
+jibri_brewery_muc: jibribrewery
+
+# MUC connection timeout
+jibri_pending_timeout: 90
+
+# When jibri gets a request to start a service for a room, the room
+# jid will look like: roomName@optional.prefixes.subdomain.xmpp_domain
+# We'll build the url for the call by transforming that into:
+# https://xmpp_domain/subdomain/roomName
+# So if there are any prefixes in the jid (like jitsi meet, which
+# has its participants join a muc at conference.xmpp_domain) then
+# list that prefix here so it can be stripped out to generate
+# the call url correctly
+jibri_strip_domain_jid: muc
+
+# Directory for logs inside Jibri container
+jibri_logs_dir: /config/logs
+
+# Disable HTTPS: handle TLS connections outside of this setup
+#disable_https: 1
+
+# Enable FLoC
+# Opt-In to Federated Learning of Cohorts tracking
+#enable_floc: 0
+
+# Redirect HTTP traffic to HTTPS
+# Necessary for Let's Encrypt, relies on standard HTTPS port (443)
+#enable_http_redirect: 1
+
+# Send a `strict-transport-security` header to force browsers to use
+# a secure and trusted connection. Recommended for production use.
+# Defaults to 1 (send the header).
+# enable_hsts: 1
+
+# Enable IPv6
+# Provides means to disable IPv6 in environments that don't support it (get with the times, people!)
+#enable_ipv6: 1
+
+# Authenticate using external service or just focus external auth window if there is one already.
+# token_auth_url: https://auth.meet.example.com/{room}

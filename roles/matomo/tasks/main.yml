@@ -1,0 +1,12 @@
+---
+- name: Install Matomo
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: matomo
+    mysql_user: "{{mysql_user_matomo}}"
+    mysql_password: "{{mysql_password_matomo}}"
+    mysql_db: "{{mysql_database_matomo}}"
+    data_dirs:
+    - data

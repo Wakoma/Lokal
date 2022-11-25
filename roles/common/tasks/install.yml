@@ -1,0 +1,76 @@
+---
+- name: Export app_root variable
+  ansible.builtin.set_fact:
+    app_root: "{{project_root}}/{{app}}"
+
+- name: Create the app directory
+  ansible.builtin.file:
+    path: "{{app_root}}"
+    state: directory
+
+- name: Create app data directories
+  ansible.builtin.file:
+    path: "{{app_root}}/{{item}}"
+    state: directory
+  loop: "{{data_dirs}}"
+
+- name: Get previous version
+  ansible.builtin.slurp:
+    src: "{{app_root}}/version"
+  register: version_file
+  when: app_version is defined
+  ignore_errors: true
+
+- name: Parse previous version
+  ansible.builtin.set_fact:
+    app_version_prev: "{{version_file['content'] | b64decode}}"
+    app_upgrade: "{{(version_file['content'] | b64decode) is version(app_version, '<')}}"
+  when: app_version is defined and version_file is defined and version_file.content is defined
+
+- name: Set current version
+  ansible.builtin.copy:
+    dest: "{{app_root}}/version"
+    content: "{{app_version}}"
+  when: app_version is defined
+   
+- name: Init database
+  community.mysql.mysql_db:
+    name: "{{mysql_db}}"
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_port: "{{mysql_port}}"
+    state: present
+  when: mysql_db is defined
+
+- name: Grant user privileges to the DB
+  community.mysql.mysql_user:
+    name: "{{mysql_user}}"
+    password: "{{mysql_password}}"
+    priv: '{{mysql_db}}.*:ALL'
+    host: '%'
+    state: present
+    login_user: root
+    login_password: "{{mysql_root_password}}"
+    login_port: "{{mysql_port}}"
+  when: mysql_db is defined
+
+- name: Render docker-compose.yml
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{app_root}}/docker-compose.yml"
+    mode: "0600"
+
+# you can avoid starting the app defining "start: false" in `vars` section
+- name: Docker-compose up
+  ansible.builtin.shell: 
+    cmd: docker-compose up -d
+    chdir: "{{app_root}}"
+  when: not start is defined or start is truthy  # start only when start: false is not a fact
+  notify:
+    - Restart router
+
+- name: Docker purge unused images
+  ansible.builtin.shell: 
+    cmd: docker image prune -f
+    chdir: "{{app_root}}"
+  when: app_version is defined and app_upgrade is defined and app_upgrade is truthy

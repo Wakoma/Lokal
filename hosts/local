@@ -1,0 +1,11 @@
+all:
+  hosts: "localhost"
+  vars:
+    server_is_live: false
+    domain: lokal.localhost
+    project_root: "$HOME/lokal"
+    backup_root: "$HOME/lokal-backup"
+    ansible_connection: local
+    services:
+    - base
+    - wordpress

@@ -1,0 +1,7 @@
+- name: Backup start
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: backup
+  vars:
+    app: resourcespace
+    mysql_db: "{{mysql_database_resourcespace}}"

@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+
+  jellyfin:
+    image: linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      PUID: '{{uid}}'
+      PGID: '{{gid}}'
+      TZ: '{{tz}}'
+      JELLYFIN_PublishedServerUrl: https://{{subdomain_jellyfin}}.{{domain}}
+    volumes:
+      - "{{project_root}}/jellyfin/config:/config"
+      - "{{project_root}}/jellyfin/data:/data"
+      - "{{project_root}}/base/transmission/data:/media:ro"
+    ports:
+      - 7359:7359/udp
+      # - 1900:1900/udp  # Can't be used at 1900 because that clashes with unif-controller
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.jellyfin.entrypoints: websecure
+      traefik.http.routers.jellyfin.rule: Host(`{{subdomain_jellyfin}}.{{domain}}`)
+      traefik.http.routers.jellyfin.tls: "true"
+      traefik.http.services.jellyfin.loadbalancer.server.port: 8096
+{% if server_is_live %}
+      traefik.http.routers.jellyfin.tls.certresolver: {{cert_resolver}}
+{% endif %}
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true

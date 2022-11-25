@@ -1,0 +1,9 @@
+---
+- name: Install Kolibri
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: kolibri
+    data_dirs:
+    - data

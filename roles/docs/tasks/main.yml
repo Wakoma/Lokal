@@ -1,0 +1,33 @@
+---
+- name: Install docs
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: docs
+    data_dirs:
+    - data
+    - web
+    start: false
+
+- name: Clear old docs
+  ansible.builtin.file:
+    path: "{{app_root}}/data/docs/" 
+    state: absent
+
+- name: Copy markdown files
+  ansible.builtin.copy:
+    src: "files/"
+    dest: "{{app_root}}/data/docs/" 
+    force: true # always update
+
+- name: Render mkdocs config
+  ansible.builtin.template:
+    src: "mkdocs.yml"
+    dest: "{{app_root}}/data/mkdocs.yml" 
+    force: true # always update
+
+- name: Start the build and server
+  ansible.builtin.shell: 
+    cmd: docker-compose up -d
+    chdir: "{{app_root}}"

@@ -1,0 +1,61 @@
+- name: Install kiwix
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: kiwix
+    data_dirs:
+    - library
+    - data
+    start: false
+
+- name: Init empty library file
+  ansible.builtin.copy:
+    content: "<library/>"
+    dest: "{{app_root}}/library/library.xml"
+    force: false
+
+- name: Docker-compose up
+  ansible.builtin.shell: 
+    cmd: "docker-compose up -d"
+    chdir: "{{ app_root }}"
+
+- name: Find downloaded zim files
+  ansible.builtin.shell:
+    cmd: >
+      docker-compose exec kiwix 
+      find /downloads/complete -name '*.zim'
+    chdir: "{{ app_root }}"
+  register: zims
+
+# luckily, this is an indempotent action
+- name: Update library with transmission-downloaded zim files
+  ansible.builtin.shell:
+    cmd: >
+      docker-compose exec kiwix 
+      kiwix-manage /library/library.xml add {{item}}
+    chdir: "{{ app_root }}"
+  loop: "{{zims.stdout_lines}}" # this is the rule for passing lists
+
+- name: Find data files
+  ansible.builtin.shell:
+    cmd: >
+      docker-compose exec kiwix 
+      find /data -name '*.zim'
+    chdir: "{{ app_root }}"
+  register: zims
+
+# luckily, this is an indempotent action
+- name: Update library with transmission-downloaded zim files
+  ansible.builtin.shell:
+    cmd: >
+      docker-compose exec kiwix 
+      kiwix-manage /library/library.xml add {{item}}
+    chdir: "{{ app_root }}"
+  loop: "{{zims.stdout_lines}}" # this is the rule for passing lists
+
+- name: Restart kiwix service
+  ansible.builtin.shell:
+    cmd: docker-compose restart kiwix
+    chdir: "{{ app_root }}"
+  ignore_errors: yes
