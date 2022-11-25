@@ -1,6 +1,17 @@
 # Fdroid repository
 
+**THIS ROLE IS WORK IN PROGRESS**
+
 Fdroid repository is s statically generated content served by an ordinary HTTP server.
+
+Wakoma provides a few options of applications that can initialize your repository. We
+tryid to create curated repositories of necessary, usefull and broad applications.
+
+You can select one of those repositories for you/your client by using host variable `packages_fdroid`
+with possible values
+- base
+- extended
+- all
 
 The infrastructure consist of the generator (docker-executable-fdroidserver) and from a 
 metadata managment django app called repomaker. The repomaker image is able to handle

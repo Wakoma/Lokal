@@ -1,9 +1,10 @@
 subdomain_fdroid: droid
 
-repo_name_fdroid: Lokal APK repository
+repo_name_fdroid: Lokal Fdroid
 
 password_fdroid: fdroid73810
 
+packages: base
 sync_repo_fdroid: true
 
 secret_fdroid: "913d6#u8@-*#_w=21spwzurd#fd77bey-6mfs5fc$a=yhnh!n4p9"

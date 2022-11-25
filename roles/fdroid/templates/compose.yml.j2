@@ -1,62 +1,75 @@
 version: "3.8"
 
 services:
-  fdroid:
+fdroid:
     image: registry.gitlab.com/fdroid/docker-executable-fdroidserver:master
     user: "{{uid}}:{{gid}}"
+    restart: "no"
     volumes:
-    - {{project_root}}/fdroid/data:/repo
+    - "{{app_root}}/conf:/conf"
+    - "{{app_root}}/repo:/repo"
 
-  fdroid_server:
-    hostname: "{{subdomain_fdroid}}.{{domain}}"
-    image: caddy
-    user: "{{uid}}:{{gid}}"
-    restart: always
-    networks:
-      - traefik
+  fdroid_repo:
+    image: halverneus/static-file-server
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     volumes:
-      - {{project_root}}/fdroid/data/repo:/usr/share/caddy/
+    - "{{app_root}}/repo:/web"
+    restart: unless-stopped
+    networks:
+    - traefik
     labels:
       traefik.enable: "true"
       traefik.http.routers.fdroid.entrypoints: websecure
-      traefik.http.routers.fdroid.rule: Host(`{{subdomain_fdroid}}.{{domain}}`) && Path(`/repo`))
+      traefik.http.routers.fdroid.rule: Host(`{{subdomain_fdroid}}.{{domain}}`)
       traefik.http.routers.fdroid.tls: "true"
-      traefik.http.services.fdroid.loadbalancer.server.port: 80
+      traefik.http.services.fdroid.loadbalancer.server.port: 8080
 {% if server_is_live %}
       traefik.http.routers.fdroid.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
-  fdroid_repomaker:
-    image: registry.gitlab.com/fdroid/repomaker:latest
-    hostname: "{{subdomain_fdroid}}.{{domain}}"
-    domainname: "{{subdomain_fdroid}}.{{domain}}"
-    command: bash -c 'python3 manage.py migrate && ./httpd-foreground'
-    environment:
-      REPOMAKER_HOSTNAME: "{{subdomain_fdroid}}.{{domain}}"
-      REPOMAKER_SECRET_KEY: "{{secret_fdroid}}"
-    volumes:
-      - {{project_root}}/fdroid/repomaker:/repomaker/data
-    ports:
-      - "80:80"
-    restart: unless-stopped
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.fdroid.entrypoints: websecure
-      traefik.http.routers.fdroid.rule: Host(`{{subdomain_fdroid}}.{{domain}}`) && Path(`/maker`))
-      traefik.http.routers.fdroid.tls: "true"
-      traefik.http.services.fdroid.loadbalancer.server.port: 80
+#   fdroid_repomaker:
+#     image: registry.gitlab.com/katomaso1/repomaker:latest
+#     hostname: "{{subdomain_fdroid}}.{{domain}}"
+#     domainname: "{{subdomain_fdroid}}.{{domain}}"
+#     command: bash -c 'python3 manage.py migrate && ./httpd-foreground'
+#     environment:
+#       REPOMAKER_HOSTNAME: "{{subdomain_fdroid}}.{{domain}}"
+#       REPOMAKER_SECRET_KEY: "{{secret_fdroid}}"
+#       REPOMAKER_MYSQL_HOST: "{{mysql_host}}"
+#       REPOMAKER_MYSQL_DB: "{{mysql_db_repomaker}}"
+#       REPOMAKER_MYSQL_USER: "{{mysql_user_repomaker}}"
+#       REPOMAKER_MYSQL_PASSWORD: "{{mysql_password_repomaker}}"
+#     volumes:
+#       - {{app_root}}/maker:/repomaker/data
+#     networks:
+#       - traefik
+#     restart: unless-stopped
+#     labels:
+#       traefik.enable: "true"
+#       traefik.http.routers.fdroidmaker.entrypoints: websecure
+#       traefik.http.routers.fdroidmaker.rule: Host(`{{subdomain_fdroid}}.{{domain}}`)
+#       traefik.http.routers.fdroidmaker.tls: "true"
+#       traefik.http.services.fdroidmaker.loadbalancer.server.port: 80
+# {% if server_is_live %}
+#       traefik.http.routers.fdroidmaker.tls.certresolver: {{cert_resolver}}
+# {% endif %}
 
-  tasks:
-    image: registry.gitlab.com/fdroid/repomaker:latest
-    command: python3 manage.py process_tasks
-    environment:
-      REPOMAKER_HOSTNAME: "{{subdomain_fdroid}}.{{domain}}"
-      REPOMAKER_SECRET_KEY: "{{secret_fdroid}}"
-    volumes:
-      - {{project_root}}/fdroid/repomaker:/repomaker/data
-    depends_on:
-      - fdroid_repomaker
-    restart: unless-stopped
+#   fdroid_repomaker_tasks:
+#     image: registry.gitlab.com/katomaso1/repomaker:latest
+#     command: python3 manage.py process_tasks
+#     environment:
+#       REPOMAKER_HOSTNAME: "{{subdomain_fdroid}}.{{domain}}"
+#       REPOMAKER_SECRET_KEY: "{{secret_fdroid}}"
+#       REPOMAKER_MYSQL_HOST: "{{mysql_host}}"
+#       REPOMAKER_MYSQL_DB: "{{mysql_db_repomaker}}"
+#       REPOMAKER_MYSQL_USER: "{{mysql_user_repomaker}}"
+#       REPOMAKER_MYSQL_PASSWORD: "{{mysql_password_repomaker}}"
+#     volumes:
+#       - {{app_root}}/maker:/repomaker/data
+#     networks:
+#       - traefik
+#     depends_on:
+#       - fdroid_repomaker
 
 networks:
   traefik:

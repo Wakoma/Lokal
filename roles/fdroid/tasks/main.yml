@@ -1,48 +1,54 @@
-- name: Create app directory
-  ansible.builtin.file:
-    path: "{{ project_root }}/fdroid/{{item}}"
-    state: directory
-  loop:
-    - data
-    - repomaker
+---
+- name: Install fdroid
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: fdroid
+    mysql_db: mysql_db_repomaker
+    mysql_user: mysql_user_repomaker
+    mysql_password: mysql_password_repomaker
+    data_dirs:
     - repo
+    - maker
+    - conf
+    start: false
 
-- name: Stop current app if it is already running
-  ansible.builtin.shell:
-    cmd: "docker-compose down"
-    chdir: "{{ project_root }}/fdroid"
-    removes: docker-compose.yml  # runs only when this file exists
-  ignore_errors: yes # in case of corrupted docker-compose.yml this would interrupt the whole playbook
+# - name: "Initialize with public f-droid repository"
+#   ansible.builtin.shell:
+#     cmd: rsync --remove-after fdroid@wakoma.co:{packages} .
+#     chdir: "{{app_root}}/repo"
+#   when: sync_repo_fdroid
 
 - name: Render config.yml
   ansible.builtin.template:
     src: "config.yml.j2"
-    dest: "{{ project_root }}/fdroid/data/config.yml"
+    dest: "{{app_root}}/conf/config.yml"
+    force: true
 
-- name: Render docker-compose.yml
-  ansible.builtin.template:
-    src: "compose.yml.j2"
-    dest: "{{ project_root }}/fdroid/docker-compose.yml"
-    mode: "0600"
+# - name: Render repomaker_conf
+#   ansible.builtin.template:
+#     src: "repomaker_conf.py.j2"
+#     dest: "{{app_root}}/repomaker_conf.py"
 
 - name: "Create repo signing key if it doesn't exist"
   ansible.builtin.shell:
     cmd: >
       docker-compose run --entrypoint keytool fdroid -genkey -v
-      -keystore signing_key.keystore -alias fdroid -keyalg RSA -keysize 2048 -validity 10000 
-      -storepass {{password_fdroid}} -keypass {{password_fdroid}} 
-      -dname "cn={{domain}}, o={{project_name}}, c=Unknown"
-    creates: "{{project_root}}/fdroid/data/signing_key.keystore"
-    chdir: "{{project_root}}/fdroid"
+      -keystore /conf/signing_key.keystore -alias fdroid -keyalg RSA -keysize 2048 -validity 10000 
+      -storepass {{password_fdroid}} -keypass {{password_fdroid}} -storetype PKCS12
+      -dname "CN={{domain}}, OU={{project_name}}"
+    creates: "{{app_root}}/conf/signing_key.keystore"
+    chdir: "{{app_root}}"
 
-- name: "Initialize with public f-droid repository"
-  ansible.builtin.shell:
-    cmd: git clone --depth 1 https://gitlab.com/fdroid/fdroiddata.git/ repo
-    creates: "{{project_root}}/fdroid/data/repo"
-    chdir: "{{project_root}}/fdroid"
-  when: sync_repo_fdroid
+# - name: "Initialize with public f-droid repository"
+#   ansible.builtin.shell:
+#     cmd: git clone --depth 1 https://gitlab.com/fdroid/fdroiddata.git/ repo
+#     creates: "{{app_root}}/data/repo"
+#     chdir: "{{app_root}}"
+#   when: sync_repo_fdroid
 
 - name: Docker-compose up
   ansible.builtin.shell: 
-    cmd: "docker-compose up -d fileserver"
-    chdir: "{{ project_root }}/fdroid"
+    cmd: "docker-compose up -d"
+    chdir: "{{app_root}}"
