@@ -1,4 +1,4 @@
-/local
+.DS_store
 
 # Tools
 __pycache__
@@ -10,6 +10,7 @@ __pycache__
 *tfstate*
 .vagrant
 .vscode
+/venv
 
 # kiwix
 config/services/kiwix/data/

@@ -1,0 +1,23 @@
+---
+- name: Ensure base dirs exist"
+  ansible.builtin.file:
+    path: '{{item}}'
+    state: directory
+    owner: '{{ansible_facts["user_id"]}}'
+  loop:
+    - "{{project_root}}"
+    - "{{backup_root}}"
+  become: true
+  when: "not backup is defined and not restore is defined"
+
+- name: Get docker gid
+  ansible.builtin.shell:
+    cmd: 'cat /etc/group | grep docker | cut -d: -f 3'
+  register: docker_gid_output
+
+- name: Register uid and gid variables
+  set_fact:
+    uid: '{{ansible_facts["user_uid"]}}'
+    gid: '{{ansible_facts["user_gid"]}}'
+    tz: '{{ansible_facts["date_time"]["tz"]}}'
+    gid_docker: '{{docker_gid_output.stdout}}'

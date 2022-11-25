@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  calibre:
+    image: linuxserver/calibre-web
+    container_name: calibre
+    environment:
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+      - TZ={{ tz }}
+    volumes:
+      - "{{app_root}}/web:/config"
+      - "{{app_root}}/data:/library"
+    restart: unless-stopped
+
+  calibre-server:
+    image: linuxserver/calibre
+    container_name: calibre-server
+    environment:
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+      - TZ={{ tz }}
+      - GUAC_USER={{user_calibre}}
+      - GUAC_PASS={{password_calibre}}
+    volumes:
+      - "{{app_root}}/server:/config"
+      - "{{app_root}}/data:/library"  # used to be /config/Calibre Library
+    restart: unless-stopped

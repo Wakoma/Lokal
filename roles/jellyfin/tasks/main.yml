@@ -1,0 +1,11 @@
+---
+- name: Install jellyfin
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: jellyfin
+    data_dirs:
+    - data
+    - config
+    #mysql_db not defined for no db

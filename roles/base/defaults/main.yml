@@ -1,0 +1,7 @@
+subdomain_traefik: router
+subdomain_netdata: monitor
+subdomain_prometheus: metrics
+subdomain_grafana: dash
+subdomain_mailhog: mailhog
+subdomain_transmission: torrent
+subdomain_portainer: portainer

@@ -1,0 +1,6 @@
+subdomain_matomo: analytics
+version_matomo: "4.1.1-apache"
+
+mysql_user_matomo: matoma
+mysql_password_matomo: matoma
+mysql_database_matomo: matoma

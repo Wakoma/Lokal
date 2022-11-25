@@ -1,0 +1,5 @@
+subdomain_resourcespace: assets
+
+mysql_user_resourcespace: resourcespace
+mysql_password_resourcespace: resourcespace
+mysql_database_resourcespace: resourcespace

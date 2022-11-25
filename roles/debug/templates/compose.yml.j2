@@ -1,0 +1,42 @@
+version: "3.8"
+
+networks:
+  mail:
+    name: mail
+
+services:
+  fileserver:
+    container_name: fileserver
+    image: caddy
+    restart: always
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.fileserver.entrypoints: websecure
+      traefik.http.routers.fileserver.rule: Host(`get.{{domain}}`)
+      traefik.http.routers.fileserver.tls: "true"
+      traefik.http.routers.fileserver.tls.certresolver: {{cert_resolver}}
+      traefik.http.services.fileserver.loadbalancer.server.port: 80
+    networks:
+      - traefik
+    volumes:
+      - {{project_root}}/get/data:/usr/share/caddy/
+
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog:latest
+    networks:
+      - traefik
+      - mail
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mailhog.entrypoints: websecure
+      traefik.http.routers.mailhog.rule: Host(`{{subdomain__mailhog}}.{{domain}}`)
+      traefik.http.routers.mailhog.tls: "true"
+      traefik.http.services.mailhog.loadbalancer.server.port: 8025
+      traefik.http.routers.mailhog.tls.certresolver: {{cert_resolver}}
+      traefik.http.routers.mailhog.middlewares: traefik-auth
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true

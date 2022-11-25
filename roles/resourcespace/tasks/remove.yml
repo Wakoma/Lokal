@@ -1,0 +1,8 @@
+---
+- name: Remove resourcespace
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: remove
+  vars:
+    app: resourcespace
+    mysql_db: '{{mysql_database_resourcespace}}'

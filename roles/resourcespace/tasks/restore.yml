@@ -1,0 +1,7 @@
+- name: Restore start
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: restore
+  vars:
+    app: resourcespace
+    mysql_db: "{{mysql_database_resourcespace}}"

@@ -1,0 +1,14 @@
+---
+- name: Install nextcloud
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: nextcloud
+    mysql_user: '{{mysql_user_nextcloud}}'
+    mysql_password: '{{mysql_password_nextcloud}}'
+    mysql_db: '{{mysql_database_nextcloud}}'
+    data_dirs:
+    - data
+    - config
+    start: true

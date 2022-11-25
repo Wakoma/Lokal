@@ -1,0 +1,18 @@
+all:
+  hosts: "1.2.3.4"
+  vars:
+    server_is_live: true
+    domain: lokal.example.com
+    email_acme: admin@example.com
+    ansible_user: ubuntu
+    services:
+    - base
+    - unifi
+    - wordpress
+    - jellyfin
+    - nextcloud
+    - matomo
+    - kiwix
+    - kolibri
+    - moodle
+    - calibre

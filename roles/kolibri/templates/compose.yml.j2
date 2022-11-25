@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  kolibri:
+    image: neethumohan1212/kolibri:latest
+    container_name: kolibri
+    # colibri tries to write create /.pex so it needs to start as root
+    # user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    restart: unless-stopped
+    environment:
+      PUID: '{{uid}}'
+      PGID: '{{gid}}'
+      TZ: '{{ tz }}'
+    volumes:
+      - {{app_root}}/data:/root:rw
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.kolibri.entrypoints: websecure
+      traefik.http.routers.kolibri.rule: Host(`{{subdomain_kolibri}}.{{domain}}`)
+      traefik.http.routers.kolibri.tls: "true"
+      traefik.http.services.kolibri.loadbalancer.server.port: 8080
+{% if server_is_live %}
+      traefik.http.routers.kolibri.tls.certresolver: {{cert_resolver}}
+{% endif %}
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true

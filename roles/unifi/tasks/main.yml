@@ -1,0 +1,9 @@
+---
+- name: Install Unifi
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: unifi
+    data_dirs:
+    - data

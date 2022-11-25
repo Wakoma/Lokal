@@ -1,0 +1,11 @@
+---
+- name: Install calibre
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: calibre
+    data_dirs:
+    - data
+    - server
+    - web

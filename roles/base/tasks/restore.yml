@@ -1,0 +1,7 @@
+---
+- name: Restore base
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: restore
+  vars:
+    app: base

@@ -1,0 +1,56 @@
+---
+- name: Create app dirs
+  ansible.builtin.file:
+    path: '{{project_root}}/base/{{item}}/data'
+    state: directory
+  loop:
+    - mysql
+    - traefik
+    - grafana
+    - prometheus
+    - portainer
+    - transmission
+
+- name: "Setup traefik"
+  include_tasks:
+    file: include/setup-traefik.yml
+
+- name: "Setup prometheus"
+  include_tasks:
+    file: include/setup-prometheus.yml
+
+- name: Warn if a non-linux OS is used
+  debug:
+    msg: "You are installing Lokal on unsuported OS {{ansible_facts['system']}}!
+      Make sure to have mysql client and python3-pymysql installed"
+  when: ansible_facts['system'] != "Linux"
+
+- name: "Install necessary base software"
+  package:
+    name:
+      - mariadb-client
+      - python3-pymysql
+    state: present
+  become: true
+  when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
+
+- name: "Force local MySQL client to connect via TCP"
+  ansible.builtin.copy:
+    dest: "$HOME/.my.cnf"
+    content: "
+  [client]\n
+  protocol=tcp\n"
+
+- name: Render base docker-compose.yml
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: '{{project_root}}/base/docker-compose.yml'
+
+- name: Docker-compose up
+  ansible.builtin.shell: 
+    cmd: "docker-compose up -d"
+    chdir: "{{project_root}}/base"
+
+- name: Give the base time to boot up - takes at least 10 seconds
+  ansible.builtin.pause:
+    seconds: 10
