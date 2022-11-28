@@ -1,0 +1,30 @@
+- name: Allow port on firewall
+  ansible.builtin.shell:
+    cmd: iptables -I INPUT 3 -p {{item}} -m {{item}} --dport 4001 -j ACCEPT
+    creates: "{{project_root}}/azuracast/docker-compose.yml"
+  become: true
+  loop:
+  - 'udp'
+  - 'tcp'
+
+- name: Allow port on firewall on reboot
+  ansible.builtin.lineinfile:
+    line: iptables -A INPUT -p {{item}} -m {{item}} --dport 4001 -j ACCEPT
+    state: present
+    insertafter: iptables -A INPUT -p {{item}} -m {{item}} --dport \d+ -j ACCEPT
+    path: /etc/firewall.bash
+    create: no
+  become: true
+  loop:
+  - 'tcp'
+  - 'udp'
+
+- name: Install ipfs
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: ipfs
+    data_dirs:
+    - node
+    - cluster

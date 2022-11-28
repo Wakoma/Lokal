@@ -1,0 +1,7 @@
+ipfs_basicauth_users: 
+
+subdomain_ipfs_node: ipfs
+subdomain_ipfs_cluster: ipfs-cluster
+
+# Need to be provided by the user - installation will fail if not
+# cluster_secret_ipfs: 
