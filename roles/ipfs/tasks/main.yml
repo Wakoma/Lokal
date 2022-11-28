@@ -19,6 +19,11 @@
   - 'tcp'
   - 'udp'
 
+- name: Increase net memory limit to help IPFS resource manager
+  ansible.builtin.shell:
+    cmd: sysctl -w net.core.rmem_max=2500000
+  become: true
+
 - name: Install ipfs
   ansible.builtin.include_role:
     name: common
