@@ -88,4 +88,4 @@
     include_role:
       name: "{{service}}"
       tasks_from: "remove"
-    when: "remove is defined"
+    when: "remove is defined and remove|split(',')|difference(services) is falsy"
