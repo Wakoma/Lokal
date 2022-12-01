@@ -48,27 +48,6 @@ installs ansible into it. Then it starts Lokal installation that will use provid
 You can change the location and services and passwords in this file. The file `hosts/local`
 is the only file that you need to modify and it completely describes Lokal setup.
 
-## Host file for remote server
-
-If you want to install Lokal on a remote server, the only thing you need to create
-is a hosts file as shown below. If your server will not use the certificates service
-of Let's Encrypt, then set `ssl_use_acme:false`.
-
-```yaml
-all:
-  hosts: "1.2.3.4"
-  vars:
-    ssl_use_acme: true  # will use letsencrypt for trusted certificates
-    domain: lokal.example.com
-    email_admin: admin@example.com
-    ansible_user: ubuntu
-    services:
-    - base
-    - wordpress
-    mysql_root_password: change-me-please
-```
-
-
 ## Installation
 
 Once you have setup ansible on your computer and (optionally) server ready using `prepare.yml`
