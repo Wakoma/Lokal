@@ -16,3 +16,4 @@ all:
     - kolibri
     - moodle
     - calibre
+    mysql_root_password: change-me-please

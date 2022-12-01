@@ -11,12 +11,18 @@
     mysql_db: "{{mysql_yourapp}}"
     mysql_user: "{{mysql_user_yourapp}}"
     mysql_password: "{{mysql_password_yourapp}}"
-    start: false # you can postpone starting (by defaults the app starts as the last step)
+    start: false # you can postpone starting (by defaults the container starts)
 
 - name: Example copy of a file in your files/ folder
   ansible.builtin.copy:
-    src: "files/your-file.zip"
-    dest: "{{app_root}}/config/necessary-config.conf" # {{app_root}} is accessible because the common.install already ran
+    src: "files/your-static-file.txt"
+    dest: "{{app_root}}/data/some-file.txt" # {{app_root}} is accessible because the common.install already ran
+    force: false
+
+- name: Example copy of a file in your files/ folder
+  ansible.builtin.template:
+    src: "service.conf.j2"  # path is relative to templates/
+    dest: "{{app_root}}/config/service.conf" # {{app_root}} is accessible because the common.install already ran
     force: false
 
 # You can do more steps before finally launching your application
