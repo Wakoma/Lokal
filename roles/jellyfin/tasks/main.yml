@@ -8,4 +8,5 @@
     data_dirs:
     - data
     - config
-    #mysql_db not defined for no db
+    firewall_udp:
+    - 7359

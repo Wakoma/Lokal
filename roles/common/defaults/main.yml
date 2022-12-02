@@ -43,3 +43,7 @@ mysql_port: 3306
 # UID: ''{{ ansible_facts["user_uid"] }}''
 # GID: '{{ ansible_facts["user_gid"] }}'
 # TZ: '{{ ansible_facts["date_time"]["tz"] }}'
+
+# Empty defaults for the firewall
+firewall_tcp: []
+firewall_udp: []

@@ -54,6 +54,19 @@
     login_port: "{{mysql_port}}"
   when: mysql_db is defined
 
+- name: Allow firewall ports
+  become: true
+  vars:
+    firewall_group: "{{app}}"
+    firewall_allowed_tcp_ports: "{{firewall_tcp}}"
+    firewall_allowed_udp_ports: "{{firewall_udp}}"
+  ansible.builtin.import_role:
+    name: geerlingguy.firewall.d
+  when: firewall_tcp is truthy or firewall_udp is truthy
+  # We need to reload docker so it places all its iptables rules back since the
+  # firewall restart blindly flushes all firewall chains (even DOCKER chains)
+  notify: Reload docker
+
 - name: Render docker-compose.yml
   ansible.builtin.template:
     src: "compose.yml.j2"
@@ -66,8 +79,7 @@
     cmd: docker-compose up -d
     chdir: "{{app_root}}"
   when: not start is defined or start is truthy  # start only when start: false is not a fact
-  notify:
-    - Restart router
+  notify: Restart router
 
 - name: Docker purge unused images
   ansible.builtin.shell: 
