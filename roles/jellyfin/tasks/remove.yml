@@ -5,3 +5,4 @@
     tasks_from: remove
   vars:
     app: jellyfin
+    firewall: true
