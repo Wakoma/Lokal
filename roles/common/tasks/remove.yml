@@ -31,6 +31,16 @@
     state: absent
   when: mysql_db is defined
 
+- name: Remove firewall rules
+  vars:
+    firewall_remove: true
+    firewall_group: "{{app}}"
+  ansible.builtin.import_role:
+    name: geerlingguy.firewall.d
+  become: true
+  when: firewall
+  notify: Reload docker
+
 - name: Remove the app directory
   ansible.builtin.file:
     path: "{{app_root}}"

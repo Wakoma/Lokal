@@ -47,3 +47,4 @@ mysql_port: 3306
 # Empty defaults for the firewall
 firewall_tcp: []
 firewall_udp: []
+firewall: false
