@@ -1,0 +1,109 @@
+version: "3.8"
+
+networks:
+  papad.local:
+    name: papad.local
+  traefik:
+    external: true
+  mail:
+    external: true
+
+services:
+  papad_nginx:
+    image: nginx
+    volumes:
+      - "{{app_root}}/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "{{app_root}}/nginx/general.conf:/etc/nginx/general.conf:ro"
+      - "{{app_root}}/nginx/proxy.conf:/etc/nginx/proxy.conf:ro"
+      - "{{app_root}}/nginx/security.conf:/etc/nginx/security.conf:ro"
+      - "{{app_root}}/nginx/papad.conf:/etc/nginx/sites-enabled/papad.conf:ro"
+      - "{{app_root}}/nginx/docs.conf:/etc/nginx/sites-enabled/storage.conf:ro"
+      - "{{app_root}}/nginx/minio.conf:/etc/nginx/sites-enabled/minio.conf:ro"
+      - "{{app_root}}/nginx/upstreams.conf:/etc/nginx/sites-enabled/upstreams.conf:ro"
+      - "{{app_root}}/papad-assets:/etc/nginx/static/"
+    restart: always
+    depends_on:
+      - api
+      - ui
+      - docs
+      - minio
+    logging:
+       options:
+          max-size: 100m
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.papad.entrypoints: websecure
+      traefik.http.routers.papad.rule: Host(`{{subdomain_papad}}.{{domain}}`)
+      traefik.http.routers.papad.tls: "true"
+      traefik.http.services.papad.loadbalancer.server.port: 80
+{% if server_is_live %}
+      traefik.http.routers.papad.tls.certresolver: {{cert_resolver}}
+{% endif %}
+    networks:
+      - papad.local
+
+  papad_api:
+    image: janastu/papad-api:2.4
+    restart: always
+    env_file: ./service_config.env
+    volumes:
+      - '{{app_root}}/db/:/app/db/:rw'
+      - '{{app_root}}/tasks/papadapitasks.db:/app/papadapitasks.db:rw'
+      - '{{app_root}}/papad-assets:/app/static/'
+      - '{{app_root}}/service_config.env:/app/service_config.env:ro'
+#   ports:
+#      - "8000:8000"
+    depends_on:
+      - minio
+    networks:
+      - papad.local
+
+  papad_bg-app:
+    restart: always
+    env_file: ./service_config.env
+    image: janastu/papad-bg-apps:2.4
+    volumes:
+      - '{{app_root}}/db/:/app/db/:rw'
+      - '{{app_root}}/tasks/papadapitasks.db:/app/papadapitasks.db:rw'
+    depends_on:
+      - api
+    networks:
+      - papad.local
+      - mail
+
+  papad_ui:
+    restart: always
+    image: janastu/papad-ui:2.4
+    volumes:
+      - '{{app_root}}/papad-assets:/app/deploy/'
+#     - '.env:/app/.env:ro'
+    environment:
+      REACT_APP_BASE_URL_PROD: {{subdomain_papad}}.{{domain}}
+#   ports:
+#     - "3000:3000"
+    env_file:
+      - ./service_config.env
+    networks:
+      - papad.local
+
+  papad_docs:
+    restart: always
+    image: janastu/papad-docs:2.4
+#   ports:
+#     - "8001:8001"
+    networks:
+      - papad.local
+
+  papad_minio:
+    profiles: ["app"]
+#   ports:
+#   - '9001:9001'
+#   - '9000:9000'
+    env_file:
+      - ./service_config.env
+    volumes:
+      - '{{app_root}}/minio/data:/data'
+    image: quay.io/minio/minio
+    command: server /data --console-address="0.0.0.0:9001"
+    networks:
+      - papad.local

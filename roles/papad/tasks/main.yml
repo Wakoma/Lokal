@@ -1,0 +1,33 @@
+---
+- name: Install papad
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: papad
+    data_dirs:
+    mysql_db: "{{mysql_papad}}"
+    mysql_user: "{{mysql_user_papad}}"
+    mysql_password: "{{mysql_password_papad}}"
+    start: false # you can postpone starting (by defaults the app starts as the last step)
+
+- name: Copy nginx configs
+  ansible.builtin.copy:
+    src: "files/nginx"
+    dest: "{{app_root}}/nginx"
+
+- name: Copy tasks files
+  ansible.builtin.copy:
+    src: "files/tasks"
+    dest: "{{app_root}}/tasks"
+
+- name: Render config template
+  ansible.builtin.template:
+    src: service_config.env
+    dest: "{{app_root}}/service_config.env"
+
+# This is the command to start your app manually
+- name: Start the app
+  ansible.builtin.shell: 
+    cmd: docker-compose up -d
+    chdir: "{{app_root}}"
