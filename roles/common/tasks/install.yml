@@ -13,6 +13,7 @@
     path: "{{app_root}}/{{item}}"
     state: directory
   loop: "{{data_dirs}}"
+  when: data_dirs is defined
 
 - name: Get previous version
   ansible.builtin.slurp:
