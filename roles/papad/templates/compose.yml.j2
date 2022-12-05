@@ -7,7 +7,8 @@ networks:
     external: true
   mail:
     external: true
-
+# it's OK to run nginx as root because it drops privileges by itself
+# all other containers need to keep their root as well (for no real reason)
 services:
   papad_nginx:
     image: nginx
@@ -45,7 +46,6 @@ services:
 
   papad_api:
     image: janastu/papad-api:2.4
-    user: "{{uid}}:{{gid}}"
     restart: always
     env_file: ./service_config.env
     volumes:
@@ -62,7 +62,6 @@ services:
 
   papad_bg-app:
     image: janastu/papad-bg-apps:2.4
-    user: "{{uid}}:{{gid}}"
     env_file: ./service_config.env
     restart: always
     volumes:
@@ -76,7 +75,6 @@ services:
 
   papad_ui:
     image: janastu/papad-ui:2.4
-    user: "{{uid}}:{{gid}}"
     restart: always
     volumes:
       - '{{app_root}}/papad-assets:/app/deploy/'
@@ -92,7 +90,6 @@ services:
 
   papad_docs:
     restart: always
-    user: "{{uid}}:{{gid}}"
     image: janastu/papad-docs:2.4
 #   ports:
 #     - "8001:8001"
@@ -107,7 +104,6 @@ services:
       - ./service_config.env
     volumes:
       - '{{app_root}}/minio:/data'
-    user: "{{uid}}:{{gid}}"
     image: quay.io/minio/minio
     command: server /data --console-address="0.0.0.0:9001"
     networks:

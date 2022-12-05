@@ -1,0 +1,8 @@
+---
+- name: Remove papad
+  include_role:
+    name: common
+    tasks_from: remove
+  vars:
+    app: papad
+    mysql_db: "{{mysql_db_papad}}"
