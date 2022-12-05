@@ -23,10 +23,10 @@ services:
       - "{{app_root}}/papad-assets:/etc/nginx/static/"
     restart: always
     depends_on:
-      - api
-      - ui
-      - docs
-      - minio
+      - papad_api
+      - papad_ui
+      - papad_docs
+      - papad_minio
     logging:
        options:
           max-size: 100m
@@ -41,9 +41,11 @@ services:
 {% endif %}
     networks:
       - papad.local
+      - traefik
 
   papad_api:
     image: janastu/papad-api:2.4
+    user: "{{uid}}:{{gid}}"
     restart: always
     env_file: ./service_config.env
     volumes:
@@ -54,26 +56,28 @@ services:
 #   ports:
 #      - "8000:8000"
     depends_on:
-      - minio
+      - papad_minio
     networks:
       - papad.local
 
   papad_bg-app:
-    restart: always
-    env_file: ./service_config.env
     image: janastu/papad-bg-apps:2.4
+    user: "{{uid}}:{{gid}}"
+    env_file: ./service_config.env
+    restart: always
     volumes:
       - '{{app_root}}/db/:/app/db/:rw'
       - '{{app_root}}/tasks/papadapitasks.db:/app/papadapitasks.db:rw'
     depends_on:
-      - api
+      - papad_api
     networks:
       - papad.local
       - mail
 
   papad_ui:
-    restart: always
     image: janastu/papad-ui:2.4
+    user: "{{uid}}:{{gid}}"
+    restart: always
     volumes:
       - '{{app_root}}/papad-assets:/app/deploy/'
 #     - '.env:/app/.env:ro'
@@ -88,6 +92,7 @@ services:
 
   papad_docs:
     restart: always
+    user: "{{uid}}:{{gid}}"
     image: janastu/papad-docs:2.4
 #   ports:
 #     - "8001:8001"
@@ -95,14 +100,14 @@ services:
       - papad.local
 
   papad_minio:
-    profiles: ["app"]
 #   ports:
 #   - '9001:9001'
 #   - '9000:9000'
     env_file:
       - ./service_config.env
     volumes:
-      - '{{app_root}}/minio/data:/data'
+      - '{{app_root}}/minio:/data'
+    user: "{{uid}}:{{gid}}"
     image: quay.io/minio/minio
     command: server /data --console-address="0.0.0.0:9001"
     networks:
