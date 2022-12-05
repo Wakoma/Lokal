@@ -6,20 +6,24 @@
   vars:
     app: papad
     data_dirs:
-    mysql_db: "{{mysql_papad}}"
+    - db
+    - minio
+    - nginx
+    - tasks
+    mysql_db: "{{mysql_db_papad}}"
     mysql_user: "{{mysql_user_papad}}"
     mysql_password: "{{mysql_password_papad}}"
-    start: false # you can postpone starting (by defaults the app starts as the last step)
+    start: false
 
 - name: Copy nginx configs
   ansible.builtin.copy:
-    src: "files/nginx"
-    dest: "{{app_root}}/nginx"
+    src: "files/nginx/"
+    dest: "{{app_root}}/nginx/"
 
 - name: Copy tasks files
   ansible.builtin.copy:
-    src: "files/tasks"
-    dest: "{{app_root}}/tasks"
+    src: "files/tasks/"
+    dest: "{{app_root}}/tasks/"
 
 - name: Render config template
   ansible.builtin.template:
