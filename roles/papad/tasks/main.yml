@@ -10,9 +10,11 @@
     - minio
     - nginx
     - tasks
-    mysql_db: "{{mysql_db_papad}}"
-    mysql_user: "{{mysql_user_papad}}"
-    mysql_password: "{{mysql_password_papad}}"
+    postgres_db: "{{db_name_papad}}"
+    postgres_user: "{{db_user_papad}}"
+    postgres_password: "{{db_password_papad}}"
+    firewall_tcp:
+    - "9001"
     start: false
 
 - name: Copy nginx configs

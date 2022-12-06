@@ -1,4 +1,5 @@
-mysql_db_papad: papad
-mysql_user_papad: papad
-mysql_password_papad: bu62eubdkcad
+db_name_papad: papad
+db_user_papad: papad
+db_password_papad: bu62eubdkcad
 subdomain_papad: papad
+version_papad: "2.4"

@@ -5,6 +5,8 @@ networks:
     name: papad.local
   traefik:
     external: true
+  postgres:
+    external: true
   mail:
     external: true
 # it's OK to run nginx as root because it drops privileges by itself
@@ -45,7 +47,7 @@ services:
       - traefik
 
   papad_api:
-    image: janastu/papad-api:2.4
+    image: janastu/papad-api:{{version_papad}}
     restart: always
     env_file: ./service_config.env
     volumes:
@@ -59,9 +61,10 @@ services:
       - papad_minio
     networks:
       - papad.local
+      - postgres
 
   papad_bg-app:
-    image: janastu/papad-bg-apps:2.4
+    image: janastu/papad-bg-apps:{{version_papad}}
     env_file: ./service_config.env
     restart: always
     volumes:
@@ -72,9 +75,10 @@ services:
     networks:
       - papad.local
       - mail
+      - postgres
 
   papad_ui:
-    image: janastu/papad-ui:2.4
+    image: janastu/papad-ui:{{version_papad}}
     restart: always
     volumes:
       - '{{app_root}}/papad-assets:/app/deploy/'
@@ -90,15 +94,15 @@ services:
 
   papad_docs:
     restart: always
-    image: janastu/papad-docs:2.4
+    image: janastu/papad-docs:{{version_papad}}
 #   ports:
 #     - "8001:8001"
     networks:
       - papad.local
 
   papad_minio:
-#   ports:
-#   - '9001:9001'
+    ports:
+    - '9001:9001'
 #   - '9000:9000'
     env_file:
       - ./service_config.env
