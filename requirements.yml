@@ -17,6 +17,10 @@ roles:
 - name: bguerel.self_signed_certificate
   version: v1.0.1
 
+- name: geerlingguy.firewall.d
+  src: git+https://github.com/katomaso/ansible-role-firewall.git
+  version: master
+
 collections:
 - name: markuman.nextcloud
   version: 3.0.2

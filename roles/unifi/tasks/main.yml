@@ -7,3 +7,11 @@
     app: unifi
     data_dirs:
     - data
+    firewall_tcp:
+    - 8080
+    - 6789
+    firewall_udp:
+    - 3478
+    - 10001
+    - 1900
+    - 5514

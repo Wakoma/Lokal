@@ -14,3 +14,8 @@
     - jvb
     - jigasi
     - jibri
+    firewall_tcp:
+    - 4443
+    firewall_udp:
+    - 10000
+

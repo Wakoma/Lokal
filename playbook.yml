@@ -11,6 +11,11 @@
       chdir: "{{project_root}}/base"
     ignore_errors: yes
 
+  - name: Reload docker
+    become: true
+    ansible.builtin.shell:
+      cmd: "kill -s SIGHUP `pidof dockerd`"
+
   tasks:
   - name: Install all services
     loop: "{{services}}"
@@ -88,4 +93,4 @@
     include_role:
       name: "{{service}}"
       tasks_from: "remove"
-    when: "remove is defined"
+    when: "remove is defined and remove|split(',')|difference(services) is falsy"
