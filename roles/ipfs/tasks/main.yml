@@ -1,0 +1,18 @@
+- name: Increase net memory limit to help IPFS resource manager
+  ansible.builtin.shell:
+    cmd: sysctl -w net.core.rmem_max=2500000
+  become: true
+
+- name: Install ipfs
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: ipfs
+    data_dirs:
+    - node
+    - cluster
+    firewall_tcp:
+    - 4001 # ipfs-swarm
+    firewall_udp:
+    - 4001

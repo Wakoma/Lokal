@@ -1,0 +1,8 @@
+ipfs_basicauth_users: 
+
+subdomain_ipfs_node: ipfs
+subdomain_ipfs_cluster: ipfs-cluster
+
+# Need to be provided by the user - installation will fail
+# Must be 64 characters long, only hex chars allowed 0-9a-f
+# cluster_secret_ipfs: 
