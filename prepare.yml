@@ -83,8 +83,6 @@
         - 4443
         # Azuracast SFTP
         - 2022
-        # ipfs-swarm
-        - 4001
         # Azuracast Stations
         - 8000
         - 8005

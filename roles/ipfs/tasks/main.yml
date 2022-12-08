@@ -1,24 +1,3 @@
-- name: Allow port on firewall
-  ansible.builtin.shell:
-    cmd: iptables -I INPUT 3 -p {{item}} -m {{item}} --dport 4001 -j ACCEPT
-    creates: "{{project_root}}/azuracast/docker-compose.yml"
-  become: true
-  loop:
-  - 'udp'
-  - 'tcp'
-
-- name: Allow port on firewall on reboot
-  ansible.builtin.lineinfile:
-    line: iptables -A INPUT -p {{item}} -m {{item}} --dport 4001 -j ACCEPT
-    state: present
-    insertafter: iptables -A INPUT -p {{item}} -m {{item}} --dport \d+ -j ACCEPT
-    path: /etc/firewall.bash
-    create: no
-  become: true
-  loop:
-  - 'tcp'
-  - 'udp'
-
 - name: Increase net memory limit to help IPFS resource manager
   ansible.builtin.shell:
     cmd: sysctl -w net.core.rmem_max=2500000
@@ -33,3 +12,7 @@
     data_dirs:
     - node
     - cluster
+    firewall_tcp:
+    - 4001 # ipfs-swarm
+    firewall_udp:
+    - 4001
