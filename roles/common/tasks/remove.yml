@@ -31,6 +31,26 @@
     state: absent
   when: mysql_db is defined
 
+- name: Remove PostgreSQL DB
+  community.postgresql.postgresql_db:
+    name: "{{postgres_db}}"
+    login_host: localhost
+    login_password: "{{postgres_root_password}}"
+    login_port: "{{postgres_port}}"
+    owner: "{{postgres_user}}"
+    state: absent
+  when: postgres_db is defined
+
+- name: Remove PostgreSQL user
+  community.postgresql.postgresql_user:
+    name: "{{postgres_user}}"
+    password: "{{postgres_password}}"
+    login_host: localhost
+    login_password: "{{postgres_root_password}}"
+    login_port: "{{postgres_port}}"
+    state: absent
+  when: postgres_db is defined
+
 - name: Remove firewall rules
   vars:
     firewall_remove: true

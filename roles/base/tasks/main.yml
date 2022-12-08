@@ -51,6 +51,7 @@
   package:
     name:
       - mariadb-client
+      - postgresql-client
       - python3-pymysql
       - python3-psycopg2
     state: present

@@ -5,4 +5,4 @@
     tasks_from: remove
   vars:
     app: papad
-    mysql_db: "{{mysql_db_papad}}"
+    postgres_db: "{{db_name_papad}}"

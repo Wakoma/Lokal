@@ -3,3 +3,5 @@ db_user_papad: papad
 db_password_papad: bu62eubdkcad
 subdomain_papad: papad
 version_papad: "2.4"
+minio_password_papad: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+minio_user_papad: AKIAIOSFODNN7EXAMPLE

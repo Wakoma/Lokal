@@ -10,11 +10,10 @@
     - minio
     - nginx
     - tasks
+    - ui
     postgres_db: "{{db_name_papad}}"
     postgres_user: "{{db_user_papad}}"
     postgres_password: "{{db_password_papad}}"
-    firewall_tcp:
-    - "9001"
     start: false
 
 - name: Copy nginx configs
@@ -26,6 +25,17 @@
   ansible.builtin.copy:
     src: "files/tasks/"
     dest: "{{app_root}}/tasks/"
+
+- name: Remove previous UI build
+  ansible.builtin.file:
+    state: absent
+    path: "{{app_root}}/ui"
+  become: true
+
+# - name: Copy UI build files
+#   ansible.builtin.copy:
+#     src: "files/ui/"
+#     dest: "{{app_root}}/ui/"
 
 - name: Render config template
   ansible.builtin.template:
