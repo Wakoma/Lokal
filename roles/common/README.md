@@ -8,7 +8,7 @@ roles/
     - defaults/
        main.yml // defaults for templates & tasks
     - tasks/
-      - main.yml (install/upgrade)
+      - main.yml (install & upgrade)
       - restore.yml
       - backup.yml
     - templates/
@@ -47,11 +47,58 @@ will be available at `mysql_host` and `mysql_port` with the credentials provided
 Don't forget to add `mysql` external network to your docker-compose if you want to
 connect to it.
 
-## templates/compose.yml.j2
+### templates/compose.yml.j2
 
 Lokal services must be completely written as docker-compose files. The `base` 
 gives you a database and a traefik instance for routing the requests. Please
 see the [compose.yml.j2](examples/compose.yml.j2) in examples directory.
+
+### Networks
+
+At the end of your compose.yml.j2, you must specify networks, that you are using
+```yaml
+networks:
+  traefik:
+    external: true
+  mysql:
+    external: true
+  prometheus:
+    external: true
+```
+
+#### Traefik
+
+Traefik is used to route outside traffic into your container. It handles certificate
+generation for your custom sub-domains. If you are using ACME for certificates, then
+it is necessary to add following IF block in the container's labels.
+
+```yaml
+    networks:
+    - traefik # necessary for extenal access to your app (via a domain name)
+    - mysql # necessary if you want to use the external mysql database
+    - prometheus # to get monitoring
+    labels:
+      traefik.enable: "true"
+      # traefik will only listen on HTTPS
+      traefik.http.routers.yourapp.entrypoints: websecure
+      # here you construct your final domain
+      traefik.http.routers.yourapp.rule: Host(`{{subdomain_yourapp}}.{{domain}}`)
+      traefik.http.routers.yourapp.tls: "true"
+      # where the container listens (no need to export this port)
+      traefik.http.services.yourapp.loadbalancer.server.port: 80 
+{% if server_is_live %}
+      traefik.http.routers.yourapp.tls.certresolver: {{cert_resolver}}
+{% endif %}
+```
+
+#### MySQL
+
+MySQL database is provided by the `base` role. You can reach it on 
+- `{{mysql_host}}`
+- `{{mysql_port}}`
+and the database should be ready if you have used the common.install tasks and
+specified your `db_name`, `db_user` and `db_password`. Don't forget to add the
+`mysql` network to your compose.yml networks.
 
 ### Volumes
 
@@ -90,6 +137,7 @@ services:
 ```
 
 ### Network and Firewall
+
 There are few external networks
 - `traefik` - to be able to use traefik labels for routing external traffic
 - `prometheus` - so your service exports monitoring data to prometheus
