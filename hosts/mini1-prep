@@ -1,7 +1,0 @@
-all:
-  hosts: "162.55.180.169"
-  vars:
-    app_user: ubuntu
-    ansible_user: root
-    setup_ssh: true
-    ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDahy1+0GEI+A2OQhXRoOn9OkB+ySd1Z4viKHcvX0aLB6tPDUb9zr6isw48Ud4eW11gdRGLXVgj9y4eAdPK0E9A2NyzC0KP76+LgBXWdu8S9SG6G2E9fGAFi9jCb3Rw4z40p+S+8Cncu8JfL1izi6ZwbfxGEPB4zroQndBJGPkDbINP4cZzyrcYUSYI6iFxMzhKz1FTTDwMbn0Wc20BDseCQaNlWol+Jk5W/qjayyJIVKxEjjXxh3uvoPUjM5jGoqBz117cwGjfOxEl/CsLJKvnvfwQy+pVxblKzu2KWGjk3peTPcPE1lW+ogCGfSppA8WV3DiPUxIjOejNfUvc9Rlz development key
