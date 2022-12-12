@@ -17,8 +17,10 @@ services:
       traefik.http.routers.ipfs-node.entrypoints: websecure
       traefik.http.routers.ipfs-node.rule: HostRegexp(`{{subdomain_ipfs_node}}.{{domain}}`)
       traefik.http.routers.ipfs-node.tls: "true"
-{% if ipfs_basicauth_users is truthy %}
-      traefik.http.routers.ipfs-node.middlewares: ipfs-auth
+{% if users_ipfs is truthy %}
+      traefik.http.routers.ipfs-node.middlewares: ipfs-node-auth
+      traefik.http.middlewares.ipfs-node-auth.basicauth.users: {% for i in users_ipfs %}{{i.user}}:$$sha1$${{i.password|sha1}}{%if not loop.last%},{%endif%}{% endfor %}
+
 {% endif %}
       traefik.http.routers.ipfs-node.service: ipfs-node
       traefik.http.services.ipfs-node.loadbalancer.server.port: 5001
@@ -53,9 +55,9 @@ services:
       # describe traefik middlewares
       traefik.http.middlewares.strip-pinning-prefix.stripprefix.prefixes: /pinning
 
-{% if ipfs_basicauth_users is truthy %}
+{% if users_ipfs is truthy %}
       traefik.http.routers.traefik.middlewares: ipfs-auth
-      traefik.http.middlewares.ipfs-auth.basicauth.users: {{ipfs_basicauth_users|replace("$", "$$")}}
+      traefik.http.middlewares.ipfs-auth.basicauth.users: {%for i in users_ipfs%}{{i.user}}:$$sha1$${{i.password|sha1}}{%if not loop.last%},{%endif%}{%endfor%}
 {% endif %}
 
       traefik.http.middlewares.corsheader.headers.accesscontrolallowmethods: "GET,POST,OPTIONS"

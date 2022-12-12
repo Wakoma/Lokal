@@ -5,3 +5,9 @@ subdomain_grafana: dash
 subdomain_mailhog: mailhog
 subdomain_transmission: torrent
 subdomain_portainer: portainer
+
+version_prometheus: "v2.40.6"
+version_netdata: "v1.28.0-amd64"
+version_traefik: "v2.9.6"
+version_grafana: "9.3.1"
+version_mariadb: "10.5.8-focal"

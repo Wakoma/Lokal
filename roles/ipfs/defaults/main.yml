@@ -1,4 +1,7 @@
-ipfs_basicauth_users: 
+
+users_ipfs:
+# - {user: "admin", password: "bluetooth"}
+# - {user: "john", password: "smith"}
 
 subdomain_ipfs_node: ipfs
 subdomain_ipfs_cluster: ipfs-cluster

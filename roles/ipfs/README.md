@@ -8,9 +8,9 @@ To access the network, users will need a special web browser with support for IP
 
 You should also inform users about the ability to use IPFS on the Lokal network. At a minimum you should add instructions for downloading and installing Agregore Mobile on a mobile device and using the IPFS network. The section below has some copy you can use.
 
-Next, you need to choose a username and password that will be used to access the IPFS pinning service. This needs to be configured in the variables file as "http basic auth" credentials.
+Next, you need to choose a username and password that will be used to access the IPFS pinning service. This needs to be configured in the variables file as `users_ipfs` credentials as a list of dicts `- {user: "username", password: "123456"}`.
 
-There are lots of content and applications you may wish to add to the pinning service for users. We recommend uploading and pinning [this markdown blog](https://github.com/AgregoreWeb/markdown-blog) that runs on IPFS. It will enable users to create and share their own content on the IPFS network.
+There are lots of content and applications you may wish to add to the pinning service for users. We recommend uploading and pinning [Agregore's markdown blog](https://github.com/AgregoreWeb/markdown-blog) that runs on IPFS. It will enable users to create and share their own content on the IPFS network.
 
 To upload and pin the blog:
 

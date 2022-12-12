@@ -35,7 +35,7 @@ services:
 
   mariadb:
     container_name: {{mysql_host}}
-    image: mariadb:10.5.8-focal
+    image: mariadb:{{version_mariadb}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
       MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
@@ -57,7 +57,7 @@ services:
 
   grafana:
     container_name: grafana
-    image: grafana/grafana:9.2.1
+    image: grafana/grafana:{{version_grafana}}
     user: "{{uid}}:{{gid}}"
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,natel-discrete-panel,grafana-piechart-panel
@@ -85,6 +85,7 @@ services:
     restart: unless-stopped
 
   netdata:
+    image: netdata/netdata:{{version_netdata}}
     container_name: netdata
     user: "0:{{gid}}"
     cap_add:
@@ -92,7 +93,6 @@ services:
     environment:
       PUID: '{{uid}}'
     hostname: {{subdomain_netdata}}.{{domain}}
-    image: netdata/netdata:v1.28.0-amd64
     labels:
       traefik.enable: "true"
       traefik.http.routers.netdata.entrypoints: websecure
@@ -118,7 +118,7 @@ services:
 
   prometheus:
     container_name: prometheus
-    image: prom/prometheus:v2.39.1
+    image: prom/prometheus:{{version_prometheus}}
     user: "{{uid}}:{{gid}}"
     labels:
       traefik.enable: "true"
@@ -142,7 +142,7 @@ services:
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   traefik:
-    image: traefik:v2.9.1
+    image: traefik:{{version_traefik}}
     # cannot be simply app_user:app_user because of root:docker privileges on /var/run/docker.sock
     user: "{{uid}}:{{gid_docker}}"  # run the container service as app user (not root)
     labels:
