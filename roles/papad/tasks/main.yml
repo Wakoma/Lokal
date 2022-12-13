@@ -16,10 +16,10 @@
     postgres_password: "{{db_password_papad}}"
     start: false
 
-- name: Copy nginx configs
-  ansible.builtin.copy:
-    src: "files/nginx/"
-    dest: "{{app_root}}/nginx/"
+# - name: Copy nginx configs
+#   ansible.builtin.copy:
+#     src: "files/nginx/"
+#     dest: "{{app_root}}/nginx/"
 
 - name: Copy tasks files
   ansible.builtin.copy:

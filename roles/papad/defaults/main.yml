@@ -2,6 +2,6 @@ db_name_papad: papad
 db_user_papad: papad
 db_password_papad: bu62eubdkcad
 subdomain_papad: papad
-version_papad: "2.4"
-minio_password_papad: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-minio_user_papad: AKIAIOSFODNN7EXAMPLE
+version_papad: "2.5"
+minio_password_papad: default123
+minio_user_papad: admin

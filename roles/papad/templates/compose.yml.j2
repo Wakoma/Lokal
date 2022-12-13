@@ -7,47 +7,10 @@ networks:
     external: true
   postgres:
     external: true
-
   mail:
     external: true
-# it's OK to run nginx as root because it drops privileges by itself
-# all other containers need to keep their root as well (for no real reason)
-services:
-  papad_nginx:
-    image: nginx
-    volumes:
-      - "{{app_root}}/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
-      - "{{app_root}}/nginx/general.conf:/etc/nginx/general.conf:ro"
-      - "{{app_root}}/nginx/proxy.conf:/etc/nginx/proxy.conf:ro"
-      - "{{app_root}}/nginx/security.conf:/etc/nginx/security.conf:ro"
-      - "{{app_root}}/nginx/papad.conf:/etc/nginx/sites-enabled/papad.conf:ro"
-      - "{{app_root}}/nginx/docs.conf:/etc/nginx/sites-enabled/storage.conf:ro"
-      - "{{app_root}}/nginx/minio.conf:/etc/nginx/sites-enabled/minio.conf:ro"
-      - "{{app_root}}/nginx/upstreams.conf:/etc/nginx/sites-enabled/upstreams.conf:ro"
-      - "{{app_root}}/ui:/etc/nginx/static/"
-      - "{{app_root}}/nginx-logs:/var/log/nginx/"
-    restart: always
-    depends_on:
-      - papad_api
-      - papad_ui
-      - papad_docs
-      - papad_minio
-    logging:
-       options:
-          max-size: 10m
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.papad.entrypoints: websecure
-      traefik.http.routers.papad.rule: Host(`{{subdomain_papad}}.{{domain}}`) || Host(`www.{{subdomain_papad}}.{{domain}}`)
-      traefik.http.routers.papad.tls: "true"
-      traefik.http.services.papad.loadbalancer.server.port: 80
-{% if server_is_live %}
-      traefik.http.routers.papad.tls.certresolver: {{cert_resolver}}
-{% endif %}
-    networks:
-      - papad.local
-      - traefik
 
+services:
   papad_api:
     image: janastu/papad-api:{{version_papad}}
     restart: always
@@ -64,6 +27,15 @@ services:
     networks:
       - papad.local
       - postgres
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.papad_api.entrypoints: websecure
+      traefik.http.routers.papad_api.rule: Host(`{{subdomain_papad}}.{{domain}}`) && (PathPrefix(`/api/v1/`) || PathPrefix(`/nimda/`) || Path(`/auth/login`))
+      traefik.http.routers.papad_api.tls: "true"
+      traefik.http.services.papad_api.loadbalancer.server.port: 8000
+{% if server_is_live %}
+      traefik.http.routers.papad_api.tls.certresolver: {{cert_resolver}}
+{% endif %}
 
   papad_bg-app:
     image: janastu/papad-bg-apps:{{version_papad}}
@@ -81,19 +53,28 @@ services:
 
   papad_ui:
     image: janastu/papad-ui:{{version_papad}}
-    # command: serve -s deploy
+#   command: serve -s deploy
     restart: "always"
     volumes:
       - '{{app_root}}/ui:/app/deploy/'
 #     - '.env:/app/.env:ro'
     environment:
       REACT_APP_BASE_URL_PROD: {{subdomain_papad}}.{{domain}}
-#   ports:
-#     - "3000:3000"
     env_file:
       - ./service_config.env
     networks:
       - papad.local
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.papad.entrypoints: websecure
+      traefik.http.routers.papad.rule: Host(`{{subdomain_papad}}.{{domain}}`)
+      traefik.http.routers.papad.tls: "true"
+      traefik.http.services.papad.loadbalancer.server.port: 8000
+{% if server_is_live %}
+      traefik.http.routers.papad.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
 
   papad_docs:
     restart: always
@@ -106,17 +87,18 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.papad_docs.entrypoints: websecure
-      traefik.http.routers.papad_docs.rule: Host(`docs.{{subdomain_papad}}.{{domain}}`)
+      traefik.http.routers.papad_docs.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/docs/`)
       traefik.http.routers.papad_docs.tls: "true"
       traefik.http.services.papad_docs.loadbalancer.server.port: 8001
 {% if server_is_live %}
       traefik.http.routers.papad_docs.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
+
   papad_minio:
 #   ports:
-#   - '9001:9001'
 #   - '9000:9000'
+#   - '9001:9001'
     env_file:
       - ./service_config.env
     volumes:
@@ -128,6 +110,16 @@ services:
     - traefik
     labels:
       traefik.enable: "true"
+      traefik.http.routers.papad_storage.entrypoints: websecure
+      traefik.http.routers.papad_storage.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/storage`)
+      traefik.http.routers.papad_storage.tls: "true"
+      traefik.http.services.papad_storage.loadbalancer.server.port: 9000
+      traefik.http.services.papad_storage.middlewares: papad_storage
+      traefik.http.middlewares.papad_storage.stripprefix.prefixes: /storage
+{% if server_is_live %}
+      traefik.http.routers.papad_storage.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
       traefik.http.routers.papad_minio.entrypoints: websecure
       traefik.http.routers.papad_minio.rule: Host(`minio.{{subdomain_papad}}.{{domain}}`)
       traefik.http.routers.papad_minio.tls: "true"
