@@ -59,7 +59,7 @@ services:
       - '{{app_root}}/ui:/app/deploy/'
 #     - '.env:/app/.env:ro'
     environment:
-      REACT_APP_BASE_URL_PROD: {{subdomain_papad}}.{{domain}}
+      REACT_APP_BASE_URL_PROD: https://{{subdomain_papad}}.{{domain}}/
     env_file:
       - ./service_config.env
     networks:
