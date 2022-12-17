@@ -24,7 +24,6 @@
       # web
       - 80
       - 443
-      - 8448 # federation
       # transmission
       - 9091
       - 51413

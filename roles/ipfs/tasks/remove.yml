@@ -1,0 +1,8 @@
+---
+- name: Remove ipfs
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: remove
+  vars:
+    app: ipfs
+    firewall: true

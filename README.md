@@ -21,30 +21,57 @@ We're also using and integrating services that enable network management, offgri
 
 ## How does it work?
 
-We provide ansible playbooks to prepare the target machine (either remote or localhost). Services themselves are packed as docker containers and are managed by docker-compose.
+Lokal is installed via ansible. Therefore we provide ansible playbook to prepare
+your remote server and another playbook to handle installation and other operations.
 
-# How do I try it out?
+Lokal is composed of services, that are, due to the choice of ansible, hidden in 
+folder `roles`. You can specify which services will be installed for each host 
+separately by using `services` variable in their `hosts/` file. Simply add the 
+folder's name into the `services` array. The only mandator service is the `base`
+service that provides database and monitoring. All other services are optional.
 
-Lokal is installed using `ansible`. We recommend version `>=2.11`. Ansible is a python package so
-alternatively, you can use `pip` to install it. Otherwise (since ansible does not work on windows)
-you are free to use our docker container, that contains ansible with all necessary modules.
-```bash
-docker build -t lokal:latest .
-docker run --rm -itv ${PWD}:/lokal lokal:latest
+The inventory file is the only file you need to edit. It lives in `hosts/` folder
+and is a complete prescription of the future Lokal installation. This file contains
+list of installed services and their configuration. There are two example hosts files:
+`local` and `remote`. We recommend naming your hosts files according to the domain
+of your target server.
+
+## How do I try it out?
+
+Please take a look at the script `tryitout.sh`. There are the few necessary steps 
+to run Lokal on your computer with the most basic setup (monitoring + wordpress).
+If you happend to have `apt` based OS, then you can simply run the script.
+
+The script will first create `$HOME/lokal-client` that is a python virtualenv and
+installs ansible into it. Then it starts Lokal installation that will use provided `hosts/local`
+"inventory file" hence will install lokal into `$HOME/lokal` with mentioned services.
+You can change the location and services and passwords in this file. The file `hosts/local`
+is the only file that you need to modify and it completely describes Lokal setup.
+
+## Host file for remote server
+
+If you want to install Lokal on a remote server, the only thing you need to create
+is a hosts file as shown below. If your server will not use the certificates service
+of Let's Encrypt, then set `server_is_live:false`.
+
+```yaml
+all:
+  hosts: "1.2.3.4"
+  vars:
+    server_is_live: true  # will use letsencrypt for trusted certificates
+    domain: lokal.example.com
+    email_acme: admin@example.com
+    ansible_user: ubuntu
+    services:
+    - base
+    - wordpress
+    mysql_root_password: change-me-please
 ```
-This will give you a bash terminal where you can access lokal files and run all commands described below.
-__This is just a "client" that you use to actually install Lokal on your server. It is not Lokal installation.__
 
-## Services
-
-Due to choice of ansible, the services are actually hidden in folder `roles`. You can find the basic
-service `lokal` and optional services in other folders. You can choose services per host - thus in your
-`hosts/` file. Add/remove any desired services in `vars:services` list. The `lokal` service is mandatory
-- it would not make much sense without it.
 
 ## Installation
 
-Once you have ansible setup on your local machine and (optionally) server ready using `prepare.yml`
+Once you have setup ansible on your computer and (optionally) server ready using `prepare.yml`
 then you can start using the main `playbook.yml` that by default installs all services defined in 
 `hosts` file in `services` variable.
 ```bash
@@ -69,10 +96,10 @@ Of course you can restore backed up services using `-e restore=service1,service2
 ansible-playbook -i hosts/<your-host-file> -e restore=wordpress playbook.yml
 ```
 
-### More about services
+## More documentation
 
-If you are interested in details, how it works, please take a look inside [roles/](roles/)
-folder.
+For more details, please refer to our [documentation](docs/) or its rendered version
+at https://docs.lokal.network
 
 ## Where did Lokal start?
 
