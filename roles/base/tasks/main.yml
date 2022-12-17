@@ -15,23 +15,29 @@
 - name: Init IPTABLES firewall
   ansible.builtin.import_role:
     name: geerlingguy.firewall.d
-    vars:
-      firewall_state: started
-      firewall_enabled_at_boot: true
-      firewall_allowed_tcp_ports:
-        # ssh
-        - 22
-        # web
-        - 80
-        - 443
-        # transmission
-        - 9091
-        - 51413
-      firewall_allowed_udp_ports:
-        # transmission
-        - 51413
-      firewall_disable_ufw: true
-  notify: Reload docker
+  vars:
+    firewall_state: started
+    firewall_enabled_at_boot: true
+    firewall_allowed_tcp_ports:
+      # ssh
+      - 22
+      # web
+      - 80
+      - 443
+      - 8448 # federation
+      # transmission
+      - 9091
+      - 51413
+    firewall_allowed_udp_ports:
+      # transmission
+      - 51413
+    firewall_disable_ufw: true
+  become: true
+
+- name: Reload docker
+  shell:
+    cmd: "systemctl reload docker"
+  become: true
 
 - name: "Setup traefik"
   include_tasks:
