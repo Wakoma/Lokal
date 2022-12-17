@@ -33,7 +33,7 @@
   - name: Ensure authorized_keys file is initiated for primary user
     file:
       path: "/home/{{ app_user }}/.ssh/authorized_keys"
-      state: file
+      state: touch
       owner: "{{ app_user }}"
       group: "{{ app_user }}"
       mode: 0600
@@ -46,14 +46,9 @@
       state: present
     when: setup_ssh
 
-  roles:
-  - name: geerlingguy.security
-    vars:
-      security_sudoers_passwordless:
-      - '{{ app_user }}'
-      security_ssh_permit_root_login: "yes"
-
-  - name: geerlingguy.pip
+  - name: Ensure pip installed
+    include_role:
+      name: geerlingguy.pip
     vars:
       pip_executable: pip3
       pip_package: python3-pip
@@ -64,8 +59,18 @@
 # geerlingguy.docker MUST be placed after geerlingguy.firewall!
 # geerlingguy.firewall drops INPUT and FORWARD tables that are
 # manipulated by the docker daemon upon its (re)start
-  - name: geerlingguy.docker
+  - name: Install docker
+    include_role:
+      name: geerlingguy.docker
     vars:
       docker_users:
       - '{{ app_user }}'
       docker_service_state: restarted
+
+  - name: Harden security
+    include_role:
+      name: geerlingguy.security
+    vars:
+      security_sudoers_passwordless:
+      - '{{ app_user }}'
+      security_ssh_permit_root_login: "no"
