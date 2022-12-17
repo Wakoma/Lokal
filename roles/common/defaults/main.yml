@@ -27,13 +27,6 @@ dns_provider: namecheap
 namecheap_api_user:
 namecheap_api_key:
 
-## Environment: 
-# - develop: uses mock email client and so on
-# - staging: like production but without TLS
-# - production: ??
-deployment_environment: develop  # develop, staging, production
-
-
 # Common services settings
 mysql_root_password: default
 mysql_host: mariadb

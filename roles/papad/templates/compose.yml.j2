@@ -27,10 +27,11 @@ services:
     networks:
       - papad.local
       - postgres
+      - traefik
     labels:
       traefik.enable: "true"
       traefik.http.routers.papad_api.entrypoints: websecure
-      traefik.http.routers.papad_api.rule: Host(`{{subdomain_papad}}.{{domain}}`) && (PathPrefix(`/api/v1/`) || PathPrefix(`/nimda/`) || Path(`/auth/login`))
+      traefik.http.routers.papad_api.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/api`, `/nimda`, `/auth/login`)
       traefik.http.routers.papad_api.tls: "true"
       traefik.http.services.papad_api.loadbalancer.server.port: 8000
 {% if server_is_live %}
@@ -87,7 +88,7 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.papad_docs.entrypoints: websecure
-      traefik.http.routers.papad_docs.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/docs/`)
+      traefik.http.routers.papad_docs.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/docs`)
       traefik.http.routers.papad_docs.tls: "true"
       traefik.http.services.papad_docs.loadbalancer.server.port: 8001
 {% if server_is_live %}
@@ -105,6 +106,7 @@ services:
       - '{{app_root}}/minio:/data'
     image: quay.io/minio/minio
     command: server /data --console-address=":9001"
+    container_name: papad_minio
     networks:
     - papad.local
     - traefik
@@ -114,8 +116,8 @@ services:
       traefik.http.routers.papad_storage.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/storage`)
       traefik.http.routers.papad_storage.tls: "true"
       traefik.http.services.papad_storage.loadbalancer.server.port: 9000
-      traefik.http.services.papad_storage.middlewares: papad_storage
       traefik.http.middlewares.papad_storage.stripprefix.prefixes: /storage
+      traefik.http.services.papad_storage.middlewares: papad_storage
 {% if server_is_live %}
       traefik.http.routers.papad_storage.tls.certresolver: {{cert_resolver}}
 {% endif %}
