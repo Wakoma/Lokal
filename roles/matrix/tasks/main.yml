@@ -1,0 +1,47 @@
+---
+- name: Install matrix
+  include_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: matrix
+    linked_dirs: "{{linked_dirs_matrix}}"
+    data_dirs:
+    - data
+    - config
+    - element
+    postgres_db: "{{postgres_matrix}}"
+    postgres_user: "{{postgres_user_matrix}}"
+    postgres_password: "{{postgres_password_matrix}}"
+    start: false # you can postpone starting (by defaults the container starts)
+    firewall_tcp:
+    - "3478"
+    - "5349"
+    - "49152:65535"
+    # - "8448" # federation port
+    firewall_udp:
+    - "3478"
+    - "5349"
+    - "49152:65535"
+
+- name: Generate config and keys
+  shell:
+    cmd: >
+      docker run -it --rm \
+      --user {{uid}}:{{gid}}
+      --mount type=volume,src={{app_root}}/data,dst=/data \
+      -e SYNAPSE_SERVER_NAME{{subdomain_matrix}}.{{domain}} \
+      -e SYNAPSE_REPORT_STATS=no \
+      matrixdotorg/synapse:latest generate
+
+- name: Example copy of a file in your files/ folder
+  ansible.builtin.template:
+    src: "element.json.j2"
+    dest: "{{app_root}}/element/config.json"
+    force: false
+
+# This is the command to start your app manually
+# - name: Start the app
+#   ansible.builtin.shell: 
+#     cmd: docker-compose up -d
+#     chdir: "{{app_root}}"

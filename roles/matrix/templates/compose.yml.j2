@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  matrix_turn:
+    image: coturn/coturn
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    ports:
+    - 3478:3478
+    - 3478:3478/udp
+    - 5349:5349
+    - 5349:5349/udp
+    - 49152-65535
+    - 49152-65535/udp
+ 
+  matrix:
+    image: matrixdotorg/synapse:{{version_matrix}}
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    environment:
+      SYNAPSE_SERVER_NAME: {{subdomain_matrix}}.{{domain}}
+      SYNAPSE_REPORT_STATS: "no"
+      UID: {{uid}}
+      GID: {{gid}}
+      TZ: {{tz}}
+    volumes:
+    - {{app_root}}/config:/config
+    - {{app_root}}/data:/data
+    restart: unless-stopped
+    networks:
+    - traefik # necessary for extenal access to your app (via a domain name)
+    - postgres # necessary if you want to use the external database
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.matrix.entrypoints: websecure
+      traefik.http.routers.matrix.rule: Host(`{{subdomain_matrix}}.{{domain}}`) && PathPrefix(`/_matrix`, `/_synapse/client`)
+      traefik.http.routers.matrix.tls: "true"
+      traefik.http.services.matrix.loadbalancer.server.port: 8008
+      traefik.http.routers.matrix_fed.entrypoints: federation
+      traefik.http.routers.matrix_fed.rule: Host(`{{subdomain_matrix}}.{{domain}}`)
+      traefik.http.services.matrix_fed.loadbalancer.server.port: 8448
+{% if server_is_live %} # please keep this part to have automatic certificate issue and renewal
+      traefik.http.routers.matrix.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+networks:
+  traefik:
+    external: true
+  postgres:
+    external: true

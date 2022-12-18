@@ -57,7 +57,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:15
+    image: postgres:{{version_postgres}}
     user: "{{uid}}:{{gid}}"
     environment:
       POSTGRES_PASSWORD: {{postgres_root_password}}
@@ -143,6 +143,7 @@ services:
     ports:
     - 80:80
     - 443:443
+    - 8448:8448
     restart: unless-stopped
     environment:
       CERT_RESOLVER: {{cert_resolver}}
@@ -185,6 +186,7 @@ services:
 {% endif %}
     - --entrypoints.web.address=:80
     - --entrypoints.websecure.address=:443/tcp
+    - --entryPoints.federation.address=:8448
     - --entryPoints.metrics.address=:8082
     # - --entryPoints.smtp.address=:465  # do not bind those port - the mail container do this on its own
     # - --entryPoints.imap.address=:993  # do not bind those port - the mail container do this on its own
