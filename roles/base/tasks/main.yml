@@ -10,6 +10,7 @@
     - prometheus
     - portainer
     - transmission
+    - postgres
 
 - name: Init IPTABLES firewall
   ansible.builtin.import_role:
@@ -30,7 +31,11 @@
       # transmission
       - 51413
     firewall_disable_ufw: true
-  notify: Reload docker
+  become: true
+
+- name: Reload docker
+  shell:
+    cmd: "systemctl reload docker"
   become: true
 
 - name: "Setup traefik"
@@ -51,7 +56,9 @@
   package:
     name:
       - mariadb-client
+      - postgresql-client
       - python3-pymysql
+      - python3-psycopg2
     state: present
   become: true
   when: ansible_facts['system'] == "Linux" # disable on OSes without package managers

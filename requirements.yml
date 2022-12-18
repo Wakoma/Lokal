@@ -26,4 +26,5 @@ collections:
   version: 3.0.2
 
 - name: community.mysql
+- name: community.postgresql
 - name: community.general

@@ -9,6 +9,8 @@ networks:
     name: prometheus
   mail:
     name: mail
+  postgres:
+    name: postgres
 
 services:
 {% if debug_smtp %}
@@ -54,6 +56,20 @@ services:
     restart: unless-stopped
     volumes:
     - {{project_root}}/base/mysql/data:/var/lib/mysql
+
+  postgres:
+    container_name: postgres
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: {{postgres_root_password}}
+    ports:
+    - '{{postgres_port}}:5432'
+    networks:
+    - postgres
+    - prometheus
+    restart: unless-stopped
+    volumes:
+    - {{project_root}}/base/postgres/data:/var/lib/postgresql/data
 
   grafana:
     container_name: grafana

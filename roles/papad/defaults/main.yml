@@ -1,0 +1,7 @@
+db_name_papad: papad
+db_user_papad: papad
+db_password_papad: bu62eubdkcad
+subdomain_papad: papad
+version_papad: "2.5"
+minio_user_papad: admin
+# minio_password_papad: default123

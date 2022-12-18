@@ -32,6 +32,10 @@ mysql_root_password: default
 mysql_host: mariadb
 mysql_port: 3306
 
+postgres_root_password: default
+postgres_host: postgres
+postgres_port: 5432
+
 # Common runtime variables
 # UID: ''{{ ansible_facts["user_uid"] }}''
 # GID: '{{ ansible_facts["user_gid"] }}'

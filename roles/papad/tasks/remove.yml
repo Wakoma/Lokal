@@ -1,0 +1,8 @@
+---
+- name: Remove papad
+  include_role:
+    name: common
+    tasks_from: remove
+  vars:
+    app: papad
+    postgres_db: "{{db_name_papad}}"

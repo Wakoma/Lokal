@@ -1,0 +1,131 @@
+version: "3.8"
+
+networks:
+  papad.local:
+    name: papad.local
+  traefik:
+    external: true
+  postgres:
+    external: true
+  mail:
+    external: true
+
+services:
+  papad_api:
+    image: janastu/papad-api:{{version_papad}}
+    restart: always
+    env_file: ./service_config.env
+    volumes:
+      - '{{app_root}}/db/:/app/db/:rw'
+      - '{{app_root}}/tasks/papadapitasks.db:/app/papadapitasks.db:rw'
+      - '{{app_root}}/ui:/app/static/'
+      - '{{app_root}}/service_config.env:/app/service_config.env:ro'
+#   ports:
+#      - "8000:8000"
+    depends_on:
+      - papad_minio
+    networks:
+      - papad.local
+      - postgres
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.papad_api.entrypoints: websecure
+      traefik.http.routers.papad_api.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/api`, `/nimda`, `/auth/login`)
+      traefik.http.routers.papad_api.tls: "true"
+      traefik.http.services.papad_api.loadbalancer.server.port: 8000
+{% if server_is_live %}
+      traefik.http.routers.papad_api.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+  papad_bg-app:
+    image: janastu/papad-bg-apps:{{version_papad}}
+    env_file: ./service_config.env
+    restart: always
+    volumes:
+      - '{{app_root}}/db/:/app/db/:rw'
+      - '{{app_root}}/tasks/papadapitasks.db:/app/papadapitasks.db:rw'
+    depends_on:
+      - papad_api
+    networks:
+      - papad.local
+      - mail
+      - postgres
+
+  papad_ui:
+    image: janastu/papad-ui:{{version_papad}}
+#   command: serve -s deploy
+    restart: "always"
+    volumes:
+      - '{{app_root}}/ui:/app/deploy/'
+#     - '.env:/app/.env:ro'
+    environment:
+      REACT_APP_BASE_URL_PROD: https://{{subdomain_papad}}.{{domain}}/
+    env_file:
+      - ./service_config.env
+    networks:
+      - papad.local
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.papad.entrypoints: websecure
+      traefik.http.routers.papad.rule: Host(`{{subdomain_papad}}.{{domain}}`)
+      traefik.http.routers.papad.tls: "true"
+      traefik.http.services.papad.loadbalancer.server.port: 8000
+{% if server_is_live %}
+      traefik.http.routers.papad.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+
+  papad_docs:
+    restart: always
+    image: janastu/papad-docs:{{version_papad}}
+#   ports:
+#     - "8001:8001"
+    networks:
+      - papad.local
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.papad_docs.entrypoints: websecure
+      traefik.http.routers.papad_docs.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/docs`)
+      traefik.http.routers.papad_docs.tls: "true"
+      traefik.http.services.papad_docs.loadbalancer.server.port: 8001
+{% if server_is_live %}
+      traefik.http.routers.papad_docs.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+
+  papad_minio:
+#   ports:
+#   - '9000:9000'
+#   - '9001:9001'
+    env_file:
+      - ./service_config.env
+    volumes:
+      - '{{app_root}}/minio:/data'
+    image: quay.io/minio/minio
+    command: server /data --console-address=":9001"
+    container_name: papad_minio
+    networks:
+    - papad.local
+    - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.papad_storage.entrypoints: websecure
+      traefik.http.routers.papad_storage.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/storage`)
+      traefik.http.routers.papad_storage.tls: "true"
+      traefik.http.services.papad_storage.loadbalancer.server.port: 9000
+      traefik.http.middlewares.papad_storage.stripprefix.prefixes: /storage
+      traefik.http.services.papad_storage.middlewares: papad_storage
+{% if server_is_live %}
+      traefik.http.routers.papad_storage.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+      traefik.http.routers.papad_minio.entrypoints: websecure
+      traefik.http.routers.papad_minio.rule: Host(`minio.{{subdomain_papad}}.{{domain}}`)
+      traefik.http.routers.papad_minio.tls: "true"
+      traefik.http.services.papad_minio.loadbalancer.server.port: 9001
+{% if server_is_live %}
+      traefik.http.routers.papad_minio.tls.certresolver: {{cert_resolver}}
+{% endif %}

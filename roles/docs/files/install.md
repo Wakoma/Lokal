@@ -1,4 +1,6 @@
-# Installation
+# Prepare for installation
+
+## Prepare ansible client
 
 Lokal is installed using `ansible`. We recommend version `>=2.11`. Ansible is a python package so
 alternatively, you can use `pip` to install it. In the rest of the document, we suppose that you did
@@ -17,11 +19,32 @@ This will give you a bash terminal where you can access lokal files and run all 
 
 _This is just a "client" that you use to actually install Lokal on your server. It is not Lokal installation._
 
-# Getting an Ubuntu server
+## Getting a server ready
 
 Next, you need a (fresh) ubuntu server to run Lokal on. In order to install Lokal,
 you need to know the IP and root password of your server. Have your SSH key ready
 as well.
+
+### Recomended prepare (optional)
+
+This is an optional step that helps you prepare a fresh machine with only root user on it.
+The play `prepare.yml` creates an application user and adds your SSH key in `authorized_keys`
+if you define `setup_ssh:true` in your hosts vars. It also secures your server with some basic
+firewall rules and installs necessary basic software. You need to create a separate `hosts/` 
+file because this play connects as `root`. The content of the hosts file is following
+```YAML
+all:
+  hosts: "1.2.3.4"
+  vars:
+    app_user: ubuntu # the application user under which lokal will run
+    ansible_user: root # mandatory to connect as root user
+    setup_ssh: true # set to true only if app_user does not have SSH setup yet (and fill `ssh_key`)
+    ssh_key: <content of your .ssh/id_rsa.pub or wherever you have your public key>
+```
+
+Now you are ready to run `ansible-playbook -i hosts/<your-host-root> prepare.yml`
+
+# Install Lokal
 
 First, create a new file in `hosts/`. I use server's nickname or domain, if it is short. 
 This file will contain the IP, domain and other details about your server so Lokal can be setup 
@@ -43,25 +66,6 @@ all:
 Other options, that can be overriden can be found in `roles/<service>/defaults/main.yml`.
 The most important variables are described in [configuration section](configuration.md)
 and can be found in `roles/common/defaults/main.yml`
-
-## Prepare a fresh server (optional)
-
-This is an optional step that helps you prepare a fresh machine with only root user on it.
-The play `prepare.yml` creates an application user and adds your SSH key in `authorized_keys`
-if you define `setup_ssh:true` in your hosts vars. It also secures your server with some basic
-firewall rules and installs necessary basic software. You need to create a separate `hosts/` 
-file because this play connects as `root`. The content of the hosts file is following
-```YAML
-all:
-  hosts: "1.2.3.4"
-  vars:
-    app_user: ubuntu # the application user under which lokal will run
-    ansible_user: root # mandatory to connect as root user
-    setup_ssh: true # set to true only if app_user does not have SSH setup yet (and fill `ssh_key`)
-    ssh_key: <content of your .ssh/id_rsa.pub or wherever you have your public key>
-```
-
-Now you are ready to run `ansible-playbook -i hosts/<your-host-root> prepare.yml`
 
 ## Services
 
