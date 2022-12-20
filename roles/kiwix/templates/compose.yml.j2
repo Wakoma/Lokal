@@ -19,7 +19,7 @@ services:
       traefik.http.routers.kiwix.entrypoints: websecure
       traefik.http.routers.kiwix.rule: Host(`{{subdomain_kiwix}}.{{domain}}`)
       traefik.http.routers.kiwix.tls: "true"
-      traefik.http.services.kiwix.loadbalancer.server.port: 80
+      traefik.http.services.kiwix.loadbalancer.server.port: 8080
 {% if server_is_live %}
       traefik.http.routers.kiwix.tls.certresolver: {{cert_resolver}}
 {% endif %}
