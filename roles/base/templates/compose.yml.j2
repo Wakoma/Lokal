@@ -88,6 +88,7 @@ services:
       traefik.http.routers.grafana.entrypoints: websecure
       traefik.http.routers.grafana.rule: Host(`{{subdomain_grafana}}.{{domain}}`)
       traefik.http.routers.grafana.tls: "true"
+      traefik.http.routers.grafana.middlewares: authelia@docker
       traefik.http.services.grafana.loadbalancer.server.port: 3000
 {% if server_is_live %}
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
@@ -156,6 +157,31 @@ services:
     - {{project_root}}/base/prometheus/etc:/etc/prometheus
     - {{project_root}}/base/prometheus/data:/prometheus
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+  
+  authelia:
+    container_name: authelia
+    image: authelia/authelia
+    restart: unless-stopped
+    networks:
+      - traefik
+    # expose:
+    #   - 9091
+    volumes:
+      - {{project_root}}/base/authelia:/config
+    environment:
+      TZ: "{{tz}}"
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.authelia.rule=Host(`auth.{{domain}}`)'
+      - 'traefik.http.routers.authelia.entryPoints=websecure'
+      - 'traefik.http.routers.authelia.tls=true'
+      - 'traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/verify?rd=https%3A%2F%2Fauth.{{domain}}%2F'
+      - 'traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+      - 'traefik.http.middlewares.authelia-basic.forwardAuth.address=http://authelia:9091/api/verify?auth=basic'
+      - 'traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+
 
   traefik:
     image: traefik:{{version_traefik}}
@@ -182,6 +208,8 @@ services:
     - 80:80
     - 443:443
     restart: unless-stopped
+    depends_on:
+    - authelia
     environment:
       CERT_RESOLVER: {{cert_resolver}}
 {% if cert_resolver == "dns" and dns_provider == "namecheap" %}
@@ -216,11 +244,16 @@ services:
     - --certificatesresolvers.tls.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
 {% endif %}
     - --entrypoints.web.address=:80
-    - --entrypoints.websecure.address=:443
+    - --entrypoints.websecure.address=:443/tcp
     - --entryPoints.metrics.address=:8082
     - --entrypoints.web.http.redirections.entryPoint.to=websecure
     - --entrypoints.web.http.redirections.entryPoint.scheme=https
     - --entrypoints.web.http.redirections.entrypoint.permanent=true
+    ## Please see the Forwarded Header Trust section of the Authelia Traefik Integration documentation.
+    - '--entryPoints.websecure.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/16,192.168.0.0/16,fc00::/7'
+    - '--entryPoints.websecure.proxyProtocol.trustedIPs=10.0.0.0/8,172.16.0.0/16,192.168.0.0/16,fc00::/7'
+    - '--entryPoints.websecure.forwardedHeaders.insecure=false'
+    - '--entryPoints.websecure.proxyProtocol.insecure=false'
     - --log.level=WARNING
     - --metrics.prometheus=true
     - --metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
