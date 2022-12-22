@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+  asterisk:
+    image: tiredofit/freepbx:15
+    user: "{{uid}}:{{gid}}"
+    ports:
+    - '4445:4445' # fop
+    - '4569:4569' # iax
+    - '5060:5060' # pjsip
+    - '5160:5160' # sip
+    - '8001:8001' # ucp
+    - '8003:8003' # ucp ssl
+    - '8008:8008' # ucp
+    - '8009:8009' # ucp ssl
+    - '18000-18500:18000-18500/udp' # rtp ports
+    restart: always
+    environment:
+      DB_EMBEDDED: "false"
+      DB_HOST: "{{mysql_host}}
+      DB_NAME: "{{db_name_asterisk}}"
+      DB_USER: "{{db_user_asterisk}}"
+      DB_PASS: "{{db_password_asterisk}}"
+      ENABLE_FAIL2BAN: "false" # we better handle it in external fail2ban
+      RTP_START: 18000
+      RTP_FINISH: 18500
+    volumes:
+    - {{certs_dir}}:/certs
+    - {{app_root}}/data:/data
+    - {{app_root}}/web:/var/www/html	# FreePBX web files - do we want that?
+    - {{app_root}}/log:/var/log	# Apache, Asterisk and FreePBX Log Files for Fail2Ban
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.asterisk.entrypoints: websecure
+      traefik.http.routers.asterisk.rule: Host(`{{subdomain_asterisk}}.{{domain}}`)
+      traefik.http.routers.asterisk.tls: "true"
+      traefik.http.services.asterisk.loadbalancer.server.port: 80
+{% if server_is_live %} # please keep this part to have automatic certificate issue and renewal
+      traefik.http.routers.asterisk.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+networks:
+  traefik:
+    external: true
+  prometheus:
+    external: true
+  mariadb:
+    external: true
