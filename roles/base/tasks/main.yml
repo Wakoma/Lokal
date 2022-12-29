@@ -11,6 +11,9 @@
     - portainer
     - transmission
     - postgres
+    - ldap
+    - lam
+    - authelia
 
 - name: Init IPTABLES firewall
   ansible.builtin.import_role:
@@ -45,6 +48,29 @@
 - name: "Setup prometheus"
   include_tasks:
     file: include/setup-prometheus.yml
+
+- name: Create traefik jail and filter dirs
+  ansible.builtin.file:
+    path: '{{project_root}}/base/fail2ban/data/{{item}}'
+    state: directory
+  loop:
+    - jail.d
+    - filter.d
+
+- name: Render traefik fail2ban filter
+  template:
+    src: fail2ban/traefik-filter.conf.j2
+    dest: '{{project_root}}/base/fail2ban/data/filter.d/traefik-filter.conf'
+
+- name: Render traefik fail2ban jail
+  template:
+    src: fail2ban/traefik-jail.conf.j2
+    dest: '{{project_root}}/base/fail2ban/data/jail.d/traefik.conf'
+
+- name: Render authelia conf
+  template:
+    src: authelia.conf.j2
+    dest: '{{project_root}}/base/authelia/configuration.yml'
 
 - name: Warn if a non-linux OS is used
   debug:

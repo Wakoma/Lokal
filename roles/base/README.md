@@ -4,8 +4,11 @@ Is a collection of necessary software that creates the heart of Lokal.
 
 ## Variables to set
 
+You only need to set a `lokal_secret` that will act as a seed for other
+passwords and publicly facing passwords such as an admin password `password_auth`
+
 ```yaml
-mysql_root_password: default
+password_auth
 ```
 
 ### Available versions

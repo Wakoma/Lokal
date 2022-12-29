@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+  netdata:
+    image: netdata/netdata:{{version_netdata}}
+    container_name: netdata
+    user: "0:{{gid}}"
+    cap_add:
+    - SYS_PTRACE
+    environment:
+      PUID: '{{uid}}'
+    hostname: {{subdomain_netdata}}.{{domain}}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.netdata.entrypoints: websecure
+      traefik.http.routers.netdata.rule: Host(`{{subdomain_netdata}}.{{domain}}`)
+      traefik.http.routers.netdata.tls: "true"
+      traefik.http.services.netdata.loadbalancer.server.port: 19999
+{% if traefik_basicauth_users is truthy %}
+      traefik.http.routers.netdata.middlewares: traefik-auth
+{% endif %}
+{% if server_is_live %}
+      traefik.http.routers.netdata.tls.certresolver: {{cert_resolver}}
+{% endif %}
+    networks:
+      - traefik
+      - prometheus
+    restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+networks:
+  traefik:
+    external: true
+  prometheus:
+    external: true
