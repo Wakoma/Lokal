@@ -1,5 +1,4 @@
 subdomain_traefik: router
-subdomain_netdata: monitor
 subdomain_prometheus: metrics
 subdomain_grafana: dash
 subdomain_mailhog: mailhog
@@ -7,7 +6,15 @@ subdomain_transmission: torrent
 subdomain_portainer: portainer
 
 version_prometheus: "v2.40.6"
-version_netdata: "v1.28.0-amd64"
 version_traefik: "v2.9.6"
 version_grafana: "9.3.1"
 version_mariadb: "10.5.8-focal"
+
+password_auth: "{{lokal_secret + 'password_auth' | hash('sha1') | regex_search('\\w{8}') }}"
+
+password_lam: "{{lokal_secret + 'password_lam' | hash('sha1') | regex_search('\\w{8}') }}"
+
+jwt_secret_authelia: "{{lokal_secret + 'jwt_secret_authelia' | hash('sha1') | regex_search('\\w{10}') }}"
+session_secret_authelia: "{{lokal_secret + 'session_secret_authelia' | hash('sha1') | regex_search('\\w{10}') }}"
+storage_password_authelia: "{{lokal_secret + 'storage_password_authelia' | hash('sha1') | regex_search('\\w{10}') }}"
+storage_encryption_key_authelia: "{{lokal_secret + 'storage_encryption_key_authelia' | hash('sha1') | regex_search('\\w{20}') }}"

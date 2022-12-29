@@ -35,6 +35,16 @@ services:
     restart: unless-stopped
 {% endif %}
 
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    network_mode: "host"
+    cap_add:
+    - NET_ADMIN
+    - NET_RAW
+    volumes:
+    - /var/log:/var/log:ro
+    - {{project_root}}/base/fail2ban/data:/data
+
   mariadb:
     container_name: {{mysql_host}}
     image: mariadb:{{version_mariadb}}
@@ -101,38 +111,6 @@ services:
       - mail
     restart: unless-stopped
 
-  netdata:
-    image: netdata/netdata:{{version_netdata}}
-    container_name: netdata
-    user: "0:{{gid}}"
-    cap_add:
-    - SYS_PTRACE
-    environment:
-      PUID: '{{uid}}'
-    hostname: {{subdomain_netdata}}.{{domain}}
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.netdata.entrypoints: websecure
-      traefik.http.routers.netdata.rule: Host(`{{subdomain_netdata}}.{{domain}}`)
-      traefik.http.routers.netdata.tls: "true"
-      traefik.http.services.netdata.loadbalancer.server.port: 19999
-{% if traefik_basicauth_users is truthy %}
-      traefik.http.routers.netdata.middlewares: traefik-auth
-{% endif %}
-{% if server_is_live %}
-      traefik.http.routers.netdata.tls.certresolver: {{cert_resolver}}
-{% endif %}
-    networks:
-      - traefik
-      - prometheus
-    restart: unless-stopped
-    security_opt:
-      - apparmor:unconfined
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-
   prometheus:
     container_name: prometheus
     image: prom/prometheus:{{version_prometheus}}
@@ -157,31 +135,85 @@ services:
     - {{project_root}}/base/prometheus/etc:/etc/prometheus
     - {{project_root}}/base/prometheus/data:/prometheus
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
-  
+
+  ldap:
+    image: bitnami/openldap:2
+    container_name: ldap
+    # ports:
+    #   - '1389:1389'
+    #   - '1636:1636'
+    environment:
+      LDAP_ADMIN_USERNAME: admin
+      LDAP_PORT_NUMBER: 1389
+      LDAP_ROOT: dc=lokal
+      LDAP_ADMIN_PASSWORD: "{{password_auth}}"
+      #LDAP_USERS: user01,user02
+      #LDAP_PASSWORDS: bitnami1,bitnami2
+    networks:
+      - traefik
+    volumes:
+      - '{{project_root}}/base/ldap/data:/bitnami/openldap'
+
   authelia:
     container_name: authelia
     image: authelia/authelia
     restart: unless-stopped
+    depends_on:
+      - ldap
     networks:
       - traefik
     # expose:
     #   - 9091
     volumes:
-      - {{project_root}}/base/authelia:/config
+      - {{project_root}}/base/authelia/data:/config
     environment:
       TZ: "{{tz}}"
+      AUTHELIA_JWT_SECRET: "{{jwt_secret_authelia}}"
+      AUTHELIA_SESSION_SECRET: "{{session_secret_authelia}}"
+      # AUTHELIA_STORAGE_PASSWORD: "{{storage_password_authelia}}"
+      # AUTHELIA_STORAGE_ENCRYPTION_KEY: "{{storage_encryption_key_authelia}}"
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.authelia.rule=Host(`auth.{{domain}}`)'
-      - 'traefik.http.routers.authelia.entryPoints=websecure'
-      - 'traefik.http.routers.authelia.tls=true'
-      - 'traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/verify?rd=https%3A%2F%2Fauth.{{domain}}%2F'
-      - 'traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true'
-      - 'traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
-      - 'traefik.http.middlewares.authelia-basic.forwardAuth.address=http://authelia:9091/api/verify?auth=basic'
-      - 'traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader=true'
-      - 'traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+      traefik.enable: true
+      traefik.http.routers.authelia.rule: Host(`auth.{{domain}}`)
+      traefik.http.routers.authelia.entryPoints: websecure
+      traefik.http.routers.authelia.tls: true
+      traefik.http.middlewares.authelia.forwardAuth.address: http://authelia:9091/api/verify?rd=https%3A%2F%2Fauth.{{domain}}%2F
+      traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader: true
+      traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders: Remote-User,Remote-Groups,Remote-Name,Remote-Email
+      traefik.http.middlewares.authelia-basic.forwardAuth.address: http://authelia:9091/api/verify?auth=basic
+      traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader: true
+      traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders: Remote-User,Remote-Groups,Remote-Name,Remote-Email
 
+  lam:
+    image: ldapaccountmanager/lam
+    user: "{{uid}}:{{gid_docker}}"
+    hostname: ldap.{{domain}}
+    depends_on:
+      - ldap
+    networks:
+      - traefik
+    environment:
+      VIRTUAL_HOST: ldap.{{domain}} 
+      # If set to true the other variables below have no effect.
+      LAM_SKIP_PRECONFIGURE: "false"
+      LDAP_DOMAIN: "{{domain}}"
+      LDAP_SERVER: ldap://ldap:1389
+      # LDAP admin user (set as login user for LAM)
+      LDAP_USER: cn=admin,dc=lokal
+      LAM_LANG: en_US
+      LAM_PASSWORD: "{{password_lam}}"
+      LAM_CONFIGURATION_DATABASE: files
+      LAM_DISABLE_TLS_CHECK: "{{server_is_live | to_json}}"
+      LDAP_ORGANISATION: "LDAP Account Manager Demo"
+      LDAP_ADMIN_PASSWORD: "{{password_auth}}"
+    volumes:
+      - "{{project_root}}/base/lam/data:/var/lib/ldap-account-manager/config"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.traefik.entrypoints: websecure
+      traefik.http.routers.traefik.rule: Host(`{{subdomain_traefik}}.{{domain}}`)
+      traefik.http.routers.traefik.tls: "true"
+      traefik.http.services.traefik.loadbalancer.server.port: 80
 
   traefik:
     image: traefik:{{version_traefik}}
@@ -194,10 +226,6 @@ services:
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
-{% if traefik_basicauth_users is truthy %}
-      traefik.http.routers.traefik.middlewares: traefik-auth
-      traefik.http.middlewares.traefik-auth.basicauth.users: {{traefik_basicauth_users}}
-{% endif %}
 {% if server_is_live %}
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
 {% endif %}
@@ -218,6 +246,7 @@ services:
 {% endif %}
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
+    - "{{project_root}}/base/traefik/log:/var/log"  # used for fail2ban
     - "{{project_root}}/base/traefik/acme:/acme"
     - "{{project_root}}/base/traefik/certs:/certs"
     - "{{project_root}}/base/traefik/conf:/config"
@@ -250,11 +279,13 @@ services:
     - --entrypoints.web.http.redirections.entryPoint.scheme=https
     - --entrypoints.web.http.redirections.entrypoint.permanent=true
     ## Please see the Forwarded Header Trust section of the Authelia Traefik Integration documentation.
-    - '--entryPoints.websecure.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/16,192.168.0.0/16,fc00::/7'
-    - '--entryPoints.websecure.proxyProtocol.trustedIPs=10.0.0.0/8,172.16.0.0/16,192.168.0.0/16,fc00::/7'
-    - '--entryPoints.websecure.forwardedHeaders.insecure=false'
-    - '--entryPoints.websecure.proxyProtocol.insecure=false'
+    - --entryPoints.websecure.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/16,192.168.0.0/16,fc00::/7
+    - --entryPoints.websecure.proxyProtocol.trustedIPs=10.0.0.0/8,172.16.0.0/16,192.168.0.0/16,fc00::/7
+    - --entryPoints.websecure.forwardedHeaders.insecure=false
+    - --entryPoints.websecure.proxyProtocol.insecure=false
     - --log.level=WARNING
+    - --accessLog.filePath=/var/log/access.log
+    - --accessLog.filters.statusCodes=400-505
     - --metrics.prometheus=true
     - --metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
     - --metrics.prometheus.addEntryPointsLabels=true

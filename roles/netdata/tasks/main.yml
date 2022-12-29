@@ -1,0 +1,7 @@
+---
+- name: Install netdata
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: netdata
