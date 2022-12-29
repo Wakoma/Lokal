@@ -1,17 +1,22 @@
 ---
-- name: Docker-compose destination file
-  ansible.builtin.set_fact:
-    app_root: "{{project_root}}/wordpress"
-    docker_compose_wordpress: "{{project_root}}/wordpress/docker-compose.yml"
-    is_installed_wordpress: false
+- name: Get current version (could have been upgraded via web)
+  ansible.builtin.shell:
+    cmd: grep 'wp_version\s*=' wp-includes/version.php
+    chdir: "{{project_root}}/wordpress/app"
+  ignore_errors: true
+  register: version_output
 
-- name: Skip if docker-compose already exists
+- name: Parse out the version
   ansible.builtin.set_fact:
-    is_installed_wordpress: true
-  when: docker_compose_wordpress is file
+    version_runtime_wordpress: "{{version_output.stdout|regex_search('([\\d\\.]+)')}}"
+  when: version_output is defined and version_output.stdout is defined
 
-# If the docker-compose does not exist then proceed with normal installation
-- name: Install app if it does not exist
+- name: Upgrade app (if version_wordpress is newer than already running version)
+  ansible.builtin.include_tasks:
+    file: upgrade.yml
+  when: version_runtime_wordpress is defined and version_runtime_wordpress is truthy and version_runtime_wordpress is version(version_wordpress, '<')
+
+- name: Install wordpress
   include_role: {name: common, tasks_from: install}
   vars:
     app: wordpress
@@ -21,24 +26,3 @@
     data_dirs:
     - app
     - data
-  when: not is_installed_wordpress
-
-# Upgrade tasks (all under when: is_installed_wordpress)
-- name: Get the current app version (could have been upgraded via web)
-  ansible.builtin.shell:
-    cmd: docker-compose exec wordpress grep 'wp_version\s*=' wp-includes/version.php
-    chdir: "{{ app_root }}"
-    removes: docker-compose.yml  # runs only when this file exists
-  ignore_errors: true # in case of corrupted docker-compose.yml this would interrupt the whole playbook
-  register: version_output
-  when: is_installed_wordpress
-
-- name: Parse out the version
-  ansible.builtin.set_fact:
-    version_runtime_wordpress: "{{version_output.stdout|regex_search('([\\d\\.]+)')}}"
-  when: is_installed_wordpress
-
-- name: Upgrade app (if version_wordpress is newer than already running version)
-  ansible.builtin.include_tasks:
-    file: upgrade.yml
-  when: is_installed_wordpress and version_runtime_wordpress is truthy and version_runtime_wordpress is version(version_wordpress, '<')

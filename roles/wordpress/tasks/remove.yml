@@ -6,3 +6,4 @@
   vars:
     app: wordpress
     mysql_db: "{{mysql_database_wordpress}}"
+    mysql_user: "{{mysql_user_wordpress}}"
