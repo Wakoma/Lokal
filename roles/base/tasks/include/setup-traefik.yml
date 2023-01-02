@@ -16,7 +16,7 @@
 
 - name: "Use static certs"
   ansible.builtin.template:
-    src: dynamic.yml.j2
+    src: traefik/dynamic.yml.j2
     dest: '{{project_root}}/base/traefik/conf/dynamic.yml'
   when: static_certificate is truthy
 

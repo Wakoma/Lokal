@@ -27,5 +27,5 @@
 
 - name: "Use the self-signed certs"
   ansible.builtin.template:
-    src: self-signed.yml.j2
+    src: traefik/self-signed.yml.j2
     dest: '{{project_root}}/base/traefik/conf/dynamic.yml'
