@@ -4,7 +4,7 @@ project_root: "/opt/lokal"
 backup_root: "/opt/lokal-backup"
 domain: lokal.network
 lang: en_US
-locale: en_US.utf-8
+locale: en_US.utf-8  # cs_CZ.utf8
 
 # HTTPS certificate handling
 email_acme:

@@ -1,0 +1,63 @@
+session:
+  name: authelia_session
+  # secret is set by the env variables AUTHELIA_SESSION_SECRET_FILE
+  #secret: unsecure_session_secret
+  expiration: 3600  # 1 hour
+  inactivity: 900  # 15 minutes
+  domain: {{domain}}
+
+authentication_backend:
+  ldap:
+    implementation: custom
+    url: ldap://ldap:1389
+    timeout: 5s
+    start_tls: false
+    base_dn: DC=lokal
+    additional_users_dn: OU=users
+    users_filter: (&({username_attribute}={input})(objectClass=person))
+    username_attribute: uid
+    mail_attribute: mail
+    display_name_attribute: displayName
+    additional_groups_dn: OU=groups
+    groups_filter: (&(member={dn})(objectClass=groupOfNames))
+    group_name_attribute: cn
+    permit_referrals: false
+    permit_unauthenticated_bind: false
+    user: CN=admin,DC=lokal
+    password: "{{password_auth}}"
+
+storage:
+  encryption_key: {{storage_encryption_key_authelia}}
+  local:
+    path: /config/data/db.sqlite3
+
+# rules should be set by docker labels so each service can control it's protection policy 
+access_control:
+  networks:
+  - name: internal
+    networks:
+    - '10.0.0.0/8'
+    - '172.16.0.0/12'
+    - '192.168.0.0/18'
+  default_policy: one_factor
+
+regulation:
+  max_retries: 3
+  find_time: 120
+  ban_time: 300
+
+notifier:
+{% if debug_smtp %}
+  # mailhog (used for SMTP debugging) does not support STARTLS - and that's a requirement by Authelia
+  disable_startup_check: false
+  filesystem:
+    filename: /config/notification.txt
+{% else %}
+  smtp:
+    username: authelia
+    # This secret can also be set using the env variables AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE
+    password: {{password_smtp_authelia}}
+    host: mail
+    port: 25
+    sender: authelia@{{domain}}
+{% endif %}

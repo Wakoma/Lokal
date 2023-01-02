@@ -11,9 +11,10 @@
     - portainer
     - transmission
     - postgres
-    - ldap
+    # - ldap # ldap needs different permissions so we handle it extra
     - lam
     - authelia
+    - mail
 
 - name: Init IPTABLES firewall
   ansible.builtin.import_role:
@@ -27,6 +28,9 @@
       # web
       - 80
       - 443
+      # mail
+      - 465
+      - 993
       # transmission
       - 9091
       - 51413
@@ -57,6 +61,12 @@
     - jail.d
     - filter.d
 
+- name: LDAP container requires some weird permissions on data folders
+  ansible.builtin.file:
+    path: "{{project_root}}/base/ldap"
+    mode: '777'
+    state: directory
+
 - name: Render traefik fail2ban filter
   template:
     src: fail2ban/traefik-filter.conf.j2
@@ -69,8 +79,14 @@
 
 - name: Render authelia conf
   template:
-    src: authelia.conf.j2
+    src: authelia/configuration.yml.j2
     dest: '{{project_root}}/base/authelia/configuration.yml'
+
+- name: Render mail conf
+  template:
+    src: mail/mailserver.env.j2
+    dest: '{{project_root}}/base/mail/mailserver.env'
+  when: not debug_smtp
 
 - name: Warn if a non-linux OS is used
   debug:

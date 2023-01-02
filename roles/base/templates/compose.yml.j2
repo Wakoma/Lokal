@@ -14,25 +14,73 @@ networks:
 
 services:
 {% if debug_smtp %}
-  mailhog:
-    container_name: mailhog
+  mail:
+    container_name: mail
+    user: "{{uid}}:{{gid}}"
     image: mailhog/mailhog:latest
+    restart: unless-stopped
+    # ports:
+    #   - "25:1025"
+      # there is no port 143 because mailhog only displays emails in its web ui
     networks:
       - traefik
       - mail
+    environment:
+      MH_SMTP_BIND_ADDR: "0.0.0.0:25"
     labels:
       traefik.enable: "true"
       traefik.http.routers.mailhog.entrypoints: websecure
-      traefik.http.routers.mailhog.rule: Host(`{{subdomain_mailhog}}.{{domain}}`)
+      traefik.http.routers.mailhog.rule: Host(`mail.{{domain}}`)
       traefik.http.routers.mailhog.tls: "true"
       traefik.http.services.mailhog.loadbalancer.server.port: 8025
-{% if server_is_live %}
+    {% if server_is_live %}
       traefik.http.routers.mailhog.tls.certresolver: {{cert_resolver}}
+    {% endif %}
+{% else %}
+  mail:
+    image: docker.io/mailserver/docker-mailserver:latest
+    user: "{{uid}}:{{gid}}"
+    container_name: mail
+    hostname: mail
+    domainname: {{domain}}
+    env_file: {{project_root}}/base/mail/mailserver.env
+    network_mode: "host"
+    # ports:
+    #   - "25:25"    # SMTP  (explicit TLS => STARTTLS)
+    #   - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
+    #   - "465:465"  # ESMTP (implicit TLS)
+    #   - "587:587"  # ESMTP (explicit TLS => STARTTLS)
+    #   - "993:993"  # IMAP4 (implicit TLS)
+    volumes:
+      - {{project_root}}/base/mail/data/:/var/mail/
+      - {{project_root}}/base/mail/state/:/var/mail-state/
+      - {{project_root}}/base/mail/logs/:/var/log/mail/
+      - {{project_root}}/base/mail/config/:/tmp/docker-mailserver/
+      # - /etc/localtime:/etc/localtime:ro # not necessary since we set the TZ in the config
+    restart: always
+    stop_grace_period: 1m
+    cap_add:
+      - NET_ADMIN
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0
+    labels:
+      traefik.tcp.routers.imap.entrypoints: imap
+      traefik.tcp.routers.imap.rule: HostSNI(`{{domain}}`)
+      traefik.tcp.routers.imap.tls: true
+      traefik.tcp.services.imap.loadbalancer.server.port: 143
+      traefik.tcp.routers.smtp.entrypoints: smtp
+      traefik.tcp.routers.smtp.rule: HostSNI(`{{domain}}`)
+      traefik.tcp.routers.smtp.tls: true
+      traefik.tcp.services.smtp.loadbalancer.server.port: 25
+{% if server_is_live %}
+      traefik.tcp.routers.imap.tls.certresolver: {{cert_resolver}}
 {% endif %}
-{% if traefik_basicauth_users is truthy %}
-      traefik.http.routers.mailhog.middlewares: traefik-auth
+{% if server_is_live %}
+      traefik.tcp.routers.smtp.tls.certresolver: {{cert_resolver}}
 {% endif %}
-    restart: unless-stopped
+
 {% endif %}
 
   fail2ban:
@@ -139,23 +187,28 @@ services:
   ldap:
     image: bitnami/openldap:2
     container_name: ldap
+    # user: "{{uid}}:{{gid}}" # must not run as user since the image is not built for it
+    hostname: ldap
     # ports:
     #   - '1389:1389'
     #   - '1636:1636'
     environment:
+      UID: "{{uid}}"
+      GID: "{{gid}}"
       LDAP_ADMIN_USERNAME: admin
       LDAP_PORT_NUMBER: 1389
       LDAP_ROOT: dc=lokal
       LDAP_ADMIN_PASSWORD: "{{password_auth}}"
-      #LDAP_USERS: user01,user02
-      #LDAP_PASSWORDS: bitnami1,bitnami2
+      LDAP_USERS: authelia,user02
+      LDAP_PASSWORDS: "{{password_smtp_authelia}},bitnami2"
     networks:
       - traefik
     volumes:
-      - '{{project_root}}/base/ldap/data:/bitnami/openldap'
+      - '{{project_root}}/base/ldap:/bitnami/openldap'
 
   authelia:
     container_name: authelia
+    user: "{{uid}}:{{gid}}"
     image: authelia/authelia
     restart: unless-stopped
     depends_on:
@@ -165,11 +218,12 @@ services:
     # expose:
     #   - 9091
     volumes:
-      - {{project_root}}/base/authelia/data:/config
+      - {{project_root}}/base/authelia:/config
     environment:
       TZ: "{{tz}}"
       AUTHELIA_JWT_SECRET: "{{jwt_secret_authelia}}"
       AUTHELIA_SESSION_SECRET: "{{session_secret_authelia}}"
+      AUTHELIA_NOTIFIER_SMTP_PASSWORD: "{{password_smtp_authelia}}"
       # AUTHELIA_STORAGE_PASSWORD: "{{storage_password_authelia}}"
       # AUTHELIA_STORAGE_ENCRYPTION_KEY: "{{storage_encryption_key_authelia}}"
     labels:
@@ -186,7 +240,7 @@ services:
 
   lam:
     image: ldapaccountmanager/lam
-    user: "{{uid}}:{{gid_docker}}"
+    # user: "{{uid}}:{{gid_docker}}" # nope - neither this container can run unprivileged
     hostname: ldap.{{domain}}
     depends_on:
       - ldap
@@ -275,6 +329,8 @@ services:
     - --entrypoints.web.address=:80
     - --entrypoints.websecure.address=:443/tcp
     - --entryPoints.metrics.address=:8082
+    - --entryPoints.smtp.address=:465
+    - --entryPoints.imap.address=:993
     - --entrypoints.web.http.redirections.entryPoint.to=websecure
     - --entrypoints.web.http.redirections.entryPoint.scheme=https
     - --entrypoints.web.http.redirections.entrypoint.permanent=true
