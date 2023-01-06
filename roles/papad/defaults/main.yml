@@ -1,6 +1,6 @@
 db_name_papad: papad
 db_user_papad: papad
-db_password_papad: bu62eubdkcad
+db_password_papad: "{{lokal_secret + 'db_password_papad' | hash('sha1') | regex_search('\\w{10}') }}"
 subdomain_papad: papad
 version_papad: "2.5"
 minio_user_papad: admin
