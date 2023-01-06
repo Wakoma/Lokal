@@ -12,7 +12,7 @@ authentication_backend:
     url: ldap://ldap:1389
     timeout: 5s
     start_tls: false
-    base_dn: DC=lokal
+    base_dn: {{domain_ldap}}
     additional_users_dn: OU=users
     users_filter: (&({username_attribute}={input})(objectClass=person))
     username_attribute: uid
@@ -24,7 +24,7 @@ authentication_backend:
     permit_referrals: false
     permit_unauthenticated_bind: false
     user: CN=admin,DC=lokal
-    password: "{{password_auth}}"
+    password: "{{password_admin}}"
 
 storage:
   encryption_key: {{storage_encryption_key_authelia}}

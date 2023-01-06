@@ -1,13 +1,4 @@
 ---
-- name: Generate minio_password_papad
-  set_fact:
-    minio_password_papad: "{{lokal_secret + 'minio_password_papad' | hash('sha1') | regex_search('\\w{10}') }}"
-  when: not minio_password_papad is defined
-
-- name: Minio credentials
-  debug:
-    msg: User {{minio_user_papad}} password {{minio_password_papad}}
-
 - name: Install papad
   include_role:
     name: common

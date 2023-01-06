@@ -9,7 +9,6 @@ locale: en_US.utf-8  # cs_CZ.utf8
 # HTTPS certificate handling
 email_acme:
 staging_acme: false
-traefik_basicauth_users: ''
 static_certificate:
 
 # deploy HTTPS certificates obtained from public ACME service

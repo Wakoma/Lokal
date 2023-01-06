@@ -146,7 +146,8 @@ services:
       traefik.http.routers.grafana.entrypoints: websecure
       traefik.http.routers.grafana.rule: Host(`{{subdomain_grafana}}.{{domain}}`)
       traefik.http.routers.grafana.tls: "true"
-      traefik.http.routers.grafana.middlewares: authelia@docker
+      # traefik.http.routers.grafana.middlewares: authelia@docker
+      traefik.http.routers.grafana.middlewares: admin-auth
       traefik.http.services.grafana.loadbalancer.server.port: 3000
 {% if server_is_live %}
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
@@ -169,9 +170,8 @@ services:
       traefik.http.routers.prometheus.rule: Host(`{{subdomain_prometheus}}.{{domain}}`)
       traefik.http.routers.prometheus.tls: "true"
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
-{% if traefik_basicauth_users is truthy %}
-      traefik.http.routers.prometheus.middlewares: traefik-auth
-{% endif %}
+      # traefik.http.routers.prometheus.middlewares: authelia@docker
+      traefik.http.routers.prometheus.middlewares: admin-auth
 {% if server_is_live %}
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
 {% endif %}
@@ -198,7 +198,7 @@ services:
       LDAP_ADMIN_USERNAME: admin
       LDAP_PORT_NUMBER: 1389
       LDAP_ROOT: dc=lokal
-      LDAP_ADMIN_PASSWORD: "{{password_auth}}"
+      LDAP_ADMIN_PASSWORD: "{{password_admin}}"
       LDAP_USERS: authelia,user02
       LDAP_PASSWORDS: "{{password_smtp_authelia}},bitnami2"
     networks:
@@ -223,9 +223,11 @@ services:
       TZ: "{{tz}}"
       AUTHELIA_JWT_SECRET: "{{jwt_secret_authelia}}"
       AUTHELIA_SESSION_SECRET: "{{session_secret_authelia}}"
-      AUTHELIA_NOTIFIER_SMTP_PASSWORD: "{{password_smtp_authelia}}"
       # AUTHELIA_STORAGE_PASSWORD: "{{storage_password_authelia}}"
       # AUTHELIA_STORAGE_ENCRYPTION_KEY: "{{storage_encryption_key_authelia}}"
+{% if not debug_smtp %}
+      AUTHELIA_NOTIFIER_SMTP_PASSWORD: "{{password_smtp_authelia}}"
+{%endif%}
     labels:
       traefik.enable: true
       traefik.http.routers.authelia.rule: Host(`auth.{{domain}}`)
@@ -253,13 +255,13 @@ services:
       LDAP_DOMAIN: "{{domain}}"
       LDAP_SERVER: ldap://ldap:1389
       # LDAP admin user (set as login user for LAM)
-      LDAP_USER: cn=admin,dc=lokal
+      LDAP_USER: cn=admin,{{domain_ldap}}
       LAM_LANG: en_US
-      LAM_PASSWORD: "{{password_lam}}"
+      LAM_PASSWORD: "{{password_admin}}"
       LAM_CONFIGURATION_DATABASE: files
       LAM_DISABLE_TLS_CHECK: "{{server_is_live | to_json}}"
       LDAP_ORGANISATION: "LDAP Account Manager Demo"
-      LDAP_ADMIN_PASSWORD: "{{password_auth}}"
+      LDAP_ADMIN_PASSWORD: "{{password_admin}}"
     volumes:
       - "{{project_root}}/base/lam/data:/var/lib/ldap-account-manager/config"
     labels:
@@ -280,6 +282,9 @@ services:
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
+      traefik.http.middlewares.admin-auth.basicauth.users: "admin:$$sha1$${{password_admin|sha1}}"
+      # traefik.http.routers.traefik.middlewares: authelia@docker
+      traefik.http.routers.traefik.middlewares: admin-auth
 {% if server_is_live %}
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
 {% endif %}
@@ -377,6 +382,8 @@ services:
       traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
+      # traefik.http.routers.portainer.middlewares: authelia@docker
+      traefik.http.routers.portainer.middlewares: admin-auth
 {% if server_is_live %}
       traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
 {% endif %}
@@ -408,9 +415,8 @@ services:
       traefik.http.routers.transmission.rule: Host(`{{subdomain_transmission}}.{{domain}}`)
       traefik.http.routers.transmission.tls: "true"
       traefik.http.services.transmission.loadbalancer.server.port: 9091
+      # traefik.http.routers.transmission.middlewares: authelia@docker
+      traefik.http.routers.transmission.middlewares: admin-auth
 {% if server_is_live %}
       traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
-{% endif %}
-{% if traefik_basicauth_users is truthy %}
-      traefik.http.routers.transmission.middlewares: traefik-auth
 {% endif %}

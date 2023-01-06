@@ -5,10 +5,11 @@ Is a collection of necessary software that creates the heart of Lokal.
 ## Variables to set
 
 You only need to set a `lokal_secret` that will act as a seed for other
-passwords and publicly facing passwords such as an admin password `password_auth`
+passwords and `password_admin` that is the password of the "admin" user
+that is allowed to use the base services that don't have own auth protection.
 
 ```yaml
-password_auth
+password_admin
 ```
 
 ### Available versions
