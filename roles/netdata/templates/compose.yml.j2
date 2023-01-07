@@ -15,9 +15,8 @@ services:
       traefik.http.routers.netdata.rule: Host(`{{subdomain_netdata}}.{{domain}}`)
       traefik.http.routers.netdata.tls: "true"
       traefik.http.services.netdata.loadbalancer.server.port: 19999
-{% if traefik_basicauth_users is truthy %}
-      traefik.http.routers.netdata.middlewares: traefik-auth
-{% endif %}
+      # traefik.http.routers.netdata.middlewares: authelia@docker
+      traefik.http.routers.netdata.middlewares: admin-auth
 {% if server_is_live %}
       traefik.http.routers.netdata.tls.certresolver: {{cert_resolver}}
 {% endif %}
