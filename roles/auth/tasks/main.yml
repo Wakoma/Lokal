@@ -1,0 +1,28 @@
+---
+- name: Install auth
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: auth
+    data_dirs:
+    - ldap
+    - lam
+    - authelia
+  start: false
+
+- name: LDAP container requires some weird permissions on data folders
+  ansible.builtin.file:
+    path: "{{app_root}}/ldap"
+    mode: '777'
+    state: directory
+
+- name: Render authelia conf
+  template:
+    src: authelia.yml.j2
+    dest: '{{app_root}}/authelia/configuration.yml'
+
+- name: Docker-compose up
+  ansible.builtin.shell: 
+    cmd: "docker-compose up -d"
+    chdir: "{{app_root}}"
