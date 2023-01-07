@@ -184,93 +184,6 @@ services:
     - {{project_root}}/base/prometheus/data:/prometheus
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
-  ldap:
-    image: bitnami/openldap:2
-    container_name: ldap
-    # user: "{{uid}}:{{gid}}" # must not run as user since the image is not built for it
-    hostname: ldap
-    # ports:
-    #   - '1389:1389'
-    #   - '1636:1636'
-    environment:
-      UID: "{{uid}}"
-      GID: "{{gid}}"
-      LDAP_ADMIN_USERNAME: admin
-      LDAP_PORT_NUMBER: 1389
-      LDAP_ROOT: dc=lokal
-      LDAP_ADMIN_PASSWORD: "{{password_admin}}"
-      LDAP_USERS: authelia,user02
-      LDAP_PASSWORDS: "{{password_smtp_authelia}},bitnami2"
-    networks:
-      - traefik
-    volumes:
-      - '{{project_root}}/base/ldap:/bitnami/openldap'
-
-  authelia:
-    container_name: authelia
-    user: "{{uid}}:{{gid}}"
-    image: authelia/authelia
-    restart: unless-stopped
-    depends_on:
-      - ldap
-    networks:
-      - traefik
-    # expose:
-    #   - 9091
-    volumes:
-      - {{project_root}}/base/authelia:/config
-    environment:
-      TZ: "{{tz}}"
-      AUTHELIA_JWT_SECRET: "{{jwt_secret_authelia}}"
-      AUTHELIA_SESSION_SECRET: "{{session_secret_authelia}}"
-      # AUTHELIA_STORAGE_PASSWORD: "{{storage_password_authelia}}"
-      # AUTHELIA_STORAGE_ENCRYPTION_KEY: "{{storage_encryption_key_authelia}}"
-{% if not debug_smtp %}
-      AUTHELIA_NOTIFIER_SMTP_PASSWORD: "{{password_smtp_authelia}}"
-{%endif%}
-    labels:
-      traefik.enable: true
-      traefik.http.routers.authelia.rule: Host(`auth.{{domain}}`)
-      traefik.http.routers.authelia.entryPoints: websecure
-      traefik.http.routers.authelia.tls: true
-      traefik.http.middlewares.authelia.forwardAuth.address: http://authelia:9091/api/verify?rd=https%3A%2F%2Fauth.{{domain}}%2F
-      traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader: true
-      traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders: Remote-User,Remote-Groups,Remote-Name,Remote-Email
-      traefik.http.middlewares.authelia-basic.forwardAuth.address: http://authelia:9091/api/verify?auth=basic
-      traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader: true
-      traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders: Remote-User,Remote-Groups,Remote-Name,Remote-Email
-
-  lam:
-    image: ldapaccountmanager/lam
-    # user: "{{uid}}:{{gid_docker}}" # nope - neither this container can run unprivileged
-    hostname: ldap.{{domain}}
-    depends_on:
-      - ldap
-    networks:
-      - traefik
-    environment:
-      VIRTUAL_HOST: ldap.{{domain}} 
-      # If set to true the other variables below have no effect.
-      LAM_SKIP_PRECONFIGURE: "false"
-      LDAP_DOMAIN: "{{domain}}"
-      LDAP_SERVER: ldap://ldap:1389
-      # LDAP admin user (set as login user for LAM)
-      LDAP_USER: cn=admin,{{domain_ldap}}
-      LAM_LANG: en_US
-      LAM_PASSWORD: "{{password_admin}}"
-      LAM_CONFIGURATION_DATABASE: files
-      LAM_DISABLE_TLS_CHECK: "{{server_is_live | to_json}}"
-      LDAP_ORGANISATION: "LDAP Account Manager Demo"
-      LDAP_ADMIN_PASSWORD: "{{password_admin}}"
-    volumes:
-      - "{{project_root}}/base/lam/data:/var/lib/ldap-account-manager/config"
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.traefik.entrypoints: websecure
-      traefik.http.routers.traefik.rule: Host(`{{subdomain_traefik}}.{{domain}}`)
-      traefik.http.routers.traefik.tls: "true"
-      traefik.http.services.traefik.loadbalancer.server.port: 80
-
   traefik:
     image: traefik:{{version_traefik}}
     # cannot be simply app_user:app_user because of root:docker privileges on /var/run/docker.sock
@@ -295,8 +208,6 @@ services:
     - 80:80
     - 443:443
     restart: unless-stopped
-    depends_on:
-    - authelia
     environment:
       CERT_RESOLVER: {{cert_resolver}}
 {% if cert_resolver == "dns" and dns_provider == "namecheap" %}
