@@ -65,6 +65,9 @@ services:
       test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
       timeout: 3s
       retries: 0
+    networks:
+      - traefik
+      - mail
     labels:
       traefik.tcp.routers.imap.entrypoints: imap
       traefik.tcp.routers.imap.rule: HostSNI(`{{domain}}`)
@@ -82,6 +85,30 @@ services:
 {% endif %}
 
 {% endif %}
+  
+  ldap:
+    image: nitnelave/lldap:stable
+    container_name: ldap
+    # ports:
+    #   - "3890:3890" # LDAP
+    #   - "17170:17170" # web front-end
+    volumes:
+      - "{{project_root}}/base/ldap/:/data/"
+    environment:
+      - UID={{uid}}
+      - GID={{gid}}
+      - TZ={{tz}}
+      - LLDAP_JWT_SECRET={{jwt_secret_lldap}}
+      - LLDAP_LDAP_USER_PASS={{password_admin}}
+      - LLDAP_LDAP_BASE_DN={{domain_ldap}}
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.ldap.entrypoints: websecure
+      traefik.http.routers.ldap.rule: Host(`ldap.{{domain}}`)
+      traefik.http.routers.ldap.tls: "true"
+      traefik.http.services.ldap.loadbalancer.server.port: 17170
 
   fail2ban:
     image: crazymax/fail2ban:latest
@@ -91,7 +118,7 @@ services:
     - NET_RAW
     volumes:
     - /var/log:/var/log:ro
-    - {{project_root}}/base/fail2ban/data:/data
+    - {{project_root}}/base/fail2ban/:/data/
 
   mariadb:
     container_name: {{mysql_host}}
@@ -113,11 +140,12 @@ services:
       timeout: 1s
     restart: unless-stopped
     volumes:
-    - {{project_root}}/base/mysql/data:/var/lib/mysql
+    - {{project_root}}/base/mysql/:/var/lib/mysql/
 
   postgres:
     container_name: postgres
     image: postgres:15
+    user: "{{uid}}:{{gid}}"
     environment:
       POSTGRES_PASSWORD: {{postgres_root_password}}
     ports:
@@ -127,7 +155,31 @@ services:
     - prometheus
     restart: unless-stopped
     volumes:
-    - {{project_root}}/base/postgres/data:/var/lib/postgresql/data
+    - {{project_root}}/base/postgres/:/var/lib/postgresql/data/
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:{{version_prometheus}}
+    user: "{{uid}}:{{gid}}"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.prometheus.entrypoints: websecure
+      traefik.http.routers.prometheus.rule: Host(`{{subdomain_prometheus}}.{{domain}}`)
+      traefik.http.routers.prometheus.tls: "true"
+      traefik.http.services.prometheus.loadbalancer.server.port: 9090
+      # traefik.http.routers.prometheus.middlewares: authelia@docker
+      traefik.http.routers.prometheus.middlewares: admin-auth
+{% if server_is_live %}
+      traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
+{% endif %}
+    networks:
+    - traefik
+    - prometheus
+    restart: unless-stopped
+    volumes:
+    - {{project_root}}/base/prometheus/etc/prometheus/:/etc/prometheus/
+    - {{project_root}}/base/prometheus/data/:/prometheus/
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   grafana:
     container_name: grafana
@@ -153,36 +205,12 @@ services:
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
 {% endif %}
     volumes:
-      - {{project_root}}/base/grafana/data:/var/lib/grafana
+      - {{project_root}}/base/grafana/:/var/lib/grafana/
     networks:
       - traefik
       - prometheus
       - mail
     restart: unless-stopped
-
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:{{version_prometheus}}
-    user: "{{uid}}:{{gid}}"
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.prometheus.entrypoints: websecure
-      traefik.http.routers.prometheus.rule: Host(`{{subdomain_prometheus}}.{{domain}}`)
-      traefik.http.routers.prometheus.tls: "true"
-      traefik.http.services.prometheus.loadbalancer.server.port: 9090
-      # traefik.http.routers.prometheus.middlewares: authelia@docker
-      traefik.http.routers.prometheus.middlewares: admin-auth
-{% if server_is_live %}
-      traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
-{% endif %}
-    networks:
-    - traefik
-    - prometheus
-    restart: unless-stopped
-    volumes:
-    - {{project_root}}/base/prometheus/etc:/etc/prometheus
-    - {{project_root}}/base/prometheus/data:/prometheus
-    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   traefik:
     image: traefik:{{version_traefik}}
@@ -195,7 +223,7 @@ services:
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
-      traefik.http.middlewares.admin-auth.basicauth.users: "admin:$$sha1$${{password_admin|sha1}}"
+      traefik.http.middlewares.admin-auth.basicauth.users: admin:$$sha1$${{password_admin|sha1}}
       # traefik.http.routers.traefik.middlewares: authelia@docker
       traefik.http.routers.traefik.middlewares: admin-auth
 {% if server_is_live %}
@@ -283,7 +311,7 @@ services:
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - /var/run/docker.sock:/var/run/docker.sock:ro
-    - {{project_root}}/base/portainer/data:/data
+    - {{project_root}}/base/portainer/:/data/
     networks:
     - prometheus
     - traefik
@@ -308,9 +336,9 @@ services:
       PGID: "{{gid}}"
       TZ: "{{tz}}"
     volumes:
-    - {{project_root}}/base/transmission/config:/config
-    - {{project_root}}/base/transmission/data:/downloads
-    - {{project_root}}/base/transmission/watch:/watch
+    - {{project_root}}/base/transmission/config/:/config/
+    - {{project_root}}/base/transmission/data/:/downloads/
+    - {{project_root}}/base/transmission/watch/:/watch/
     ports:
     - 9091:9091
     - 51413:51413
