@@ -9,27 +9,31 @@ session:
 authentication_backend:
   ldap:
     implementation: custom
-    url: ldap://ldap:1389
+    url: ldap://ldap:3890
     timeout: 5s
     start_tls: false
     base_dn: {{domain_ldap}}
-    additional_users_dn: OU=users
+    additional_users_dn: ou=people
     users_filter: (&({username_attribute}={input})(objectClass=person))
     username_attribute: uid
     mail_attribute: mail
     display_name_attribute: displayName
-    additional_groups_dn: OU=groups
-    groups_filter: (&(member={dn})(objectClass=groupOfNames))
+    additional_groups_dn: ou=groups
+    groups_filter: "(member={dn})"
     group_name_attribute: cn
     permit_referrals: false
     permit_unauthenticated_bind: false
-    user: CN=admin,DC=lokal
+    user: uid=admin,ou=people,{{domain_ldap}}
     password: "{{password_admin}}"
+
+  # Password reset through authelia works normally.
+  password_reset:
+    disable: false
 
 storage:
   encryption_key: {{storage_encryption_key_authelia}}
   local:
-    path: /config/data/db.sqlite3
+    path: /data/db.sqlite3
 
 # rules should be set by docker labels so each service can control it's protection policy 
 access_control:

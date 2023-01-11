@@ -2,53 +2,27 @@ version: "3.8"
 
 networks:
   traefik:
-    name: traefik
-  mysql:
-    name: mysql
-  prometheus:
-    name: prometheus
+    external: true
   mail:
-    name: mail
+    external: true
   postgres:
-    name: postgres
+    external: true
 
 services:
-
-  ldap:
-    image: bitnami/openldap:2
-    container_name: ldap
-    # user: "{{uid}}:{{gid}}" # must not run as user since the image is not built for it
-    hostname: ldap
-    # ports:
-    #   - '1389:1389'
-    #   - '1636:1636'
-    environment:
-      UID: "{{uid}}"
-      GID: "{{gid}}"
-      LDAP_ADMIN_USERNAME: admin
-      LDAP_PORT_NUMBER: 1389
-      LDAP_ROOT: dc=lokal
-      LDAP_ADMIN_PASSWORD: "{{password_admin}}"
-      LDAP_USERS: authelia,user02
-      LDAP_PASSWORDS: "{{password_smtp_authelia}},bitnami2"
-    networks:
-      - traefik
-    volumes:
-      - '{{app_root}}/ldap/:/bitnami/openldap/'
-
   authelia:
     container_name: authelia
     user: "{{uid}}:{{gid}}"
     image: authelia/authelia
     restart: unless-stopped
-    depends_on:
-      - ldap
     networks:
       - traefik
+      - mail
+      - postgres
     # expose:
     #   - 9091
     volumes:
-      - {{app_root}}/authelia:/config
+      - {{app_root}}/conf/:/config/
+      - {{app_root}}/data/:/data/
     environment:
       TZ: "{{tz}}"
       AUTHELIA_JWT_SECRET: "{{jwt_secret_authelia}}"
@@ -69,34 +43,3 @@ services:
       traefik.http.middlewares.authelia-basic.forwardAuth.address: http://authelia:9091/api/verify?auth=basic
       traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader: true
       traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders: Remote-User,Remote-Groups,Remote-Name,Remote-Email
-
-  lam:
-    image: ldapaccountmanager/lam
-    # user: "{{uid}}:{{gid_docker}}" # nope - neither this container can run unprivileged
-    hostname: ldap.{{domain}}
-    depends_on:
-      - ldap
-    networks:
-      - traefik
-    environment:
-      VIRTUAL_HOST: ldap.{{domain}} 
-      # If set to true the other variables below have no effect.
-      LAM_SKIP_PRECONFIGURE: "false"
-      LDAP_DOMAIN: "{{domain}}"
-      LDAP_SERVER: ldap://ldap:1389
-      # LDAP admin user (set as login user for LAM)
-      LDAP_USER: cn=admin,{{domain_ldap}}
-      LAM_LANG: en_US
-      LAM_PASSWORD: "{{password_admin}}"
-      LAM_CONFIGURATION_DATABASE: files
-      LAM_DISABLE_TLS_CHECK: "{{server_is_live | to_json}}"
-      LDAP_ORGANISATION: "LDAP Account Manager Demo"
-      LDAP_ADMIN_PASSWORD: "{{password_admin}}"
-    volumes:
-      - "{{app_root}}/lam/:/var/lib/ldap-account-manager/config/"
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.ldap.entrypoints: websecure
-      traefik.http.routers.ldap.rule: Host(`ldap.{{domain}}`)
-      traefik.http.routers.ldap.tls: "true"
-      traefik.http.services.ldap.loadbalancer.server.port: 80

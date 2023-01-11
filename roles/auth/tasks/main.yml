@@ -6,21 +6,14 @@
   vars:
     app: auth
     data_dirs:
-    - ldap
-    - lam
-    - authelia
-  start: false
-
-- name: LDAP container requires some weird permissions on data folders
-  ansible.builtin.file:
-    path: "{{app_root}}/ldap"
-    mode: '777'
-    state: directory
+    - conf
+    - data
+    start: false
 
 - name: Render authelia conf
   template:
     src: authelia.yml.j2
-    dest: '{{app_root}}/authelia/configuration.yml'
+    dest: '{{app_root}}/conf/configuration.yml'
 
 - name: Docker-compose up
   ansible.builtin.shell: 

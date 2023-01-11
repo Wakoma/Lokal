@@ -13,6 +13,7 @@
   - certs
   - acme
   - conf
+  - log
 
 - name: "Use static certs"
   ansible.builtin.template:

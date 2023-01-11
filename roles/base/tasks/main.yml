@@ -1,17 +1,20 @@
 ---
 - name: Create app dirs
   ansible.builtin.file:
-    path: '{{project_root}}/base/{{item}}/data'
+    path: '{{project_root}}/base/{{item}}'
     state: directory
   loop:
     - mysql
     - traefik
     - grafana
-    - prometheus
+    - prometheus/data
     - portainer
     - transmission
     - postgres
     - mail
+    - ldap
+    - fail2ban/filter.d
+    - fail2ban/jail.d
 
 - name: Init IPTABLES firewall
   ansible.builtin.import_role:
@@ -50,23 +53,15 @@
   include_tasks:
     file: include/setup-prometheus.yml
 
-- name: Create traefik jail and filter dirs
-  ansible.builtin.file:
-    path: '{{project_root}}/base/fail2ban/data/{{item}}'
-    state: directory
-  loop:
-    - jail.d
-    - filter.d
-
 - name: Render traefik fail2ban filter
   template:
     src: fail2ban/traefik-filter.conf.j2
-    dest: '{{project_root}}/base/fail2ban/data/filter.d/traefik-filter.conf'
+    dest: '{{project_root}}/base/fail2ban/filter.d/traefik-filter.conf'
 
 - name: Render traefik fail2ban jail
   template:
     src: fail2ban/traefik-jail.conf.j2
-    dest: '{{project_root}}/base/fail2ban/data/jail.d/traefik.conf'
+    dest: '{{project_root}}/base/fail2ban/jail.d/traefik.conf'
 
 - name: Render mail conf
   template:
