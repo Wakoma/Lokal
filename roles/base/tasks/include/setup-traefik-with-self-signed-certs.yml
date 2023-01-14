@@ -25,7 +25,7 @@
     privatekey_path: "{{project_root}}/base/traefik/certs/{{domain}}.key"
     csr_path: "{{project_root}}/base/traefik/certs/{{domain}}.csr"
 
-- name: "Use the self-signed certs"
-  ansible.builtin.template:
-    src: traefik/self-signed.yml.j2
-    dest: '{{project_root}}/base/traefik/conf/dynamic.yml'
+- name: "Use self signed certs as static certificates"
+  set_fact:
+    static_certificate: "{{domain}}"
+  when: not server_is_live and static_certificate is falsy

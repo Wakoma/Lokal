@@ -1,3 +1,11 @@
+http:
+  middlewares:
+    admin-auth:
+      basicAuth:
+        users:
+          - "admin:{{password_admin|password_hash('bcrypt')}}"
+
+{% if static_certificate is truthy %}
 tls:
   options:
     default:
@@ -9,3 +17,4 @@ tls:
       defaultCertificate:
         certFile: /certs/{{static_certificate}}.crt
         keyFile: /certs/{{static_certificate}}.key
+{% endif %}
