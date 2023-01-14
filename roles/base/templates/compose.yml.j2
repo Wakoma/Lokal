@@ -110,16 +110,6 @@ services:
       traefik.http.routers.ldap.tls: "true"
       traefik.http.services.ldap.loadbalancer.server.port: 17170
 
-  fail2ban:
-    image: crazymax/fail2ban:latest
-    network_mode: "host"
-    cap_add:
-    - NET_ADMIN
-    - NET_RAW
-    volumes:
-    - /var/log:/var/log:ro
-    - {{project_root}}/base/fail2ban/:/data/
-
   mariadb:
     container_name: {{mysql_host}}
     image: mariadb:{{version_mariadb}}
@@ -168,7 +158,7 @@ services:
       traefik.http.routers.prometheus.tls: "true"
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
       # traefik.http.routers.prometheus.middlewares: authelia@docker
-      traefik.http.routers.prometheus.middlewares: admin-auth
+      traefik.http.routers.prometheus.middlewares: admin-auth@file
 {% if server_is_live %}
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
 {% endif %}
@@ -199,7 +189,7 @@ services:
       traefik.http.routers.grafana.rule: Host(`{{subdomain_grafana}}.{{domain}}`)
       traefik.http.routers.grafana.tls: "true"
       # traefik.http.routers.grafana.middlewares: authelia@docker
-      traefik.http.routers.grafana.middlewares: admin-auth
+      traefik.http.routers.grafana.middlewares: admin-auth@file
       traefik.http.services.grafana.loadbalancer.server.port: 3000
 {% if server_is_live %}
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
@@ -214,6 +204,7 @@ services:
 
   traefik:
     image: traefik:{{version_traefik}}
+    container_name: traefik
     # cannot be simply app_user:app_user because of root:docker privileges on /var/run/docker.sock
     user: "{{uid}}:{{gid_docker}}"  # run the container service as app user (not root)
     labels:
@@ -223,9 +214,8 @@ services:
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
-      traefik.http.middlewares.admin-auth.basicauth.users: admin:$$sha1$${{password_admin|sha1}}
       # traefik.http.routers.traefik.middlewares: authelia@docker
-      traefik.http.routers.traefik.middlewares: admin-auth
+      traefik.http.routers.traefik.middlewares: admin-auth@file
 {% if server_is_live %}
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
 {% endif %}
@@ -296,10 +286,8 @@ services:
     - --providers.docker.exposedbydefault=false
     - --providers.docker.network=traefik
     - --serversTransport.insecureSkipVerify=true
-{% if static_certificate is truthy %}
     - --providers.file.directory=/config
     - --providers.file.watch=true
-{% endif %}
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -322,10 +310,23 @@ services:
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
       # traefik.http.routers.portainer.middlewares: authelia@docker
-      traefik.http.routers.portainer.middlewares: admin-auth
+      traefik.http.routers.portainer.middlewares: admin-auth@file
 {% if server_is_live %}
       traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
 {% endif %}
+
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    container_name: fail2ban
+    network_mode: "host"
+    depends_on:
+    - traefik
+    cap_add:
+    - NET_ADMIN
+    - NET_RAW
+    volumes:
+    - {{project_root}}/traefik/log/:/var/log/traefik:ro
+    - {{project_root}}/base/fail2ban/:/data/
 
   transmission:
     image: linuxserver/transmission
@@ -344,8 +345,6 @@ services:
     - 51413:51413
     - 51413:51413/udp
     restart: unless-stopped
-    depends_on:
-    - traefik
     networks:
     - traefik
     labels:
@@ -355,7 +354,7 @@ services:
       traefik.http.routers.transmission.tls: "true"
       traefik.http.services.transmission.loadbalancer.server.port: 9091
       # traefik.http.routers.transmission.middlewares: authelia@docker
-      traefik.http.routers.transmission.middlewares: admin-auth
+      traefik.http.routers.transmission.middlewares: admin-auth@file
 {% if server_is_live %}
       traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
 {% endif %}
