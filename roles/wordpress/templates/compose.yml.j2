@@ -2,6 +2,7 @@ version: "3.8"
 services:
   wordpress:
     container_name: wordpress
+    domainname: {{domain}}
     image: wordpress:{{version_wordpress}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
@@ -20,6 +21,7 @@ services:
     volumes:
       - {{app_root}}/app:/var/www/html
       - {{app_root}}/data:/var/www/html/wp-content
+      - {{app_root}}/php.ini:/usr/local/etc/php/conf.d/php.ini
     labels:
       traefik.enable: "true"
       traefik.http.routers.wordpress.entrypoints: websecure
@@ -29,6 +31,34 @@ services:
 {% if server_is_live %}
       traefik.http.routers.wordpress.tls.certresolver: {{cert_resolver}}
 {% endif %}
+
+  wordpress_cli:
+    depends_on:
+      - wordpress
+    image: wordpress:cli
+    user: "{{uid}}:{{gid}}"
+    command: |
+      wp core install
+        --url={{domain}}
+        --title="{{title_wordpress}}"
+        --admin_user=admin
+        --admin_password="{{password_admin}}"
+        --admin_email=admin@{{domain}}
+    environment:
+      WORDPRESS_DB_HOST: {{mysql_host}}
+      WORDPRESS_DB_USER: {{mysql_user_wordpress}}
+      WORDPRESS_DB_PASSWORD: {{mysql_password_wordpress}}
+      WORDPRESS_DB_NAME: {{mysql_user_wordpress}}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_ALLOW_MULTISITE', true );
+        define('AUTOMATIC_UPDATER_DISABLED', true );
+    volumes:
+      - {{app_root}}/app:/var/www/html
+      - {{app_root}}/data:/var/www/html/wp-content
+    networks:
+      - mysql
+      - traefik
+      - mail
 
 networks:
   traefik:
