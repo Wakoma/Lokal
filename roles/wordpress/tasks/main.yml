@@ -1,4 +1,9 @@
 ---
+- name: Create app root folder
+  ansible.builtin.file:
+    path: "{{project_root}}/wordpress"
+    state: directory
+
 - name: Get current version (could have been upgraded via web)
   ansible.builtin.shell:
     cmd: grep 'wp_version\s*=' wp-includes/version.php
@@ -15,6 +20,11 @@
   ansible.builtin.include_tasks:
     file: upgrade.yml
   when: version_runtime_wordpress is defined and version_runtime_wordpress is truthy and version_runtime_wordpress is version(version_wordpress, '<')
+
+- name: Render custom php.ini for upload size limit
+  ansible.builtin.template:
+    src: php.ini.j2
+    dest: "{{project_root}}/wordpress/php.ini"
 
 - name: Install wordpress
   include_role: {name: common, tasks_from: install}

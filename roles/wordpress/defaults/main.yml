@@ -3,3 +3,4 @@ mysql_password_wordpress: wordpress
 mysql_database_wordpress: wordpress
 
 version_wordpress: "6.0.2"
+title_wordpress: "Lokal Wordpress"
