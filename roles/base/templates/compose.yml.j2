@@ -13,38 +13,14 @@ networks:
     name: postgres
 
 services:
-{% if debug_smtp %}
-  mail:
-    container_name: mail
-    user: "{{uid}}:{{gid}}"
-    image: mailhog/mailhog:latest
-    restart: unless-stopped
-    # ports:
-    #   - "25:1025"
-      # there is no port 143 because mailhog only displays emails in its web ui
-    networks:
-      - traefik
-      - mail
-    environment:
-      MH_SMTP_BIND_ADDR: "0.0.0.0:25"
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.mailhog.entrypoints: websecure
-      traefik.http.routers.mailhog.rule: Host(`mail.{{domain}}`)
-      traefik.http.routers.mailhog.tls: "true"
-      traefik.http.services.mailhog.loadbalancer.server.port: 8025
-    {% if server_is_live %}
-      traefik.http.routers.mailhog.tls.certresolver: {{cert_resolver}}
-    {% endif %}
-{% else %}
+{% if smtp_host == "mail" %}
   mail:
     image: docker.io/mailserver/docker-mailserver:latest
-    user: "{{uid}}:{{gid}}"
+    # user: "{{uid}}:{{gid}}"  # will drop privileges itself
     container_name: mail
     hostname: mail
     domainname: {{domain}}
     env_file: {{project_root}}/base/mail/mailserver.env
-    network_mode: "host"
     # ports:
     #   - "25:25"    # SMTP  (explicit TLS => STARTTLS)
     #   - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
@@ -59,8 +35,8 @@ services:
       # - /etc/localtime:/etc/localtime:ro # not necessary since we set the TZ in the config
     restart: always
     stop_grace_period: 1m
-    cap_add:
-      - NET_ADMIN
+    depends_on:
+      - ldap
     healthcheck:
       test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
       timeout: 3s
@@ -77,15 +53,12 @@ services:
       traefik.tcp.routers.smtp.rule: HostSNI(`{{domain}}`)
       traefik.tcp.routers.smtp.tls: true
       traefik.tcp.services.smtp.loadbalancer.server.port: 25
-{% if server_is_live %}
+    {% if server_is_live %}
       traefik.tcp.routers.imap.tls.certresolver: {{cert_resolver}}
-{% endif %}
-{% if server_is_live %}
       traefik.tcp.routers.smtp.tls.certresolver: {{cert_resolver}}
+    {% endif %}
 {% endif %}
 
-{% endif %}
-  
   ldap:
     image: nitnelave/lldap:stable
     container_name: ldap

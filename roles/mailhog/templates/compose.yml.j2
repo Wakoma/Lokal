@@ -1,0 +1,23 @@
+services:
+  mail:
+    container_name: mail
+    user: "{{uid}}:{{gid}}"
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    # ports:
+    #   - "25:1025"
+      # there is no port 143 because mailhog only displays emails in its web ui
+    networks:
+      - traefik
+      - mail
+    environment:
+      MH_SMTP_BIND_ADDR: "0.0.0.0:25"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mailhog.entrypoints: websecure
+      traefik.http.routers.mailhog.rule: Host(`mail.{{domain}}`)
+      traefik.http.routers.mailhog.tls: "true"
+      traefik.http.services.mailhog.loadbalancer.server.port: 8025
+    {% if server_is_live %}
+      traefik.http.routers.mailhog.tls.certresolver: {{cert_resolver}}
+    {% endif %}

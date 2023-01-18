@@ -51,17 +51,14 @@ regulation:
   ban_time: 300
 
 notifier:
-{% if debug_smtp %}
   # mailhog (used for SMTP debugging) does not support STARTLS - and that's a requirement by Authelia
   disable_startup_check: false
   filesystem:
     filename: /config/notification.txt
-{% else %}
   smtp:
-    username: authelia
-    # This secret can also be set using the env variables AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE
-    password: {{password_smtp_authelia}}
+    username: admin
+    password: {{password_admin}}
     host: mail
     port: 25
-    sender: authelia@{{domain}}
+    sender: admin@{{domain}}
 {% endif %}
