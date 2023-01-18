@@ -67,7 +67,6 @@
   template:
     src: mail/mailserver.env.j2
     dest: '{{project_root}}/base/mail/mailserver.env'
-  when: not debug_smtp
 
 - name: Warn if a non-linux OS is used
   debug:
