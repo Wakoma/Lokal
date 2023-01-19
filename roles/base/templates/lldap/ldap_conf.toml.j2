@@ -5,7 +5,7 @@
 
 ## Tune the logging to be more verbose by setting this to be true.
 ## You can set it with the LLDAP_VERBOSE environment variable.
-# verbose=false
+verbose=false
 
 ## The port on which to have the LDAP server.
 #ldap_port = 3890
@@ -15,7 +15,7 @@
 #http_port = 17170
 
 ## The public URL of the server, for password reset links.
-#http_url = "http://localhost"
+http_url = "https://ldap.{{domain}}"
 
 ## Random secret for JWT signature.
 ## This secret should be random, and should be shared with application
@@ -28,7 +28,7 @@
 ## in the LLDAP_JWT_SECRET_FILE environment variable
 ## You can generate it with (on linux):
 ## LC_ALL=C tr -dc 'A-Za-z0-9!"#%&'\''()*+,-./:;<=>?@[\]^_{|}~' </dev/urandom | head -c 32; echo ''
-#jwt_secret = "REPLACE_WITH_RANDOM"
+jwt_secret = "{{jwt_secret_lldap}}"
 
 ## Base DN for LDAP.
 ## This is usually your domain name, and is used as a
@@ -37,18 +37,18 @@
 ## The sample value is for "example.com", but you can extend it with as
 ## many "dc" as you want, and you don't actually need to own the domain
 ## name.
-#ldap_base_dn = "dc=example,dc=com"
+ldap_base_dn = "{{domain_ldap}}"
 
 ## Admin username.
 ## For the LDAP interface, a value of "admin" here will create the LDAP
 ## user "cn=admin,ou=people,dc=example,dc=com" (with the base DN above).
 ## For the administration interface, this is the username.
-#ldap_user_dn = "admin"
+ldap_user_dn = "admin"
 
 ## Admin email.
 ## Email for the admin account. It is only used when initially creating
 ## the admin user, and can safely be omitted.
-#ldap_user_email = "admin@example.com"
+ldap_user_email = "admin@{{domain}}"
 
 ## Admin password.
 ## Password for the admin account, both for the LDAP bind and for the
@@ -60,7 +60,7 @@
 ## in the LLDAP_LDAP_USER_PASS_FILE environment variable
 ## Note: you can create another admin user for user administration, this
 ## is just the default one.
-#ldap_user_pass = "REPLACE_WITH_PASSWORD"
+ldap_user_pass = "{{password_admin}}"
 
 ## Database URL.
 ## This encodes the type of database (SQlite, Mysql and so
@@ -88,8 +88,8 @@ key_file = "/data/private_key"
 ## is the case, LLDAP will warn about the attribute being unknown. If you want
 ## to ignore the attribute and the service works without, you can add it to this
 ## list to silence the warning.
-#ignored_user_attributes = [ "sAMAccountName" ]
-#ignored_group_attributes = [ "mail", "userPrincipalName" ]
+ignored_user_attributes = [ "sAMAccountName" ]
+ignored_group_attributes = [ "mail", "userPrincipalName" ]
 
 ## Options to configure SMTP parameters, to send password reset emails.
 ## To set these options from environment variables, use the following format
@@ -98,20 +98,20 @@ key_file = "/data/private_key"
 ## Whether to enabled password reset via email, from LLDAP.
 #enable_password_reset=true
 ## The SMTP server.
-#server="smtp.gmail.com"
+#server="{{smtp_host}}"
 ## The SMTP port.
-#port=587
+#port={{smtp_port}}
 ## How the connection is encrypted, either "TLS" or "STARTTLS".
 #smtp_encryption = "TLS"
 ## The SMTP user, usually your email address.
-#user="sender@gmail.com"
+#user="admin@{{domain}}"
 ## The SMTP password.
-#password="password"
+#password="{{password_admin}}"
 ## The header field, optional: how the sender appears in the email. The first
 ## is a free-form name, followed by an email between <>.
-#from="LLDAP Admin <sender@gmail.com>"
+#from="Admin <admin@{{domain}}>"
 ## Same for reply-to, optional.
-#reply_to="Do not reply <noreply@localhost>"
+#reply_to="Do not reply <noreply@{{domain}}>"
 
 ## Options to configure LDAPS.
 ## To set these options from environment variables, use the following format

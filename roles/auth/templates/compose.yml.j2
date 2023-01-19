@@ -29,9 +29,7 @@ services:
       AUTHELIA_SESSION_SECRET: "{{session_secret_authelia}}"
       # AUTHELIA_STORAGE_PASSWORD: "{{storage_password_authelia}}"
       # AUTHELIA_STORAGE_ENCRYPTION_KEY: "{{storage_encryption_key_authelia}}"
-{% if not debug_smtp %}
       AUTHELIA_NOTIFIER_SMTP_PASSWORD: "{{password_smtp_authelia}}"
-{%endif%}
     labels:
       traefik.enable: true
       traefik.http.routers.authelia.rule: Host(`auth.{{domain}}`)
