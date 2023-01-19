@@ -53,10 +53,10 @@ services:
       traefik.tcp.routers.smtp.rule: HostSNI(`{{domain}}`)
       traefik.tcp.routers.smtp.tls: true
       traefik.tcp.services.smtp.loadbalancer.server.port: 25
-    {% if server_is_live %}
+{% if server_is_live %}
       traefik.tcp.routers.imap.tls.certresolver: {{cert_resolver}}
       traefik.tcp.routers.smtp.tls.certresolver: {{cert_resolver}}
-    {% endif %}
+{% endif %}
 {% endif %}
 
   ldap:
@@ -71,9 +71,6 @@ services:
       - UID={{uid}}
       - GID={{gid}}
       - TZ={{tz}}
-      - LLDAP_JWT_SECRET={{jwt_secret_lldap}}
-      - LLDAP_LDAP_USER_PASS={{password_admin}}
-      - LLDAP_LDAP_BASE_DN={{domain_ldap}}
     networks:
       - traefik
     labels:
@@ -294,11 +291,17 @@ services:
     network_mode: "host"
     depends_on:
     - traefik
+{% if smtp_host == "mail" %}
+    - mail
+{% endif %}
     cap_add:
     - NET_ADMIN
     - NET_RAW
     volumes:
-    - {{project_root}}/traefik/log/:/var/log/traefik:ro
+{% if smtp_host == "mail" %}
+    - {{project_root}}/base/traefik/log/:/var/log/traefik/:ro
+{% endif %}
+    - {{project_root}}/base/mail/logs/:/var/log/mail/:ro
     - {{project_root}}/base/fail2ban/:/data/
 
   transmission:
