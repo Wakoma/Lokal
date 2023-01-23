@@ -45,13 +45,32 @@
     cmd: "systemctl reload docker"
   become: true
 
-- name: "Setup traefik"
-  include_tasks:
-    file: include/setup-traefik.yml
+- name: Get certificates - key
+  ansible.builtin.copy:
+    src: "{{ssl_key}}"
+    dest: "{{project_root}}/base/{{domain}}.key"
+  when: not server_is_live and ssl_key is truthy and ssl_cert is truthy
 
-- name: "Setup prometheus"
+- name: Get certificates - cert
+  ansible.builtin.copy:
+    src: "{{ssl_cert}}"
+    dest: "{{project_root}}/base/{{domain}}.crt"
+  when: not server_is_live and ssl_key is truthy and ssl_cert is truthy
+
+- name: "Generate self-signed certs"
   include_tasks:
-    file: include/setup-prometheus.yml
+    file: include/generate-self-signed-certs.yml
+  when: not server_is_live and ssl_key is falsy and ssl_cert is falsy
+
+- name: "Render traefik configuration"
+  ansible.builtin.template:
+    src: traefik/dynamic.yml.j2
+    dest: '{{project_root}}/base/traefik/conf/dynamic.yml'
+
+- name: "Copy prometheus config"
+  ansible.builtin.copy:
+    src: files/prometheus
+    dest: '{{project_root}}/base/prometheus/etc/'
 
 - name: Render traefik fail2ban filter
   template:

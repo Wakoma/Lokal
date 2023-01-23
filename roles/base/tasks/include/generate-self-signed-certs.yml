@@ -1,0 +1,20 @@
+---
+- name: Ensure SSL private key
+  community.crypto.openssl_privatekey:
+    path: "{{project_root}}/base/{{domain}}.key"
+
+- name: Create SSL CSR
+  community.crypto.openssl_csr:
+    path: "{{project_root}}/base/{{domain}}.csr"
+    privatekey_path: "{{project_root}}/base/{{domain}}.key"
+    organization_name: "Wakoma"
+    commonName: "{{domain}}"
+    email_address: "{{email_acme}}"
+    country_name: "US"
+
+- name: Create SSL certificate
+  community.crypto.x509_certificate:
+    provider: "selfsigned"
+    path: "{{project_root}}/base/{{domain}}.crt"
+    privatekey_path: "{{project_root}}/base/{{domain}}.key"
+    csr_path: "{{project_root}}/base/{{domain}}.csr"

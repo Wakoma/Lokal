@@ -9,7 +9,8 @@ locale: en_US.utf-8  # cs_CZ.utf8
 # HTTPS certificate handling
 email_acme:
 staging_acme: false
-static_certificate:
+ssl_key:
+ssl_cert:
 
 # deploy HTTPS certificates obtained from public ACME service
 server_is_live: false
@@ -19,7 +20,7 @@ cert_resolver: http
 # Email is a part of Lokal - you can specify your own SMTP server
 # and the installation of Lokal SMTP will be skipped
 smtp_host: "mail"
-smtp_port: 25
+smtp_port: 465
 
 # If you are using "cert_resolver: dns" then you need to give API access to
 # your DNS (domain) provider so the cert resolver can create domains and certificates

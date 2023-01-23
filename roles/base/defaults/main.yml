@@ -10,5 +10,5 @@ version_traefik: "v2.9.6"
 version_grafana: "9.3.2"
 version_mariadb: "10.5.8-focal"
 
-jwt_secret_lldap: "{{lokal_secret + 'jwt_secret_lldap' | hash('sha1') | regex_search('\\w{10}') }}"
+jwt_secret_lldap: "{{(lokal_secret + 'jwt_secret_lldap') | hash('sha1') | regex_search('\\w{10}') }}"
 domain_ldap: "{%for part in domain.split('.')%}dc={{part}}{%if not loop.last%},{%endif%}{%endfor%}"
