@@ -5,7 +5,7 @@ http:
         users:
           - "admin:{{password_admin|password_hash('bcrypt')}}"
 
-{% if static_certificate is truthy %}
+{% if ssl_key is truthy and ssl_cert is truthy %}
 tls:
   options:
     default:
@@ -15,6 +15,6 @@ tls:
   stores:
     default:
       defaultCertificate:
-        certFile: /certs/{{static_certificate}}.crt
-        keyFile: /certs/{{static_certificate}}.key
+        certFile: /certs/{{domain}}.crt
+        keyFile: /certs/{{domain}}.key
 {% endif %}
