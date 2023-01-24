@@ -13,62 +13,11 @@ networks:
     name: postgres
 
 services:
-{% if smtp_host == "mail" %}
-  mail:
-    image: docker.io/mailserver/docker-mailserver:latest
-    # user: "{{uid}}:{{gid}}"  # will drop privileges itself
-    container_name: mail
-    domainname: {{domain}}
-    env_file: {{project_root}}/base/mail/mailserver.env
-    # ports:
-    #   - "25:25"    # SMTP  (explicit TLS => STARTTLS)
-    #   - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
-    #   - "465:465"  # ESMTP (implicit TLS)
-    #   - "587:587"  # ESMTP (explicit TLS => STARTTLS)
-    #   - "993:993"  # IMAP4 (implicit TLS)
-    volumes:
-      - {{project_root}}/base/mail/data/:/var/mail/
-      - {{project_root}}/base/mail/state/:/var/mail-state/
-      - {{project_root}}/base/mail/logs/:/var/log/mail/
-      - {{project_root}}/base/mail/config/:/tmp/docker-mailserver/
-{% if not server_is_live %}
-      - {{project_root}}/base/{{domain}}.key:/var/certs/{{domain}}.key
-      - {{project_root}}/base/{{domain}}.crt:/var/certs/{{domain}}.crt
-{% endif %}
-    restart: always
-    stop_grace_period: 1m
-    depends_on:
-      - ldap
-    healthcheck:
-      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
-      timeout: 3s
-      retries: 0
-    networks:
-      - traefik
-      - mail
-    labels:
-      traefik.tcp.routers.imap.entrypoints: imap
-      traefik.tcp.routers.imap.rule: HostSNI(`{{domain}}`)
-      traefik.tcp.routers.smtp.rule: HostSNI(`{{domain}}`)
-      traefik.tcp.routers.smtp.entrypoints: smtp
-{% if server_is_live %}
-      traefik.tcp.routers.imap.tls: true
-      traefik.tcp.services.imap.loadbalancer.server.port: 143
-      traefik.tcp.routers.smtp.tls: true
-      traefik.tcp.services.smtp.loadbalancer.server.port: 25
-      traefik.tcp.routers.imap.tls.certresolver: {{cert_resolver}}
-      traefik.tcp.routers.smtp.tls.certresolver: {{cert_resolver}}
-{% else %}
-      traefik.tcp.services.imap.loadbalancer.server.port: 143
-      traefik.tcp.services.smtp.loadbalancer.server.port: 465
-{% endif %}
-{% endif %}
-
   ldap:
     image: nitnelave/lldap:stable
     container_name: ldap
-    # ports:
-    #   - "3890:3890" # LDAP
+    ports:
+      - "3890:3890" # LDAP !only for localhost connections - don't allow on firewall!
     #   - "17170:17170" # web front-end
     restart: always
     volumes:
@@ -211,8 +160,8 @@ services:
     - "{{project_root}}/base/traefik/log:/var/log"  # used for fail2ban
     - "{{project_root}}/base/traefik/acme:/acme"
 {% if not server_is_live %}
-    - {{project_root}}/base/{{domain}}.key:/certs/{{domain}}.key
-    - {{project_root}}/base/{{domain}}.crt:/certs/{{domain}}.crt
+    - {{project_root}}/{{domain}}.key:/certs/{{domain}}.key
+    - {{project_root}}/{{domain}}.crt:/certs/{{domain}}.crt
 {% endif %}
     - "{{project_root}}/base/traefik/conf:/config"
     command:
@@ -240,8 +189,8 @@ services:
     - --entrypoints.web.address=:80
     - --entrypoints.websecure.address=:443/tcp
     - --entryPoints.metrics.address=:8082
-    - --entryPoints.smtp.address=:465
-    - --entryPoints.imap.address=:993
+    # - --entryPoints.smtp.address=:465  # do not bind those port - the mail container do this on its own
+    # - --entryPoints.imap.address=:993  # do not bind those port - the mail container do this on its own
     - --entrypoints.web.http.redirections.entryPoint.to=websecure
     - --entrypoints.web.http.redirections.entryPoint.scheme=https
     - --entrypoints.web.http.redirections.entrypoint.permanent=true
@@ -298,16 +247,10 @@ services:
     network_mode: "host"
     depends_on:
     - traefik
-{% if smtp_host == "mail" %}
-    - mail
-{% endif %}
     cap_add:
     - NET_ADMIN
     - NET_RAW
     volumes:
-{% if smtp_host == "mail" %}
-    - {{project_root}}/base/mail/logs/:/var/log/mail/:ro
-{% endif %}
     - {{project_root}}/base/traefik/log/:/var/log/traefik/:ro
     - {{project_root}}/base/fail2ban/:/data/
 
@@ -336,7 +279,6 @@ services:
       traefik.http.routers.transmission.rule: Host(`{{subdomain_transmission}}.{{domain}}`)
       traefik.http.routers.transmission.tls: "true"
       traefik.http.services.transmission.loadbalancer.server.port: 9091
-      # traefik.http.routers.transmission.middlewares: authelia@docker
       traefik.http.routers.transmission.middlewares: admin-auth@file
 {% if server_is_live %}
       traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
