@@ -10,6 +10,23 @@
   become: true
   when: "not backup is defined and not restore is defined"
 
+- name: Get certificates - key
+  ansible.builtin.copy:
+    src: "{{ssl_key}}"
+    dest: "{{project_root}}/{{domain}}.key"
+  when: not server_is_live and ssl_key is truthy and ssl_cert is truthy
+
+- name: Get certificates - cert
+  ansible.builtin.copy:
+    src: "{{ssl_cert}}"
+    dest: "{{project_root}}/{{domain}}.crt"
+  when: not server_is_live and ssl_key is truthy and ssl_cert is truthy
+
+- name: "Generate self-signed certs"
+  include_tasks:
+    file: include/generate-self-signed-certs.yml
+  when: not server_is_live and ssl_key is falsy and ssl_cert is falsy
+  
 - name: Get docker gid
   ansible.builtin.shell:
     cmd: 'cat /etc/group | grep docker | cut -d: -f 3'

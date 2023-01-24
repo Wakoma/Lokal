@@ -24,13 +24,10 @@
     firewall_enabled_at_boot: true
     firewall_allowed_tcp_ports:
       # ssh
-      - 22
+      - "{{ssh_port}}"
       # web
       - 80
       - 443
-      # mail
-      - 465
-      - 993
       # transmission
       - 9091
       - 51413
@@ -44,23 +41,6 @@
   shell:
     cmd: "systemctl reload docker"
   become: true
-
-- name: Get certificates - key
-  ansible.builtin.copy:
-    src: "{{ssl_key}}"
-    dest: "{{project_root}}/base/{{domain}}.key"
-  when: not server_is_live and ssl_key is truthy and ssl_cert is truthy
-
-- name: Get certificates - cert
-  ansible.builtin.copy:
-    src: "{{ssl_cert}}"
-    dest: "{{project_root}}/base/{{domain}}.crt"
-  when: not server_is_live and ssl_key is truthy and ssl_cert is truthy
-
-- name: "Generate self-signed certs"
-  include_tasks:
-    file: include/generate-self-signed-certs.yml
-  when: not server_is_live and ssl_key is falsy and ssl_cert is falsy
 
 - name: "Render traefik configuration"
   ansible.builtin.template:
@@ -81,11 +61,6 @@
   template:
     src: fail2ban/traefik-jail.conf.j2
     dest: '{{project_root}}/base/fail2ban/jail.d/traefik.conf'
-
-- name: Render mail conf
-  template:
-    src: mail/mailserver.env.j2
-    dest: '{{project_root}}/base/mail/mailserver.env'
 
 - name: Warn if a non-linux OS is used
   debug:
