@@ -82,7 +82,6 @@ services:
       traefik.http.routers.prometheus.rule: Host(`{{subdomain_prometheus}}.{{domain}}`)
       traefik.http.routers.prometheus.tls: "true"
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
-      # traefik.http.routers.prometheus.middlewares: authelia@docker
       traefik.http.routers.prometheus.middlewares: admin-auth@file
 {% if server_is_live %}
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
@@ -111,7 +110,6 @@ services:
       traefik.http.routers.grafana.entrypoints: websecure
       traefik.http.routers.grafana.rule: Host(`{{subdomain_grafana}}.{{domain}}`)
       traefik.http.routers.grafana.tls: "true"
-      # traefik.http.routers.grafana.middlewares: authelia@docker
       traefik.http.routers.grafana.middlewares: admin-auth@file
       traefik.http.services.grafana.loadbalancer.server.port: 3000
 {% if server_is_live %}
@@ -137,7 +135,6 @@ services:
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
-      # traefik.http.routers.traefik.middlewares: authelia@docker
       traefik.http.routers.traefik.middlewares: admin-auth@file
 {% if server_is_live %}
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
@@ -235,7 +232,6 @@ services:
       traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
-      # traefik.http.routers.portainer.middlewares: authelia@docker
       traefik.http.routers.portainer.middlewares: admin-auth@file
 {% if server_is_live %}
       traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
