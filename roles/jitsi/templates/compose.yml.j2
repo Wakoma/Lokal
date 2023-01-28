@@ -17,7 +17,7 @@ services:
     - DISABLE_HTTPS
     - DISABLE_DEEP_LINKING
     - LETSENCRYPT_DOMAIN={{subdomain_jitsi}}.{{domain}}
-    - LETSENCRYPT_EMAIL={{ email_acme }}
+    - LETSENCRYPT_EMAIL={{ email_admin }}
     - LETSENCRYPT_USE_STAGING={{ staging_acme }}
     - PUBLIC_URL=https://{{subdomain_jitsi}}.{{domain}}
     - TZ={{ tz }}
@@ -110,7 +110,7 @@ services:
       traefik.http.routers.jitsi.entrypoints: websecure
       traefik.http.routers.jitsi.rule: Host(`{{subdomain_jitsi}}.{{domain}}`)
       traefik.http.routers.jitsi.tls: "true"
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.jitsi.tls.certresolver: {{cert_resolver}}
 {% endif %}
       traefik.http.services.jitsi.loadbalancer.server.port: 80

@@ -24,7 +24,7 @@ services:
 {% endif %}
       traefik.http.routers.ipfs-node.service: ipfs-node
       traefik.http.services.ipfs-node.loadbalancer.server.port: 5001
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.ipfs-node.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
@@ -64,7 +64,7 @@ services:
       traefik.http.middlewares.corsheader.headers.accesscontrolalloworiginlist: "https://agregoreweb.github.io"
       traefik.http.middlewares.corsheader.headers.accesscontrolallowcredentials: "true"
       traefik.http.middlewares.corsheader.headers.accesscontrolallowheaders: 'Content-Type,Content-Length,Range,Authorization'
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.corsheader.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
@@ -74,7 +74,7 @@ services:
       traefik.http.routers.corspreflight.middlewares: corsheader
       traefik.http.routers.corspreflight.service: corspreflight
       traefik.http.services.corspreflight.loadbalancer.server.port: 9094
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.corspreflight.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
@@ -84,7 +84,7 @@ services:
       traefik.http.routers.ipfs-cluster.service: ipfs-cluster
       traefik.http.routers.ipfs-cluster.middlewares: ipfs-auth, corsheader
       traefik.http.services.ipfs-cluster.loadbalancer.server.port: 9094
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.ipfs-cluster.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
@@ -94,7 +94,7 @@ services:
       traefik.http.routers.ipfs-pinning.service: ipfs-pinning
       traefik.http.routers.ipfs-pinning.middlewares: ipfs-auth, corsheader, strip-pinning-prefix
       traefik.http.services.ipfs-pinning.loadbalancer.server.port: 9097
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.ipfs-pinning.tls.certresolver: {{cert_resolver}}
 {% endif %}
 

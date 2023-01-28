@@ -20,7 +20,7 @@ services:
       traefik.http.routers.docs.entrypoints: websecure
       traefik.http.routers.docs.rule: Host(`{{subdomain_docs}}.{{domain}}`)
       traefik.http.routers.docs.tls: "true"
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.docs.tls.certresolver: {{cert_resolver}}
 {% endif %}
       traefik.http.services.docs.loadbalancer.server.port: 8080

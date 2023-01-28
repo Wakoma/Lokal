@@ -22,9 +22,9 @@ setup for a host would be
 all:
   hosts: "x.y.z.a"
   vars:
-    server_is_live: true
+    ssl_use_acme: true
     domain: your.domain.com
-    email_acme: your@email.com
+    email_admin: your@email.com
     ansible_user: ubuntu
     services:
     - base

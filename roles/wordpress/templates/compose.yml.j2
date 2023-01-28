@@ -28,7 +28,7 @@ services:
       traefik.http.routers.wordpress.rule: Host(`{{domain}}`)
       traefik.http.routers.wordpress.tls: "true"
       traefik.http.services.wordpress.loadbalancer.server.port: 80
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.wordpress.tls.certresolver: {{cert_resolver}}
 {% endif %}
 

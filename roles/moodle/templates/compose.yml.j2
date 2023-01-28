@@ -42,7 +42,7 @@ services:
       traefik.http.routers.moodle.entrypoints: websecure
       traefik.http.routers.moodle.rule: Host(`moodle.{{domain}}`)
       traefik.http.routers.moodle.tls: "true"
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.moodle.tls.certresolver: {{cert_resolver}}
 {% endif %}
       traefik.http.services.moodle.loadbalancer.server.port: 8080

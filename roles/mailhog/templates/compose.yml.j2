@@ -18,6 +18,6 @@ services:
       traefik.http.routers.mailhog.rule: Host(`mail.{{domain}}`)
       traefik.http.routers.mailhog.tls: "true"
       traefik.http.services.mailhog.loadbalancer.server.port: 8025
-    {% if server_is_live %}
+    {% if ssl_use_acme %}
       traefik.http.routers.mailhog.tls.certresolver: {{cert_resolver}}
     {% endif %}
