@@ -14,18 +14,18 @@
   ansible.builtin.copy:
     src: "{{ssl_key}}"
     dest: "{{project_root}}/{{domain}}.key"
-  when: not server_is_live and ssl_key is truthy and ssl_cert is truthy
+  when: ssl_key is defined and ssl_cert is defined
 
 - name: Get certificates - cert
   ansible.builtin.copy:
     src: "{{ssl_cert}}"
     dest: "{{project_root}}/{{domain}}.crt"
-  when: not server_is_live and ssl_key is truthy and ssl_cert is truthy
+  when: ssl_key is defined and ssl_cert is defined
 
 - name: "Generate self-signed certs"
   include_tasks:
     file: include/generate-self-signed-certs.yml
-  when: not server_is_live and ssl_key is falsy and ssl_cert is falsy
+  when: not ssl_use_acme and not (ssl_key is defined and ssl_cert is defined)
   
 - name: Get docker gid
   ansible.builtin.shell:

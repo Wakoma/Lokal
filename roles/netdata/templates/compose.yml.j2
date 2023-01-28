@@ -17,7 +17,7 @@ services:
       traefik.http.services.netdata.loadbalancer.server.port: 19999
       # traefik.http.routers.netdata.middlewares: authelia@docker
       traefik.http.routers.netdata.middlewares: admin-auth
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.netdata.tls.certresolver: {{cert_resolver}}
 {% endif %}
     networks:

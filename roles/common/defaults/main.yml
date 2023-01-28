@@ -1,21 +1,23 @@
-## Common base settings
-project_name: lokal
+# Mandatory settings
+# password_admin
+# email_admin
+
+# Common base settings
+domain: lokal.network
 project_root: "/opt/lokal"
 backup_root: "/opt/lokal-backup"
-domain: lokal.network
 lang: en_US
 locale: en_US.utf-8  # cs_CZ.utf8
 ssh_port: 22
-debug: false
+verbose: false
 
 # HTTPS certificate handling
-email_acme:
-staging_acme: false
-ssl_key:
-ssl_cert:
+ssl_use_acme: false # obtain HTTPS certificates from ACME
+staging_acme: false # use only staging ACME
+# email_admin:
+# ssl_key:
+# ssl_cert:
 
-# deploy HTTPS certificates obtained from public ACME service
-server_is_live: false
 # cert resolver can be "dns", "http", or "tls"
 cert_resolver: http
 

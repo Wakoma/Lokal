@@ -27,7 +27,7 @@ services:
       traefik.http.routers.unifi-controller.tls: "true"
       traefik.http.services.unifi-controller.loadbalancer.server.scheme: https
       traefik.http.services.unifi-controller.loadbalancer.server.port: 8443
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.unifi-controller.tls.certresolver: {{cert_resolver}}
 {% endif %}
 

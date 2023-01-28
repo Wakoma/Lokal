@@ -11,8 +11,8 @@ HTTP challenge. Before you use this, you need to prepare your DNS A entries to
 point to your Lokal server. On Lokal side, use this as your [hosts vars](configuration.md).
 
 ```yaml
-email_acme: your@email.com
-server_is_live: true
+email_admin: your@email.com
+ssl_use_acme: true
 cert_resolver: http
 ```
 
@@ -30,8 +30,8 @@ access and traefik handles this. Currently, the only supported DNS provider is
 Namecheap. Following variables are necessary in the hosts file.
 
 ```yaml
-email_acme: your@email.com
-server_is_live: true
+email_admin: your@email.com
+ssl_use_acme: true
 cert_resolver: dns
 dns_provider: namecheap
 namecheap_api_user: your-user
@@ -61,7 +61,7 @@ Recommendations are welcome.
 ## Self-signed certificates
 
 If you don't setup anything then this is the default option. It supposes default
-value `server_is_live: false` and empty `static_certificate`. Then a self-signed
+value `ssl_use_acme: false` and empty `static_certificate`. Then a self-signed
 certificate is generated.
 
 The disadvantage is, that your temporal certificate authority, that Lokal uses

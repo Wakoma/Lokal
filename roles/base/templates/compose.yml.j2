@@ -83,7 +83,7 @@ services:
       traefik.http.routers.prometheus.tls: "true"
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
       traefik.http.routers.prometheus.middlewares: admin-auth@file
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
 {% endif %}
     networks:
@@ -112,7 +112,7 @@ services:
       traefik.http.routers.grafana.tls: "true"
       traefik.http.routers.grafana.middlewares: admin-auth@file
       traefik.http.services.grafana.loadbalancer.server.port: 3000
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
 {% endif %}
     volumes:
@@ -136,7 +136,7 @@ services:
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
       traefik.http.routers.traefik.middlewares: admin-auth@file
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
 {% endif %}
     networks:
@@ -156,7 +156,7 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock
     - "{{project_root}}/base/traefik/log:/var/log"  # used for fail2ban
     - "{{project_root}}/base/traefik/acme:/acme"
-{% if not server_is_live %}
+{% if not ssl_use_acme %}
     - {{project_root}}/{{domain}}.key:/certs/{{domain}}.key
     - {{project_root}}/{{domain}}.crt:/certs/{{domain}}.crt
 {% endif %}
@@ -166,22 +166,24 @@ services:
     - --api.insecure=false
     - --api.dashboard=true
     - --api.debug=false
+{% if ssl_use_acme %}
     - --certificatesResolvers.dns.acme.dnsChallenge.delayBeforeCheck=60
     - --certificatesResolvers.dns.acme.dnsChallenge.provider={{dns_provider}}
-    - --certificatesResolvers.dns.acme.email={{email_acme}}
+    - --certificatesResolvers.dns.acme.email={{email_admin}}
     - --certificatesResolvers.dns.acme.storage=/acme/acme.json
     - --certificatesresolvers.http.acme.httpchallenge=true
     - --certificatesresolvers.http.acme.httpchallenge.entrypoint=web
-    - --certificatesresolvers.http.acme.email={{email_acme}}
+    - --certificatesresolvers.http.acme.email={{email_admin}}
     - --certificatesresolvers.http.acme.storage=/acme/acme.json
 {% if staging_acme %}
     - --certificatesresolvers.http.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
 {% endif %}
     - --certificatesresolvers.tls.acme.tlschallenge=true
-    - --certificatesresolvers.tls.acme.email={{email_acme}}
+    - --certificatesresolvers.tls.acme.email={{email_admin}}
     - --certificatesresolvers.tls.acme.storage=/acme/acme.json
 {% if staging_acme %}
     - --certificatesresolvers.tls.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+{% endif %}
 {% endif %}
     - --entrypoints.web.address=:80
     - --entrypoints.websecure.address=:443/tcp
@@ -233,7 +235,7 @@ services:
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
       traefik.http.routers.portainer.middlewares: admin-auth@file
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
@@ -276,6 +278,6 @@ services:
       traefik.http.routers.transmission.tls: "true"
       traefik.http.services.transmission.loadbalancer.server.port: 9091
       traefik.http.routers.transmission.middlewares: admin-auth@file
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
 {% endif %}

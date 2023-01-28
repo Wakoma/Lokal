@@ -5,7 +5,7 @@ http:
         users:
           - "admin:{{password_admin|password_hash('bcrypt')}}"
 
-{% if ssl_key is truthy and ssl_cert is truthy %}
+{% if not ssl_use_acme %}
 tls:
   options:
     default:

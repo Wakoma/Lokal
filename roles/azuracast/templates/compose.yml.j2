@@ -198,7 +198,7 @@ services:
       traefik.http.routers.azuracast.entrypoints: websecure
       traefik.http.routers.azuracast.rule: Host(`{{subdomain_azuracast}}.{{domain}}`)
       traefik.http.routers.azuracast.tls: "true"
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.azuracast.tls.certresolver: {{cert_resolver}}
 {% endif %}
       traefik.http.services.azuracast.loadbalancer.server.port: 80

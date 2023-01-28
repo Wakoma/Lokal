@@ -34,7 +34,7 @@ services:
       traefik.http.routers.papad_api.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/api`, `/nimda`, `/auth/login`)
       traefik.http.routers.papad_api.tls: "true"
       traefik.http.services.papad_api.loadbalancer.server.port: 8000
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.papad_api.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
@@ -72,7 +72,7 @@ services:
       traefik.http.routers.papad.rule: Host(`{{subdomain_papad}}.{{domain}}`)
       traefik.http.routers.papad.tls: "true"
       traefik.http.services.papad.loadbalancer.server.port: 8000
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.papad.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
@@ -91,7 +91,7 @@ services:
       traefik.http.routers.papad_docs.rule: Host(`{{subdomain_papad}}.{{domain}}`) && PathPrefix(`/docs`)
       traefik.http.routers.papad_docs.tls: "true"
       traefik.http.services.papad_docs.loadbalancer.server.port: 8001
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.papad_docs.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
@@ -118,7 +118,7 @@ services:
       traefik.http.services.papad_storage.loadbalancer.server.port: 9000
       traefik.http.middlewares.papad_storage.stripprefix.prefixes: /storage
       traefik.http.services.papad_storage.middlewares: papad_storage
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.papad_storage.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
@@ -126,6 +126,6 @@ services:
       traefik.http.routers.papad_minio.rule: Host(`minio.{{subdomain_papad}}.{{domain}}`)
       traefik.http.routers.papad_minio.tls: "true"
       traefik.http.services.papad_minio.loadbalancer.server.port: 9001
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.papad_minio.tls.certresolver: {{cert_resolver}}
 {% endif %}

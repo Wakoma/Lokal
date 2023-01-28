@@ -9,7 +9,7 @@
     privatekey_path: "{{project_root}}/{{domain}}.key"
     organization_name: "Wakoma"
     commonName: "{{domain}}"
-    email_address: "{{email_acme}}"
+    email_address: "{{email_admin}}"
     country_name: "US"
 
 - name: Create SSL certificate

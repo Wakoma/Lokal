@@ -86,7 +86,7 @@ it is necessary to add following IF block in the container's labels.
       traefik.http.routers.yourapp.tls: "true"
       # where the container listens (no need to export this port)
       traefik.http.services.yourapp.loadbalancer.server.port: 80 
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.yourapp.tls.certresolver: {{cert_resolver}}
 {% endif %}
 ```

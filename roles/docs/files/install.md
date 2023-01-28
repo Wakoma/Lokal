@@ -55,8 +55,8 @@ The minimal example is bellow. For complete setup see [configuration section](co
 all:
   hosts: 1.2.3.5 # your server's IP (can be a hostname too)
   vars:
-    server_is_live: true # or false if it is just testing machine not visible from the internet
-    domain: server.example.com # domain visible from the outside internet (used only when server_is_live=true)
+    ssl_use_acme: true # or false if it is just testing machine not visible from the internet
+    domain: server.example.com # domain visible from the outside internet (used only when ssl_use_acme=true)
     ansible_user: ubuntu # the application user under which Lokal will run
     services: # define wanted services - list of available services is in roles/ folder
     - lokal

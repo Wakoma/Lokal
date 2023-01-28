@@ -22,7 +22,7 @@ services:
       - {{app_root}}/state/:/var/mail-state/
       - {{app_root}}/logs/:/var/log/mail/
       - {{app_root}}/config/:/tmp/docker-mailserver/
-{% if not server_is_live %}
+{% if not ssl_use_acme %}
       - {{project_root}}/{{domain}}.key:/var/certs/{{domain}}.key
       - {{project_root}}/{{domain}}.crt:/var/certs/{{domain}}.crt
 {% endif %}

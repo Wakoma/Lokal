@@ -18,7 +18,7 @@ services:
       traefik.http.routers.kolibri.rule: Host(`{{subdomain_kolibri}}.{{domain}}`)
       traefik.http.routers.kolibri.tls: "true"
       traefik.http.services.kolibri.loadbalancer.server.port: 8080
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.kolibri.tls.certresolver: {{cert_resolver}}
 {% endif %}
     networks:

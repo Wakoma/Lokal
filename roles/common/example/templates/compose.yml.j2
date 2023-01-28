@@ -24,7 +24,7 @@ services:
       traefik.http.routers.yourapp.rule: Host(`{{subdomain_yourapp}}.{{domain}}`)
       traefik.http.routers.yourapp.tls: "true"
       traefik.http.services.yourapp.loadbalancer.server.port: 80
-{% if server_is_live %} # please keep this part to have automatic certificate issue and renewal
+{% if ssl_use_acme %} # please keep this part to have automatic certificate issue and renewal
       traefik.http.routers.yourapp.tls.certresolver: {{cert_resolver}}
 {% endif %}
 

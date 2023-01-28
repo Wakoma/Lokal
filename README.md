@@ -52,15 +52,15 @@ is the only file that you need to modify and it completely describes Lokal setup
 
 If you want to install Lokal on a remote server, the only thing you need to create
 is a hosts file as shown below. If your server will not use the certificates service
-of Let's Encrypt, then set `server_is_live:false`.
+of Let's Encrypt, then set `ssl_use_acme:false`.
 
 ```yaml
 all:
   hosts: "1.2.3.4"
   vars:
-    server_is_live: true  # will use letsencrypt for trusted certificates
+    ssl_use_acme: true  # will use letsencrypt for trusted certificates
     domain: lokal.example.com
-    email_acme: admin@example.com
+    email_admin: admin@example.com
     ansible_user: ubuntu
     services:
     - base

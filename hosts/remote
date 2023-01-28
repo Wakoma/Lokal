@@ -1,9 +1,9 @@
 all:
   hosts: "1.2.3.4"
   vars:
-    server_is_live: true
+    ssl_use_acme: true
     domain: lokal.example.com
-    email_acme: admin@example.com
+    email_admin: admin@example.com
     ansible_user: ubuntu
     services:
     - base
