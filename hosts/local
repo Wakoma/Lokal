@@ -2,6 +2,7 @@ all:
   hosts: "localhost"
   vars:
     server_is_live: false
+    debug: true
     lokal_secret: verysecret
     password_admin: verypassword
     domain: lokal.localhost
@@ -10,5 +11,6 @@ all:
     ansible_connection: local
     services:
     - base
-    - auth
+    # - mail
+    # - auth
     - wordpress

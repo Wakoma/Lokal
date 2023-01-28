@@ -6,6 +6,7 @@ domain: lokal.network
 lang: en_US
 locale: en_US.utf-8  # cs_CZ.utf8
 ssh_port: 22
+debug: false
 
 # HTTPS certificate handling
 email_acme:
