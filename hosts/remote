@@ -5,6 +5,7 @@ all:
     domain: lokal.example.com
     email_admin: admin@example.com
     password_admin: strong-password
+    lokal_secret: nui3fhAoiSDUndakd12
     ansible_user: ubuntu
     services:
     - base

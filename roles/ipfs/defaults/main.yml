@@ -8,4 +8,5 @@ subdomain_ipfs_cluster: ipfs-cluster
 
 # Need to be provided by the user - installation will fail
 # Must be 64 characters long, only hex chars allowed 0-9a-f
-# cluster_secret_ipfs: 
+# SHA1 produces 41 characters long hex-based string
+cluster_secret_ipfs: "{{((lokal_secret + 'cluster_secret_ipfs') | hash('sha1')) + ((lokal_secret + 'cluster_secret_ipfs_part2') | hash('sha1') | regex_search('\\w{23}')) }}"

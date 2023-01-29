@@ -15,20 +15,19 @@ version_jitsi: "stable-5870"
 # thus no need to set those nor here neither in the hosts variables
 
 # XMPP password for Jicofo client connections
-jicofo_auth_password: "sah973dnakjlBJDW"
+jicofo_auth_password: "{{(lokal_secret + 'jicofo_auth_password') | hash('sha1') | regex_search('\\w{16}') }}"
 
 # XMPP password for JVB client connections
-jvb_auth_password: "hddqid1qi980nlad"
+jvb_auth_password: "{{(lokal_secret + 'jvb_auth_password') | hash('sha1') | regex_search('\\w{16}') }}"
 
 # XMPP password for Jigasi MUC client connections
-jigasi_xmpp_password: "dhiuq013G72sqndM"
+jigasi_xmpp_password: "{{(lokal_secret + 'jigasi_xmpp_password') | hash('sha1') | regex_search('\\w{16}') }}"
 
 # XMPP recorder password for Jibri client connections
-jibri_recorder_password: "wihSadqQNZPp1282134d"
+jibri_recorder_password: "{{(lokal_secret + 'jibri_recorder_password') | hash('sha1') | regex_search('\\w{16}') }}"
 
 # XMPP password for Jibri client connections
-jibri_xmpp_password: "wodu981qdwHBUYYas3jsAQLZ"
-
+jibri_xmpp_password: "{{(lokal_secret + 'jibri_xmpp_password') | hash('sha1') | regex_search('\\w{16}') }}"
 
 #
 # Basic configuration options
