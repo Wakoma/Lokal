@@ -1,0 +1,8 @@
+---
+- name: Remove mail
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: remove
+  vars:
+    app: mail
+    firewall: true
