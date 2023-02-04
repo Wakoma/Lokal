@@ -5,5 +5,16 @@
     tasks_from: install
   vars:
     app: asterisk
+    firewall_tcp:
+    - '4445' # fop
+    - '4569' # iax
+    - '8001' # ucp
+    - '8003' # ucp ssl
+    - '8008' # ucp
+    - '8009' # ucp ssl
+    firewall_udp:
+    - '5060' # pjsip
+    - '5160' # sip
+    - '18000-18500' # rtp ports
     data_dirs:
     - logs
