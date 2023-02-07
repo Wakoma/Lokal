@@ -17,4 +17,6 @@
     - '5160' # sip
     - '18000-18500' # rtp ports
     data_dirs:
+    - data
+    - web
     - logs
