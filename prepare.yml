@@ -66,6 +66,7 @@
       docker_users:
       - '{{ app_user }}'
       docker_service_state: restarted
+      docker_install_compose: false  # do not install standalone docker-compose binary
 
   - name: Harden security
     include_role:

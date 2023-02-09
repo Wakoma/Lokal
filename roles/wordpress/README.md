@@ -18,8 +18,8 @@ There are two ways of arranging the docker-compose for upgrades
 2. Having only `wp-content` volume thus the app will always match the code in the image
 
 Both options have own pros&cons regarding wordpress upgrade. Wordpress can be upgraded via the web
-interface - that upgrades the code in `/var/ww/html` and run db migrations. We must ensure that code continue to matche the DB no matter what. Therefor, if somebody runs `docker-compose down`
-and `docker-compose up` the database will be the same. So the code must stay the same as well.
+interface - that upgrades the code in `/var/ww/html` and run db migrations. We must ensure that code continue to matche the DB no matter what. Therefor, if somebody runs `docker compose down`
+and `docker compose up` the database will be the same. So the code must stay the same as well.
 
 For that reason, we need a persistent volume for the application code as well as for the `wp-content`.
 To actually update the code from newer image, one need to clear the content of `/var/www/html/` manually

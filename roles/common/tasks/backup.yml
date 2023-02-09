@@ -13,7 +13,7 @@
 
 - name: "Stop the service"
   ansible.builtin.shell:
-    cmd: "docker-compose stop"
+    cmd: "docker compose stop"
     chdir: "{{project_root}}/{{app}}"
 
 - name: "Backup data"
@@ -48,5 +48,5 @@
 
 - name: "Start the service again"
   ansible.builtin.shell:
-    cmd: "docker-compose start"
+    cmd: "docker compose start"
     chdir: "{{project_root}}/{{app}}"

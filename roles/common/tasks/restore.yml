@@ -15,7 +15,7 @@
 
 - name: "Stop the service"
   ansible.builtin.shell:
-    cmd: "docker-compose down"
+    cmd: "docker compose down"
     chdir: "{{project_root}}/{{app}}"
   ignore_errors: yes
 
@@ -51,5 +51,5 @@
 
 - name: "Start the service again"
   ansible.builtin.shell:
-    cmd: "docker-compose up -d"
+    cmd: "docker compose up -d"
     chdir: "{{project_root}}/{{app}}"

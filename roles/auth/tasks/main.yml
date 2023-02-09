@@ -17,5 +17,5 @@
 
 - name: Docker-compose up
   ansible.builtin.shell: 
-    cmd: "docker-compose up -d"
+    cmd: "docker compose up -d"
     chdir: "{{app_root}}"

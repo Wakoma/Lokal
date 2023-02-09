@@ -1,7 +1,7 @@
 ---
 - name: Remove old container
   ansible.builtin.shell: 
-    cmd: "docker-compose down"
+    cmd: "docker compose down"
     chdir: "{{ project_root }}/wordpress/"
 
 - name: Clear app folder

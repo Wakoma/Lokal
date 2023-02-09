@@ -172,18 +172,18 @@
 
 - name: Prepare installation
   ansible.builtin.shell:
-    cmd: docker-compose run --rm azuracast -- azuracast_install && touch installed
+    cmd: docker compose run --rm azuracast -- azuracast_install && touch installed
     chdir: "{{app_root}}"
     creates: "installed"
   when: not app_upgrade is defined or not app_upgrade
 
 - name: Update app
   ansible.builtin.shell:
-    cmd: docker-compose run --rm azuracast -- azuracast_update
+    cmd: docker compose run --rm azuracast -- azuracast_update
     chdir: "{{app_root}}"
   when: app_upgrade is defined and app_upgrade is truthy
 
 - name: Docker-compose up
   ansible.builtin.shell:
-    cmd: docker-compose up -d
+    cmd: docker compose up -d
     chdir: "{{app_root}}"

@@ -5,7 +5,7 @@
 
 - name: Docker-compose down
   ansible.builtin.shell: 
-    cmd: docker-compose down
+    cmd: docker compose down
     chdir: "{{app_root}}"
   notify:
     - Restart router

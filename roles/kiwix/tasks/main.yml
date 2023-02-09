@@ -17,7 +17,7 @@
 
 - name: Docker-compose up
   ansible.builtin.shell: 
-    cmd: "docker-compose up -d"
+    cmd: "docker compose up -d"
     chdir: "{{ app_root }}"
 
 - name: Find downloaded zim files
@@ -32,7 +32,7 @@
 - name: Update library with transmission-downloaded zim files
   ansible.builtin.shell:
     cmd: >
-      docker-compose exec kiwix 
+      docker compose exec kiwix 
       kiwix-manage /library/library.xml add {{item}}
     chdir: "{{ app_root }}"
   loop: "{{zims.stdout_lines}}" # this is the rule for passing lists
@@ -40,7 +40,7 @@
 - name: Find data files
   ansible.builtin.shell:
     cmd: >
-      docker-compose exec kiwix 
+      docker compose exec kiwix 
       find /data -name '*.zim'
     chdir: "{{ app_root }}"
   register: zims
@@ -49,13 +49,13 @@
 - name: Update library with transmission-downloaded zim files
   ansible.builtin.shell:
     cmd: >
-      docker-compose exec kiwix 
+      docker compose exec kiwix 
       kiwix-manage /library/library.xml add {{item}}
     chdir: "{{ app_root }}"
   loop: "{{zims.stdout_lines}}" # this is the rule for passing lists
 
 - name: Restart kiwix service
   ansible.builtin.shell:
-    cmd: docker-compose restart kiwix
+    cmd: docker compose restart kiwix
     chdir: "{{ app_root }}"
   ignore_errors: yes
