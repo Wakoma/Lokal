@@ -4,17 +4,37 @@
     path: '{{project_root}}/base/{{item}}'
     state: directory
   loop:
-    - mysql
-    - traefik
-    - grafana
-    - prometheus/data
-    - portainer
-    - transmission
-    - postgres
-    - mail
-    - ldap
     - fail2ban/filter.d
     - fail2ban/jail.d
+    - grafana
+    - ldap
+    - mail
+    - mysql
+    - portainer
+    - postgres
+    - prometheus/data
+    - prometheus/etc
+    - traefik/conf
+    - traefik/data
+    - transmission
+
+- name: Warn if a non-linux OS is used
+  debug:
+    msg: "You are installing Lokal on unsuported OS {{ansible_facts['system']}}!
+      Make sure to have mysql client and python3-pymysql installed"
+  when: ansible_facts['system'] != "Linux"
+
+- name: "Install necessary base software"
+  package:
+    name:
+      - mariadb-client
+      - postgresql-client
+      - python3-pymysql
+      - python3-psycopg2
+      - python3-passlib
+    state: present
+  become: true
+  when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
 
 - name: Init IPTABLES firewall
   ansible.builtin.import_role:
@@ -24,7 +44,7 @@
     firewall_enabled_at_boot: true
     firewall_allowed_tcp_ports:
       # ssh
-      - "{{ssh_port}}"
+      - "{{ansible_port}}"
       # web
       - 80
       - 443
@@ -61,24 +81,6 @@
   template:
     src: fail2ban/traefik-jail.conf.j2
     dest: '{{project_root}}/base/fail2ban/jail.d/traefik.conf'
-
-- name: Warn if a non-linux OS is used
-  debug:
-    msg: "You are installing Lokal on unsuported OS {{ansible_facts['system']}}!
-      Make sure to have mysql client and python3-pymysql installed"
-  when: ansible_facts['system'] != "Linux"
-
-- name: "Install necessary base software"
-  package:
-    name:
-      - mariadb-client
-      - postgresql-client
-      - python3-pymysql
-      - python3-psycopg2
-      - python3-passlib
-    state: present
-  become: true
-  when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
 
 - name: "Force local MySQL client to connect via TCP"
   ansible.builtin.copy:

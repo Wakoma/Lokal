@@ -74,5 +74,5 @@
       security_sudoers_passwordless:
       - '{{ app_user }}'
       security_ssh_permit_root_login: "no"
-      security_ssh_port: {{ ssh_port | default("22")}}
+      security_ssh_port: '{{ ssh_port | default("22")}}'
       security_fail2ban_enabled: "false" # we handle fail2ban on our own
