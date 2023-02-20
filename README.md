@@ -10,6 +10,8 @@ Lokal, especially combined with [nimble](https://github.com/Wakoma/nimble), enab
 
 Included services (save one or two) are open source and primarily focused on enabling communities to create, localize, and share their *own* content, whether this is educational or just for fun.  The platform also enables offline, high resolution video/audio/text communication, whether or not there is internet access.  Our team works closely with underconnected communities around the world to add new services to Lokal to meet their own needs.
 
+You can find the full list of current and upcoming services [here](https://github.com/Wakoma/Lokal/tree/main/roles#current-services).
+
 ![Alt text](https://github.com/Wakoma/docs/blob/main/docs/assets/nimblemeshcolorcropped.png)
  
 
