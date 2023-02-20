@@ -1,74 +1,60 @@
 # Lokal Services. Global Impact.
 
-Lokal enables communities to access opensource network services without the internet. Lokal provides opensource alternatives to the most used services such as youtube, twitter, whatsapp, blogs and others.
-Lokal is focused on QoS, Ops and connectivity rather than just providing a bunch of services.
+[![Twitter URL](https://img.shields.io/twitter/follow/WakomaInc?style=social)](https://twitter.com/WakomaInc)
+
+
+2.7 billion people out of 8 billion globally are [offline](https://www.itu.int/en/mediacentre/Pages/PR-2022-09-16-Internet-surge-slows.aspx) - and many people already connected do not have [meaningful access](https://a4ai.org/news/what-is-meaningful-internet-access-conceptualising-a-holistic-ict4d-policy-framework/). 
+
+Lokal, especially combined with [nimble](https://github.com/Wakoma/nimble), enables communities to quickly start and manage a network that has services and content which are available even when there is no access to the wider internet.  Existing networks can also deploy Lokal to bring local content and services to the communities they serve.
+
+Included services (save one or two) are open source and primarily focused on enabling communities to create, localize, and share their *own* content, whether this is educational or just for fun.  The platform also enables offline, high resolution video/audio/text communication, whether or not there is internet access.  Our team works closely with underconnected communities around the world to add new services to Lokal to meet their own needs.
 
 ![Alt text](https://wakoma.co/wp-content/uploads/2021/04/content2.jpg) 
 
-## What is it?
+## What else can it do?
 
-Lokal is a platform comprised of customizable open source software and services that enable communities and organizations to create, consume and communicate offline, or online if a connectivity to the internet is provided. Lokal can run on most servers, whether it’s a Raspberry Pi, a [nimble](https://wakoma.co/nimble), or a virtual private server.
-
-## Hasn’t something like this been built before? 
-
-Yes, many, many times. Which is why we’re trying not to reinvent anything.  Slightly less than half of the world is offline - our intention is to make it easier for communities and organizations to get offline/local content and services running and configured without the high cost and hassle.
-
-## What is different about Lokal than similar platforms?
-
-Lokal is built to be offline first.  Users can run the services in a global server OR local server that runs offline or online.
-
-We're also using and integrating services that enable network management, offgrid communications, live radio, content production, and other tools which are absent in a number of existing platforms but essential for communities without meaningful connectivity. 
+The platform enables social eLearning (building, running and taking social courses), video and audio calling and messaging, high-speed file-sharing and synchronization, wireless network management, media streaming, collaborative document and spreadsheet creation, and much more.
 
 ## How does it work?
 
-Lokal is installed via ansible. Therefore we provide ansible playbook to prepare
-your remote server and another playbook to handle installation and other operations.
+1. Find computer. New/old/laptop/desktop.
+2. Install Linux operating system on computer.
+3. Install Lokal (see below)
+4. Add your own content, or download readily available content from the web.
+5. Connect computer to your network to enable community access to the service.
 
-Lokal is composed of services, that are, due to the choice of ansible, hidden in 
-folder `roles`. You can specify which services will be installed for each host 
-separately by using `services` variable in their `hosts/` file. Simply add the 
-folder's name into the `services` array. The only mandator service is the `base`
-service that provides database and monitoring. All other services are optional.
+## Installation Details
 
-The inventory file is the only file you need to edit. It lives in `hosts/` folder
-and is a complete prescription of the future Lokal installation. This file contains
-list of installed services and their configuration. There are two example hosts files:
-`local` and `remote`. We recommend naming your hosts files according to the domain
-of your target server.
+Lokal is installed via ansible. Therefore we provide ansible playbook to prepare your remote server and another playbook to handle installation and other operations.
 
-## How do I try it out?
+Lokal is composed of services, that are, due to the choice of ansible, hidden in the folder `roles`. You can specify which services will be installed for each host  separately by using `services` variable in their `hosts/` file. Simply add the  folder's name into the `services` array. The only mandatory services are the `base` services that provide database and monitoring. All other services are optional.
 
-Please take a look at the script `tryitout.sh`. There are the few necessary steps 
-to run Lokal on your computer with the most basic setup (monitoring + wordpress).
-If you happend to have `apt` based OS, then you can simply run the script.
+The inventory file is the only file you need to edit. It lives in `hosts/` folder and is a complete prescription of the future Lokal installation. This file contains list of installed services and their configuration. There are two example hosts files: `local` and `remote`. We recommend naming your hosts files according to the domain of your target server.
 
-The script will first create `$HOME/lokal-client` that is a python virtualenv and
-installs ansible into it. Then it starts Lokal installation that will use provided `hosts/local`
-"inventory file" hence will install lokal into `$HOME/lokal` with mentioned services.
-You can change the location and services and passwords in this file. The file `hosts/local`
-is the only file that you need to modify and it completely describes Lokal setup.
+### How do I try it out?
 
-## Installation
+Please take a look at the script `tryitout.sh`. There are the few necessary steps to run Lokal on your computer with the most basic setup (monitoring + wordpress). If you happend to have `apt` based OS, then you can simply run the script.
+ 
+The script will first create `$HOME/lokal-client` that is a python virtualenv and installs ansible into it. Then it starts Lokal installation that will use provided `hosts/local` "inventory file" hence will install lokal into `$HOME/lokal` with mentioned services.
 
-Once you have setup ansible on your computer and (optionally) server ready using `prepare.yml`
-then you can start using the main `playbook.yml` that by default installs all services defined in 
-`hosts` file in `services` variable.
+You can change the location and services and passwords in this file. The file `hosts/local` is the only file that you need to modify and it completely describes Lokal setup.
+
+### Installation
+
+Once you have setup ansible on your computer and (optionally) server ready using `prepare.yml` then you can start using the main `playbook.yml` that by default installs all services defined in `hosts` file in `services` variable.
 ```bash
 ansible-playbook -i hosts/<your-host-file> playbook.yml
 ```
-You can run installation multiple times. It should only check that everything is
-setup correctly. If you'd increase version in software in your hosts file or we
-would increase the version in the underlying roles than running the installation
-again would update the application.
+You can run installation multiple times. It should only check that everything is setup correctly. If you'd increase version in software in your hosts file or we would increase the version in the underlying roles than running the installation again would update the application.
 
-## Backup
+### Backup
 
 You can either backup concrete services by specifying `-e backup=service1,service2`.
 ```bash
 ansible-playbook -i hosts/<your-host-file> -e backup=wordpress,matmoto playbook.yml
 ```
 
-## Restore
+### Restore
 
 Of course you can restore backed up services using `-e restore=service1,service2`.
 ```bash
@@ -77,19 +63,33 @@ ansible-playbook -i hosts/<your-host-file> -e restore=wordpress playbook.yml
 
 ## More documentation
 
-For more details, please refer to our [documentation](docs/) or its rendered version
-at https://docs.lokal.network
+For more details, please refer to our [documentation](docs/) or its rendered version at https://docs.lokal.network.
+
+## Support
+
+Email us at info @ wakoma.co
+or join our [Matrix Room](https://matrix.to/#/!LiofJlKVLSDakgkDGf:wakoma.net?via=wakoma.net).
 
 
-## What can it do?
+## Similar Projects
 
-The platform enables social eLearning (building, running and taking social courses), video and audio calling and messaging, high-speed file-sharing and synchronization, wireless network management, media streaming, collaborative document and spreadsheet creation, and much more. 
+- https://github.com/yunohost
+- https://github.com/getumbrel
+- https://github.com/iiab/
 
-## How can I get involved?
+There are many platforms for deploying services, many of which we support.  For example, [Internet in a Box](https://github.com/iiab/) is a great solution if you're aiming to deploying local content on a Raspberry Pi or similar SBC, to a smaller number of users.
 
-Jump in here, or reach out to info@wakoma.co.
+Lokal aims to make it easier to deploy locally relevant content and services to ANY number of users, depending on the network in which it runs. 
 
-Also have a look at current paid opportunities to get involved [here](https://wakoma.co/opportunities/)! 
+We're also using and integrating services that enable network management, offgrid communications, live radio, content production, and other tools which are absent in a number of existing platforms but essential for communities without meaningful connectivity. 
 
+
+## Contributing
+
+Our team is global, diverse, and very open to new ideas and contributions.
+
+We will soon make a guide at docs.lokal.network on how to add new services or features to Lokal.
+
+In the meantime, feel free to ping us at info @ wakoma.co or in the Lokal [Matrix Room](https://matrix.to/#/!LiofJlKVLSDakgkDGf:wakoma.net?via=wakoma.net).
 
 ![Alt text](https://wakoma.co/wp-content/uploads/2020/01/IMG_5704-Large.jpg)
