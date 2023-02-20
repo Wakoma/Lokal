@@ -1,15 +1,17 @@
+
 # Lokal Services. Global Impact.
 
 [![Twitter URL](https://img.shields.io/twitter/follow/WakomaInc?style=social)](https://twitter.com/WakomaInc)
 
 
-2.7 billion people out of 8 billion globally are [offline](https://www.itu.int/en/mediacentre/Pages/PR-2022-09-16-Internet-surge-slows.aspx) - and many people already connected do not have [meaningful access](https://a4ai.org/news/what-is-meaningful-internet-access-conceptualising-a-holistic-ict4d-policy-framework/). 
+At least 2.7 billion people out of 8 billion globally are [offline](https://www.itu.int/en/mediacentre/Pages/PR-2022-09-16-Internet-surge-slows.aspx) - and many people already connected do not have [meaningful access](https://a4ai.org/news/what-is-meaningful-internet-access-conceptualising-a-holistic-ict4d-policy-framework/).
 
 Lokal, especially combined with [nimble](https://github.com/Wakoma/nimble), enables communities to quickly start and manage a network that has services and content which are available even when there is no access to the wider internet.  Existing networks can also deploy Lokal to bring local content and services to the communities they serve.
 
 Included services (save one or two) are open source and primarily focused on enabling communities to create, localize, and share their *own* content, whether this is educational or just for fun.  The platform also enables offline, high resolution video/audio/text communication, whether or not there is internet access.  Our team works closely with underconnected communities around the world to add new services to Lokal to meet their own needs.
 
-![Alt text](https://wakoma.co/wp-content/uploads/2021/04/content2.jpg) 
+![Alt text](https://github.com/Wakoma/docs/blob/main/docs/assets/nimblemeshcolorcropped.png)
+ 
 
 ## What else can it do?
 
