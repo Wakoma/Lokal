@@ -69,11 +69,15 @@ ansible-playbook -i hosts/<your-host-file> -e restore=wordpress playbook.yml
 
 For more details, please refer to our [documentation](docs/) or its rendered version at https://docs.lokal.network.
 
-## Support
+## Support/Info
 
-Email us at info @ wakoma.co
-or join our [Matrix Room](https://matrix.to/#/!LiofJlKVLSDakgkDGf:wakoma.net?via=wakoma.net).
+Feel free to join us here:
 
+* [nimble Website](https://wakoma.co/nimble/)
+* [Discussion Forums](https://forums.wakoma.co/)
+* [Matrix Space](https://matrix.to/#/!JWutrWVlqsuiauWbPf:wakoma.net?via=wakoma.net)
+* [Twitter](https://twitter.com/WakomaInc)
+* Mastodon, Peertube, Pixelfed (coming soon)
 
 ## Similar Projects
 
