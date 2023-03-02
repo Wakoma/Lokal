@@ -40,7 +40,7 @@
 - name: Parse previous {{app}} version
   ansible.builtin.set_fact:
     app_version_prev: "{{version_file['content'] | b64decode}}"
-    app_upgrade: "{{(version_file['content'] | b64decode) is version(app_version, '<')}}"
+    app_updated: "{{(version_file['content'] | b64decode) is version(app_version, '<')}}"
   when: app_version is defined and version_file is defined and version_file.content is defined
 
 - name: Set current {{app}} version
@@ -89,7 +89,7 @@
     state: present
   when: postgres_db is defined
 
-- name: Allow {{app}} firewall ports
+- name: Open {{app}} firewall ports
   become: true
   vars:
     firewall_group: "{{app}}"
@@ -120,4 +120,4 @@
   ansible.builtin.shell: 
     cmd: docker image prune -f
     chdir: "{{app_root}}"
-  when: app_version is defined and app_upgrade is defined and app_upgrade is truthy
+  when: app_version is defined and app_updated is defined and app_updated is truthy

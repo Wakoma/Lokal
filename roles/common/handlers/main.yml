@@ -1,0 +1,5 @@
+
+- name: Reload docker
+  shell:
+    cmd: "systemctl reload docker"
+  become: true
