@@ -4,77 +4,27 @@ Lokal provides software as sepatare `roles`. There are two special roles. Maybe 
 the `common` role to a separate module. We'll see if we do in the future.
 
 ## Common role
-But, speaking of `common` - this is the only role that does
-not install any software - it contains logic to install/backup/restore/remove applications. Therefore
-it is hard-wired in playbook.yml and all other roles are taken from the `services` variable. If you
-want to add a new software to Lokal stack please visit this role for more information.
+
+This is the only role that does not hold any software - it is intended solely for developers. You
+will use it when add your own role (service). Common role contains logic to install, backup, restore, and remove
+applications. Therefore it is hard-wired in playbook.yml because all standard roles are using it. If you
+want to add a new software to Lokal stack please visit (common/)[this common role] for more information.
 
 ## Base role
+
 The other special role is `base`. It is special because it is mandatory. It contains necessary software
-for running Lokal and a database that majority apps is using because it is setup via common.install task.
+for running Lokal.
 
 ## Other roles
-In order to add more software to your host server it is necessary to add them into `services` variable
-that is simply an array of strings where the values are names of the roles. Therefore the most basic
-setup for a host would be
 
-```yaml
-all:
-  hosts: "x.y.z.a"
-  vars:
-    ssl_use_acme: true
-    domain: your.domain.com
-    email_admin: your@email.com
-    ansible_user: ubuntu
-    services:
-    - base
-    - unifi
-```
+All other roles contain installable software. Roles define their default variables in `default/main.yml`.
+Roles can use undefined variables to force you to actually define them. This is not as common as before
+because for example passowrds are deduced from `lokal_secret`. Only publically-facing credentials need to
+be defined.
 
-# Running stuff
-`playbook.yml` has multiple mode-operandi it works in:
-
-- install (default)
-- backup
-- restore
-- remove (only some services)
-
-```bash
-ansible-playbook -i hosts/your-host playbook.yml
-```
-This command will install/update all applications specified in the `services` variable.
-
-To issue something else than installation, you need to specify the action using `-e` 
-together with services, that you want to affect. It is discussed in detail in the 
-following sections.
-
-## Install
-
-Installation should be an indempotent operation (the author of installation tasks is responsible).
-Installation either installs or updates the application. For example wordpress has more complicated
-upgrade logic because it could have been manually updated via the web interface and its role takes
-this into account.
-
-## Backup
-
-You control what is being run by ansible-playbook's command line argument `-e backup`. Variable
-backup should contain comma-separated services that you want to backup e.g.:
-```bash
-ansible-playbook -i host/your-host -e backup=wordpress,matmoto playbook.yml
-```
-
-## Restore
-
-Restore is controlled by property `restore` with the same syntax as `backup` - it should contain also
-comma-separated services that you want to restore.
-```bash
-ansible-playbook -i host/your-host -e restore=wordpress,matmoto playbook.yml
-``` 
-
-## Uninstall
-
-Uninstall is controlled by `uninstall` property with same syntax as the ones above. You can remove the
-uninstalled program from `services` variable before or after running the `uninstall` command.
+Each role should take advantage of `password_admin` to create any "admin" accounts if possible. If your
+software is intended only for admin users and it doesn't have builtin authentication mechanism then you
+can easily hide it behind traefik's basic authentication mechanism.
 
 # Creating your own service
 
