@@ -57,10 +57,10 @@
     firewall_disable_ufw: true
   become: true
 
-- name: Reload docker
-  shell:
-    cmd: "systemctl reload docker"
-  become: true
+- name: Notify docker deamon for a restart
+  ansible.builtin.noop: null
+  notify:
+  - Reload docker
 
 - name: "Render traefik configuration"
   ansible.builtin.template:
