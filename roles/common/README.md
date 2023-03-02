@@ -1,7 +1,7 @@
 # Common
 
-Welcome in the role, that helps you to install, backup and restore services
-in Lokal. Each app should have following structure
+Welcome in the role, that helps you to install, backup, restore and remove services
+in Lokal. Each role should have following structure
 ```
 roles/
   - your-app/
@@ -24,17 +24,22 @@ to use the logic provided by the common role. It helps with the usual tasks as
 creating folders, database and obtaining the most used information such as `uid`
 and `gid`.
 
-# Install
+## Variables
 
-The `common.install` performs following steps
-- creates and registers `{{app_root}}` so you can use it later;
-- creates all `data_dirs` that you have specified inside `app_root`
-- if you set `app_version`
-  - saves the version specified in `app_version` into `{{app_root}}/version`
-  - specifies app_upgrade if the version changed from the last time
-- creates mysql database from `mysql_db`, `mysql_user`, and `mysql_password` variables for you
-- renders `templates/compose.yml.j2` as `{{app_root}}/docker-compose.yml`
-- starts the docker-compose (unless you specify `start:false`)
+A list of available variables that you can define in role's `tasks/main.yml` when
+including `common.install` tasks. Please see the example `tasks/main.yml`
+
+- `app` folder name created for your app - full path will be available in `app_root` variable
+- `data_dirs` (optional) list of directories that will be created inside `app_root`
+- `app_version` (optional) version of your app - if an update happen that `app_updated` will be true
+- `mysql_db`, `mysql_user`, and `mysql_password` will prepare a MySQL database
+- `postgres_db`, `postgres_user`, and `postgres_password` will prepare a PostgreSQL database
+- `firewall_tcp` and/or `firewall_udp` should contain list of ports to open in firewall 
+- `start` (optional, boolean) - whether directly invoke `docker compose up -d` at the end
+
+The common install tasks will finish with rendering  `templates/compose.yml.j2` into 
+`{{app_root}}/docker-compose.yml` and optionally starting it using docker compose (unless
+you specify `start:false`)
 
 By default, the app_root is `{{project_root}}/{{app}}` where `project_root` is
 by default at `/opt/lokal`. This folder (together with `/opt/lokal-backup`) are
@@ -46,6 +51,8 @@ If you specified `mysql_db`, `mysql_user`, and `mysql_password` then your databa
 will be available at `mysql_host` and `mysql_port` with the credentials provided.
 Don't forget to add `mysql` external network to your docker-compose if you want to
 connect to it.
+The same applies for `postgres` - simply replace all `mysql` with `postgres` in the
+variables above. The same applies for the network as well.
 
 ### templates/compose.yml.j2
 
@@ -91,15 +98,6 @@ it is necessary to add following IF block in the container's labels.
 {% endif %}
 ```
 
-#### MySQL
-
-MySQL database is provided by the `base` role. You can reach it on 
-- `{{mysql_host}}`
-- `{{mysql_port}}`
-and the database should be ready if you have used the common.install tasks and
-specified your `db_name`, `db_user` and `db_password`. Don't forget to add the
-`mysql` network to your compose.yml networks.
-
 ### Volumes
 
 Please use only bind mounts and only inside `{{app_root}}` otherwise the builtin
@@ -138,10 +136,11 @@ services:
 
 ### Network and Firewall
 
-There are few external networks
+There are few external networks that you want to include if you need access to the services
 - `traefik` - to be able to use traefik labels for routing external traffic
 - `prometheus` - so your service exports monitoring data to prometheus
-- `mysql` - needed to have access to external MariaDB instance
+- `mysql` - gives you access to a MariaDB
+- `postgres` - gives you access to a PostgreSQL instance
 
 You can export ports but pay attention that you need to allow them in firewall
 so they can receive to connection from the outside. You don't need to export
@@ -150,16 +149,6 @@ need to export the HTTP port that traefik will bind to using the label
 ```yaml
 traefik.http.services.your-service.loadbalancer.server.port: your-http-port
 ```
-
-Only possible firewall with dockerd in production is actually raw `iptables`.
-We use `geerlingguy.firewall` role that is a bit of a hack around iptables.
-It serializes all firewall rules into a script in `/etc/firewall.bash`, that 
-is run on startup by `systemd`. The issue is that it ends with `DROP ALL` 
-therefore you cannot just append new rules once the role has run. You need 
-to INSERT them but they will not persist after a restart. Unfortunatelly, 
-you need to add your service's ports into `prepare.yml` playbook to ensure 
-everything works. Or to set them up (and persist) using `iptables` command.
-
 
 # Backup and Restore
 
