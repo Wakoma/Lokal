@@ -98,9 +98,15 @@
   ansible.builtin.import_role:
     name: geerlingguy.firewall.d
   when: firewall_tcp is truthy or firewall_udp is truthy
-  # We need to reload docker so it places all its iptables rules back since the
-  # firewall restart blindly flushes all firewall chains (even DOCKER chains)
-  notify: Reload docker
+
+# We need to reload docker so it places all its iptables rules back since the
+# firewall restart blindly flushes all firewall chains (even DOCKER chains)
+# We must have created a dummy shell command because only there notify works
+- name: Reload docker daemon
+  ansible.builtin.shell:
+    cmd: echo hi
+  when: firewall_tcp is truthy or firewall_udp is truthy
+  notify: "common : Reload docker"
 
 - name: Render {{app}} docker-compose.yml
   ansible.builtin.template:
@@ -110,11 +116,11 @@
 
 # you can avoid starting the app defining "start: false" in `vars` section
 - name: Docker-compose up
-  ansible.builtin.shell: 
+  ansible.builtin.shell:
     cmd: docker compose up -d
     chdir: "{{app_root}}"
   when: not start is defined or start is truthy  # start only when start: false is not a fact
-  notify: Restart router
+  notify: "common : Restart router"
 
 - name: Docker purge unused images
   ansible.builtin.shell: 

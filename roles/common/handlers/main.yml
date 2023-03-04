@@ -1,5 +1,12 @@
+---
+- name: Restart router
+  ansible.builtin.shell:
+    cmd: docker compose restart traefik
+    chdir: "{{project_root}}/base"
+  ignore_errors: yes
 
 - name: Reload docker
-  shell:
-    cmd: "systemctl reload docker"
   become: true
+  ansible.builtin.service:
+    name: docker
+    state: reloaded

@@ -56,11 +56,16 @@
       - 51413
     firewall_disable_ufw: true
   become: true
+  # we would like to notify Reload docker but notifications on import_role
+  # does not call notifiers
 
-- name: Notify docker deamon for a restart
-  ansible.builtin.noop: null
-  notify:
-  - Reload docker
+# We need to reload docker so it places all its iptables rules back since the
+# firewall restart blindly flushes all firewall chains (even DOCKER chains)
+# We must have created a dummy shell command because only there notify works
+- name: Reload docker daemon
+  ansible.builtin.shell:
+    cmd: echo hi
+  notify: "common : Reload docker"
 
 - name: "Render traefik configuration"
   ansible.builtin.template:
@@ -95,7 +100,7 @@
     dest: '{{project_root}}/base/docker-compose.yml'
 
 - name: Docker-compose up
-  ansible.builtin.shell: 
+  ansible.builtin.shell:
     cmd: "docker compose up -d"
     chdir: "{{project_root}}/base"
 
