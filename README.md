@@ -29,9 +29,10 @@ The platform enables social eLearning (building, running and taking social cours
 
 ## Installation Details
 
-Lokal is installed via ansible. Therefore we provide ansible playbook to prepare your remote server and another playbook to handle installation and other operations.
+Lokal is installed via ansible. Therefore we provide ansible playbook to prepare your remote server and another playbook to handle Lokal's services.
 
-Lokal is composed of services, that are, due to the choice of ansible, hidden in the folder `roles`. You can specify which services will be installed for each host  separately by using `services` variable in their `hosts/` file. Simply add the  folder's name into the `services` array. The only mandatory services are the `base` services that provide database and monitoring. All other services are optional.
+Lokal is composed of services, that are, due to the choice of ansible, hidden in the folder `roles`. You can specify which services will be installed for each host separately by using `services` variable in their inventory file. Simply add the  folder's name into the `services` array. The only mandatory role to be included in your `services` is the `base`. All other
+services are optional.
 
 The inventory file is the only file you need to edit. It lives in `hosts/` folder and is a complete prescription of the future Lokal installation. This file contains list of installed services and their configuration. There are two example hosts files: `local` and `remote`. We recommend naming your hosts files according to the domain of your target server.
 
