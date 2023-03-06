@@ -44,7 +44,7 @@
     firewall_enabled_at_boot: true
     firewall_allowed_tcp_ports:
       # ssh
-      - "{{ansible_port}}"
+      - "{{ansible_port | default(22)}}"
       # web
       - 80
       - 443
