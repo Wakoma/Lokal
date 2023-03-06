@@ -219,6 +219,7 @@ services:
     container_name: portainer
     user: "{{uid}}:{{gid_docker}}"
     restart: unless-stopped
+    command: --admin-password {{password_admin}}
     security_opt:
     - no-new-privileges:true
     volumes:
@@ -234,7 +235,6 @@ services:
       traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
-      traefik.http.routers.portainer.middlewares: admin-auth@file
 {% if ssl_use_acme %}
       traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
 {% endif %}
