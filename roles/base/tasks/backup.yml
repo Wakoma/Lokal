@@ -1,7 +1,6 @@
 ---
-- name: Backup base
-  ansible.builtin.include_role:
-    name: common
-    tasks_from: backup
-  vars:
-    app: base
+- name: "Backup data"
+  ansible.builtin.shell:
+    cmd: "tar -czf {{backup_dir}}/files.tgz grafana ldap"
+    chdir: "{{project_root}}/base/"
+  become: yes # we need to become root to preserve docker's user owner of the files

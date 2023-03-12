@@ -6,7 +6,7 @@
 
   tasks:
   - name: Install all services
-    loop: "{{services}}"
+    loop: "{{['base', ] + services}}"
     loop_control:
       loop_var: service
     include_role:
@@ -44,7 +44,7 @@
 
   - name: Backup all services
     when: backup is defined and backup == 'all'
-    loop: "{{services}}"
+    loop: "{{['base', ] + services}}"
     loop_control:
       loop_var: service
     include_role:
@@ -66,7 +66,7 @@
     when: "restore is defined and restore != 'all' and restore|split(',')|difference(services) is falsy"
 
   - name: Restore all services
-    loop: "{{services}}"
+    loop: "{{['base', ] + services}}"
     loop_control:
       loop_var: service
     include_role:

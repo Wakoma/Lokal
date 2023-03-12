@@ -8,7 +8,6 @@ all:
     lokal_secret: nui3fhAoiSDUndakd12
     ansible_user: ubuntu
     services:
-    - base
     - unifi
     - portainer
     - wordpress

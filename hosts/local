@@ -11,7 +11,4 @@ all:
     backup_root: "$HOME/lokal-backup"
     ansible_connection: local
     services:
-    - base
-    # - mail
-    # - auth
     - wordpress

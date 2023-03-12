@@ -1,7 +1,27 @@
 ---
-- name: Restore base
-  ansible.builtin.include_role:
-    name: common
-    tasks_from: restore
-  vars:
-    app: base
+- name: List possible backup files
+  ansible.builtin.find:
+    paths: "{{backup_root}}/base"
+    file_type: directory
+  register: available_backups
+
+- name: Get the latest backup
+  ansible.builtin.set_fact:
+    latest_backup: "{{ available_backups.files | sort(attribute='mtime',reverse=true) | first }}"
+
+- name: Fail if there is no backup
+  ansible.builtin.fail:
+    msg: No backup found
+  when: latest_backup is falsy
+
+- name: "Stop the service"
+  ansible.builtin.shell:
+    cmd: "docker compose down"
+    chdir: "{{project_root}}/base"
+  ignore_errors: yes
+
+- name: "Restore data"
+  ansible.builtin.shell:
+    cmd: "tar -xzf {{latest_backup.path}}/files.tgz"
+    chdir: "{{project_root}}/base"
+  become: yes
