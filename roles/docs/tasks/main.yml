@@ -17,17 +17,24 @@
 
 - name: Copy markdown files
   ansible.builtin.copy:
-    src: "files/"
-    dest: "{{app_root}}/data/docs/" 
+    src: "docs/docs"
+    dest: "{{app_root}}/data/"
     force: true # always update
 
-- name: Render mkdocs config
-  ansible.builtin.template:
-    src: "mkdocs.yml"
-    dest: "{{app_root}}/data/mkdocs.yml" 
+- name: Copy mkdocs config
+  ansible.builtin.copy:
+    src: "docs/mkdocs.yml"
+    dest: "{{app_root}}/data/"
     force: true # always update
+
+- name: Correct domain name
+  ansible.builtin.lineinfile:
+    path: "{{app_root}}/data/mkdocs.yml"
+    line: "site_url: https://{{subdomain_docs}}.{{domain}}/"
+    state: present
+    search_string: "site_url: https://docs.lokal.network/"
 
 - name: Start the build and server
   ansible.builtin.shell: 
-    cmd: docker-compose up -d
+    cmd: docker compose up -d
     chdir: "{{app_root}}"
