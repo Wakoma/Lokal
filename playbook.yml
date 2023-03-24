@@ -2,7 +2,7 @@
 - name: Install lokal
   hosts: all
   roles:
-  - common
+  - lokal
 
   tasks:
   - name: Install all services

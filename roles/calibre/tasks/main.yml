@@ -1,7 +1,7 @@
 ---
 - name: Install calibre
   include_role:
-    name: common
+    name: lokal
     tasks_from: install
   vars:
     app: calibre

@@ -65,7 +65,7 @@
 - name: Reload docker daemon
   ansible.builtin.shell:
     cmd: echo hi
-  notify: "common : Reload docker"
+  notify: "lokal : Reload docker"
 
 - name: "Render traefik configuration"
   ansible.builtin.template:
@@ -92,7 +92,8 @@
     dest: "$HOME/.my.cnf"
     content: "
   [client]\n
-  protocol=tcp\n"
+  protocol=tcp\n
+  host=localhost\n"
 
 - name: Render base docker-compose.yml
   ansible.builtin.template:

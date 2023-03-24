@@ -1,7 +1,7 @@
 ---
 - name: Install papad
   include_role:
-    name: common
+    name: lokal
     tasks_from: install
   vars:
     app: papad

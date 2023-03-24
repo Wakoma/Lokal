@@ -100,7 +100,7 @@ services:
     image: grafana/grafana:{{version_grafana}}
     user: "{{uid}}:{{gid}}"
     environment:
-      GF_INSTALL_PLUGINS: grafana-clock-panel,natel-discrete-panel,grafana-piechart-panel
+#     GF_INSTALL_PLUGINS: grafana-clock-panel,natel-discrete-panel,grafana-piechart-panel
       GF_AUTH_DISABLE_LOGIN_FORM: "true"
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_USERS_ALLOW_SIGN_UP: "false"
@@ -241,6 +241,7 @@ services:
 
   fail2ban:
     image: crazymax/fail2ban:latest
+    # no user: "{{uid}}:{{gid}}" because it cannot bind socket /var/run/fail2ban/fail2ban.sock
     container_name: fail2ban
     network_mode: "host"
     depends_on:

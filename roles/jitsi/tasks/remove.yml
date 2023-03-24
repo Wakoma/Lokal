@@ -1,7 +1,7 @@
 ---
 - name: Remove jitsi
   ansible.builtin.include_role:
-    name: common
+    name: lokal
     tasks_from: remove
   vars:
     app: jitsi

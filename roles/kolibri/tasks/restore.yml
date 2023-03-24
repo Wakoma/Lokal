@@ -1,7 +1,7 @@
 ---
 - name: Restore kolibri
   ansible.builtin.include_role:
-    name: common
+    name: lokal
     tasks_from: restore
   vars:
     app: kolibri

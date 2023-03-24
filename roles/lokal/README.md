@@ -20,14 +20,14 @@ roles/
 ```
 
 If you follow this structure and recomendations given bellow, you will be able
-to use the logic provided by the common role. It helps with the usual tasks as
+to use the logic provided by the lokal role. It helps with the usual tasks as
 creating folders, database and obtaining the most used information such as `uid`
 and `gid`.
 
 ## Variables
 
 A list of available variables that you can define in role's `tasks/main.yml` when
-including `common.install` tasks. Please see the example `tasks/main.yml`
+including `lokal.install` tasks. Please see the example `tasks/main.yml`
 
 - `app` folder name created for your app - full path will be available in `app_root` variable
 - `data_dirs` (optional) list of directories that will be created inside `app_root`
@@ -37,13 +37,13 @@ including `common.install` tasks. Please see the example `tasks/main.yml`
 - `firewall_tcp` and/or `firewall_udp` should contain list of ports to open in firewall 
 - `start` (optional, boolean) - whether directly invoke `docker compose up -d` at the end
 
-The common install tasks will finish with rendering  `templates/compose.yml.j2` into 
+The lokal install tasks will finish with rendering  `templates/compose.yml.j2` into 
 `{{app_root}}/docker-compose.yml` and optionally starting it using docker compose (unless
 you specify `start:false`)
 
 By default, the app_root is `{{project_root}}/{{app}}` where `project_root` is
 by default at `/opt/lokal`. This folder (together with `/opt/lokal-backup`) are
-created automatically on the first run by the common role.
+created automatically on the first run by the lokal role.
 
 ## Database
 
@@ -102,8 +102,8 @@ it is necessary to add following IF block in the container's labels.
 
 Please use only bind mounts and only inside `{{app_root}}` otherwise the builtin
 backup and restore will not work. All app files should be places in `{{project_root}}/<service-name>`. 
-Once you call `common.install` in your task then this location will be available to you as `{{app_root}}`.
-You can specify `data_dirs` for the `common.install` and those directories will be created inside `{{app_root}}`
+Once you call `lokal.install` in your task then this location will be available to you as `{{app_root}}`.
+You can specify `data_dirs` for the `lokal.install` and those directories will be created inside `{{app_root}}`
 and available for being bind-mounted into your docker containers.
 
 ### Privileges
@@ -118,7 +118,7 @@ services:
     user: "{{uid}}:{{gid}}"
 ```
 in your compose.yml.j2. Those variables `uid` and `gid` are prepared for
-you by the `common` role again and are available everywhere.
+you by the `lokal` role again and are available everywhere.
 
 Sometimes the image allows you to specify `PUID/PGID` env variables. That
 means that the container will be privileges-aware and will automatically

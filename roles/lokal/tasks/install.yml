@@ -106,7 +106,7 @@
   ansible.builtin.shell:
     cmd: echo hi
   when: firewall_tcp is truthy or firewall_udp is truthy
-  notify: "common : Reload docker"
+  notify: "lokal : Reload docker"
 
 - name: Render {{app}} docker-compose.yml
   ansible.builtin.template:
@@ -120,7 +120,7 @@
     cmd: docker compose up -d
     chdir: "{{app_root}}"
   when: not start is defined or start is truthy  # start only when start: false is not a fact
-  notify: "common : Restart router"
+  notify: "lokal : Restart router"
 
 - name: Docker purge unused images
   ansible.builtin.shell: 

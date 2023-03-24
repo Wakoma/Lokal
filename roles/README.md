@@ -1,14 +1,14 @@
 # Services
 
 Lokal provides software as sepatare `roles`. There are two special roles. Maybe we should have moved
-the `common` role to a separate module. We'll see if we do in the future.
+the `lokal` role to a separate module. We'll see if we do in the future.
 
 ## Common role
 
 This is the only role that does not hold any software - it is intended solely for developers. You
 will use it when add your own role (service). Common role contains logic to install, backup, restore, and remove
 applications. Therefore it is hard-wired in playbook.yml because all standard roles are using it. If you
-want to add a new software to Lokal stack please visit (common/)[this common role] for more information.
+want to add a new software to Lokal stack please visit (lokal/)[this lokal role] for more information.
 
 ## Base role
 
@@ -18,7 +18,7 @@ for running Lokal.
 ## Other roles
 
 All other roles contain installable software. Roles define their default variables in `default/main.yml`.
-Roles can use undefined variables to force you to actually define them. This is not as common as before
+Roles can use undefined variables to force you to actually define them. This is not as lokal as before
 because for example passowrds are deduced from `lokal_secret`. Only publically-facing credentials need to
 be defined.
 
@@ -28,7 +28,7 @@ can easily hide it behind traefik's basic authentication mechanism.
 
 # Creating your own service
 
-Please take a look in the `common` role that provides necessary logic for apps instalations and handling.
+Please take a look in the `lokal` role that provides necessary logic for apps instalations and handling.
 
 # What services does it include so far?
 

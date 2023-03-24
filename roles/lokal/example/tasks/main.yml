@@ -1,7 +1,7 @@
 ---
 - name: Install your-app
   include_role:
-    name: common
+    name: lokal
     tasks_from: install
   vars:
     app: your-app
@@ -16,13 +16,13 @@
 - name: Example copy of a file in your files/ folder
   ansible.builtin.copy:
     src: "files/your-static-file.txt"
-    dest: "{{app_root}}/data/some-file.txt" # {{app_root}} is accessible because the common.install already ran
+    dest: "{{app_root}}/data/some-file.txt" # {{app_root}} is accessible because the lokal.install already ran
     force: false
 
 - name: Example copy of a file in your files/ folder
   ansible.builtin.template:
     src: "service.conf.j2"  # path is relative to templates/
-    dest: "{{app_root}}/config/service.conf" # {{app_root}} is accessible because the common.install already ran
+    dest: "{{app_root}}/config/service.conf" # {{app_root}} is accessible because the lokal.install already ran
     force: false
 
 # You can do more steps before finally launching your application

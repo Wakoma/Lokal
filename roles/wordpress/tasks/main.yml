@@ -27,7 +27,7 @@
     dest: "{{project_root}}/wordpress/php.ini"
 
 - name: Install wordpress
-  include_role: {name: common, tasks_from: install}
+  include_role: {name: lokal, tasks_from: install}
   vars:
     app: wordpress
     mysql_user: "{{mysql_user_wordpress}}"
