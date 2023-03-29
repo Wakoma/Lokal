@@ -42,8 +42,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
       MARIADB_MYSQL_LOCALHOST_USER: "true"
-    ports:
-    - '{{mysql_port}}:3306'  # necessary to manipulate mariadb locally
     networks:
     - mysql
     - prometheus

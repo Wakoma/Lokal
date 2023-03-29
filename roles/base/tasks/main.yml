@@ -27,9 +27,7 @@
 - name: "Install necessary base software"
   package:
     name:
-      - mariadb-client
       - postgresql-client
-      - python3-pymysql
       - python3-psycopg2
       - python3-passlib
     state: present
@@ -86,14 +84,6 @@
   template:
     src: fail2ban/traefik-jail.conf.j2
     dest: '{{project_root}}/base/fail2ban/jail.d/traefik.conf'
-
-- name: "Force local MySQL client to connect via TCP"
-  ansible.builtin.copy:
-    dest: "$HOME/.my.cnf"
-    content: "
-  [client]\n
-  protocol=tcp\n
-  host=localhost\n"
 
 - name: Render base docker-compose.yml
   ansible.builtin.template:
