@@ -63,24 +63,27 @@
       mysql -u root --password={{mysql_root_password}} -e "GRANT ALL ON {{mysql_db}}.* TO '{{mysql_user}}'@'%' IDENTIFIED BY '{{mysql_password}}'" mysql
   when: mysql_db is defined
 
-- name: Create new {{app}} PostgreSQL user
-  community.postgresql.postgresql_user:
-    name: "{{postgres_user}}"
-    password: "{{postgres_password}}"
-    login_host: localhost
-    login_password: "{{postgres_root_password}}"
-    login_port: "{{postgres_port}}"
+- name: Query {{app}} PostgreSQL database exists
+  ansible.builtin.shell:
+    cmd: >
+      docker exec postgres
+      psql -XtAc "SELECT 1 FROM pg_database WHERE datname='{{postgres_db}}'" postgres postgres
   when: postgres_db is defined
+  register: psql_db_exists
 
-- name: Create new {{app}} PostgreSQL database for the user
-  community.postgresql.postgresql_db:
-    name: "{{postgres_db}}"
-    login_host: localhost
-    login_password: "{{postgres_root_password}}"
-    login_port: "{{postgres_port}}"
-    owner: "{{postgres_user}}"
-    state: present
-  when: postgres_db is defined
+- name: Create {{app}} PostgreSQL user
+  ansible.builtin.shell:
+    cmd: >
+      docker exec postgres
+      psql -c "CREATE USER {{postgres_user}} WITH NOSUPERUSER NOCREATEDB PASSWORD '{{postgres_password}}'" postgres postgres;
+  when: postgres_db is defined and psql_db_exists.stdout is falsy
+
+- name: Create {{app}} PostgreSQL database
+  ansible.builtin.shell:
+    cmd: >
+      docker exec postgres
+      psql -c "CREATE DATABASE {{postgres_db}} OWNER {{postgres_user}}" postgres postgres;
+  when: postgres_db is defined and psql_db_exists.stdout is falsy
 
 - name: Open {{app}} firewall ports
   become: true
