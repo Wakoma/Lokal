@@ -4,9 +4,3 @@
     cmd: docker compose restart traefik
     chdir: "{{project_root}}/base"
   ignore_errors: yes
-
-- name: Reload docker
-  become: true
-  ansible.builtin.service:
-    name: docker
-    state: reloaded

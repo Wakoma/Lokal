@@ -14,8 +14,10 @@
     - postgres
     - prometheus/data
     - prometheus/etc
+    - traefik/acme
     - traefik/conf
     - traefik/data
+    - traefik/logs
     - transmission
 
 - name: Warn if a non-linux OS is used
@@ -53,17 +55,9 @@
       # transmission
       - 51413
     firewall_disable_ufw: true
+    firewall_flush_filter_chains: ["INPUT"]
+    firewall_flush_rules_and_chains: false
   become: true
-  # we would like to notify Reload docker but notifications on import_role
-  # does not call notifiers
-
-# We need to reload docker so it places all its iptables rules back since the
-# firewall restart blindly flushes all firewall chains (even DOCKER chains)
-# We must have created a dummy shell command because only there notify works
-- name: Reload docker daemon
-  ansible.builtin.shell:
-    cmd: echo hi
-  notify: "lokal : Reload docker"
 
 - name: "Render traefik configuration"
   ansible.builtin.template:

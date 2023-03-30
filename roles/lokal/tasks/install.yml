@@ -88,18 +88,10 @@
     firewall_group: "{{app}}"
     firewall_allowed_tcp_ports: "{{firewall_tcp}}"
     firewall_allowed_udp_ports: "{{firewall_udp}}"
+    # firewall_restart_docker: true
   ansible.builtin.import_role:
     name: geerlingguy.firewall.d
   when: firewall_tcp is truthy or firewall_udp is truthy
-
-# We need to reload docker so it places all its iptables rules back since the
-# firewall restart blindly flushes all firewall chains (even DOCKER chains)
-# We must have created a dummy shell command because only there notify works
-- name: Reload docker daemon
-  ansible.builtin.shell:
-    cmd: echo hi
-  when: firewall_tcp is truthy or firewall_udp is truthy
-  notify: "lokal : Reload docker"
 
 - name: Render {{app}} docker-compose.yml
   ansible.builtin.template:
