@@ -5,6 +5,7 @@
     tasks_from: install
   vars:
     app: matomo
+    app_version: "{{version_matomo}}"
     mysql_user: "{{mysql_user_matomo}}"
     mysql_password: "{{mysql_password_matomo}}"
     mysql_db: "{{mysql_database_matomo}}"
