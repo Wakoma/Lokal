@@ -6,34 +6,29 @@
   set_fact:
     backup_dir: "{{backup_root}}/{{app}}/{{timestamp_result.stdout}}"
 
-- name: "Create backup dir"
+- name: "Create {{app}} backup dir"
   ansible.builtin.file:
     path: "{{backup_dir}}"
     state: directory
 
-- name: "Stop the service"
+- name: "Stop {{app}} service"
   ansible.builtin.shell:
     cmd: "docker compose stop"
     chdir: "{{project_root}}/{{app}}"
 
-- name: "Backup data"
+- name: "Backup {{app}} data"
   ansible.builtin.shell:
     cmd: "tar -czf {{backup_dir}}/files.tgz ."
     chdir: "{{project_root}}/{{app}}"
   become: yes # we need to become root to preserve docker's user owner of the files
 
-- name: "Backup MySQL"
-  community.mysql.mysql_db:
-    state: dump
-    name: "{{mysql_db}}"
-    target: database.sql.gz
-    dump_extra_args: "--routines --triggers --protocol=TCP"
-    login_user: root
-    login_password: "{{mysql_root_password}}"
-    login_host: localhost
-    login_port: "{{mysql_port}}"
-    chdir: "{{backup_dir}}"
-  when: mysql_db is defined
+- name: "Backup {{app}} MySQL to {{backup_dir}}"
+  ansible.builtin.shell:
+    cmd: >
+      docker exec mariadb
+      mysqldump -u root --password={{mysql_root_password}} --routines --triggers --add-drop-table --flush-logs
+      {{mysql_db}} | gzip > {{backup_dir}}/database.sql.gz
+    chdir: "{{project_root}}/base"
 
 - name: Backup PostgreSQL
   community.postgresql.postgresql_db:

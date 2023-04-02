@@ -13,30 +13,32 @@
     msg: No backup found
   when: latest_backup is falsy
 
-- name: "Stop the service"
+- name: "Stop {{ app }} service"
   ansible.builtin.shell:
     cmd: "docker compose down"
     chdir: "{{project_root}}/{{app}}"
   ignore_errors: yes
 
-- name: "Restore data"
+- name: "Restore {{ app }} data from {{ latest_backup.path }}"
   ansible.builtin.shell:
     cmd: "tar -xzf {{latest_backup.path}}/files.tgz"
     chdir: "{{project_root}}/{{app}}"
   become: yes
 
-- name: "Restore MySQL"
-  community.mysql.mysql_db:
-    state: import
-    name: "{{mysql_db}}"
-    target: database.sql.gz
-    login_user: root
-    login_password: "{{mysql_root_password}}"
-    login_port: "{{mysql_port}}"
-    login_host: localhost
-    chdir: "{{latest_backup.path}}"
-    force: yes
-  when: mysql_db is defined
+- name: "Uzip {{app}} MySQL dump file"
+  ansible.builtin.shell:
+    cmd: "zcat {{latest_backup.path}}/database.sql.gz > {{project_root}}/base/mariadb/{{app}}.sql"
+    chdir: "{{project_root}}/base"
+
+- name: "Restore {{app}} MySQL tables"
+  ansible.builtin.shell:
+    cmd: "docker compose exec mariadb mysql -u root --password={{mysql_root_password}} -f -e 'source /var/lib/mysql/{{app}}.sql' {{mysql_db}}"
+    chdir: "{{project_root}}/base"
+
+- name: "Delete ucompressed {{app}} MYSQL dump file"
+  ansible.builtin.file:
+    path: "{{project_root}}/base/mariadb/{{app}}.sql"
+    state: "absent"
 
 - name: Restore PostgreSQL
   community.postgresql.postgresql_db:
@@ -49,7 +51,7 @@
     target: "{{backup_dir}}/postgres.sql.gz"
   when: postgres_db is defined
 
-- name: "Start the service again"
+- name: "Start {{app}} again"
   ansible.builtin.shell:
     cmd: "docker compose up -d"
     chdir: "{{project_root}}/{{app}}"

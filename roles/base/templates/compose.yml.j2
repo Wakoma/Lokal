@@ -53,7 +53,7 @@ services:
       timeout: 1s
     restart: unless-stopped
     volumes:
-    - {{project_root}}/base/mysql/:/var/lib/mysql/
+    - {{project_root}}/base/mariadb/:/var/lib/mysql/
 
   postgres:
     container_name: postgres

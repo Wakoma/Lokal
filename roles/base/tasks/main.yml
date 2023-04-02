@@ -8,8 +8,7 @@
     - fail2ban/jail.d
     - grafana
     - ldap
-    - mail
-    - mysql
+    - mariadb
     - portainer
     - postgres
     - prometheus/data
