@@ -105,7 +105,7 @@
 # you can avoid starting the app defining "start: false" in `vars` section
 - name: Docker-compose up
   ansible.builtin.shell:
-    cmd: docker compose up -d
+    cmd: "docker compose up -d"
     chdir: "{{app_root}}"
   when: not start is defined or start is truthy  # start only when start: false is not a fact
   notify: "lokal : Restart router"

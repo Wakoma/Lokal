@@ -19,17 +19,9 @@
     - traefik/logs
     - transmission
 
-- name: Warn if a non-linux OS is used
-  debug:
-    msg: "You are installing Lokal on unsuported OS {{ansible_facts['system']}}!
-      Make sure to have mysql client and python3-pymysql installed"
-  when: ansible_facts['system'] != "Linux"
-
 - name: "Install necessary base software"
   package:
     name:
-      - postgresql-client
-      - python3-psycopg2
       - python3-passlib
     state: present
   become: true
