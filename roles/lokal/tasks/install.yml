@@ -60,7 +60,7 @@
   ansible.builtin.shell:
     cmd: >
       docker exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e "GRANT ALL ON {{mysql_db}}.* TO '{{mysql_user}}'@'%' IDENTIFIED BY '{{mysql_password}}'" mysql
+      mysql -u root --password={{mysql_root_password}} -e "GRANT ALL ON {{mysql_db}}.* TO '{{mysql_user|default(mysql_db)}}'@'%' IDENTIFIED BY '{{mysql_password}}'" mysql
   when: mysql_db is defined
 
 - name: Query {{app}} PostgreSQL database exists

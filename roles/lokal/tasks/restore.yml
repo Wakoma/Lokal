@@ -27,18 +27,21 @@
 
 - name: "Uzip {{app}} MySQL dump file"
   ansible.builtin.shell:
-    cmd: "zcat {{latest_backup.path}}/database.sql.gz > {{project_root}}/base/mariadb/{{app}}.sql"
+    cmd: "zcat {{latest_backup.path}}/mysql.sql.gz > {{project_root}}/base/mariadb/{{app}}.sql"
     chdir: "{{project_root}}/base"
+  when: mysql_db is defined
 
 - name: "Restore {{app}} MySQL tables"
   ansible.builtin.shell:
     cmd: "docker compose exec mariadb mysql -u root --password={{mysql_root_password}} -f -e 'source /var/lib/mysql/{{app}}.sql' {{mysql_db}}"
     chdir: "{{project_root}}/base"
+  when: mysql_db is defined
 
-- name: "Delete ucompressed {{app}} MYSQL dump file"
+- name: "Delete ucompressed {{app}} MySQL dump file"
   ansible.builtin.file:
     path: "{{project_root}}/base/mariadb/{{app}}.sql"
     state: "absent"
+  when: mysql_db is defined
 
 - name: Restore PostgreSQL
   community.postgresql.postgresql_db:

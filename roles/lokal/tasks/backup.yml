@@ -27,8 +27,9 @@
     cmd: >
       docker exec mariadb
       mysqldump -u root --password={{mysql_root_password}} --routines --triggers --add-drop-table --flush-logs
-      {{mysql_db}} | gzip > {{backup_dir}}/database.sql.gz
+      {{mysql_db}} | gzip > {{backup_dir}}/mysql.sql.gz
     chdir: "{{project_root}}/base"
+  when: mysql_db is defined
 
 - name: Backup PostgreSQL
   community.postgresql.postgresql_db:
