@@ -51,7 +51,7 @@
 
 - name: "Restore {{app}} PostgreSQL tables"
   ansible.builtin.shell:
-    cmd: "docker compose exec postgres pg_restore -U postgres /var/lib/postgresql/data/{{app}}.sql
+    cmd: "docker compose exec postgres pg_restore -U postgres -d {{postgres_db}} /var/lib/postgresql/data/{{app}}.sql
     chdir: "{{project_root}}/base"
   when: postgres_db is defined
 
