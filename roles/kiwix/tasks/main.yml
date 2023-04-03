@@ -56,6 +56,6 @@
 
 - name: Restart kiwix service
   ansible.builtin.shell:
-    cmd: docker compose restart kiwix
+    cmd: "docker compose restart kiwix"
     chdir: "{{ app_root }}"
   ignore_errors: yes

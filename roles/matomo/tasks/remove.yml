@@ -6,3 +6,4 @@
   vars:
     app: matomo
     mysql_db: "{{mysql_database_matomo}}"
+    mysql_user: "{{mysql_user_matomo}}"
