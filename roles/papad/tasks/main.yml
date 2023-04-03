@@ -35,5 +35,5 @@
 # This is the command to start your app manually
 - name: Start the app
   ansible.builtin.shell: 
-    cmd: docker compose up -d
+    cmd: "docker compose up -d"
     chdir: "{{app_root}}"
