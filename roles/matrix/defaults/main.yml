@@ -3,3 +3,8 @@ postgres_db_matrix: matrix
 postgres_user_matrix: matrix
 postgres_password_matrix: matrix
 subdomain_matrix: matrix
+admin_password_matrix: "{{password_admin}}"
+linked_dirs_matrix:
+  # data:"/mnt/data/matrix"
+users_matrix:
+  # - {user: lokal, password: lokal123}

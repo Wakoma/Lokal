@@ -3,18 +3,33 @@ version: "3.8"
 services:
   matrix_turn:
     image: coturn/coturn
-    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
-    ports:
-    - 3478:3478
-    - 3478:3478/udp
-    - 5349:5349
-    - 5349:5349/udp
-    - 49152-65535
-    - 49152-65535/udp
+    network_mode: "host"
+    command: --external-ip="{{ip}}" --log-file=stdout --relay-ip="{{ip}}"
+    # ports:
+    # - 3478:3478
+    # - 3478:3478/udp
+    # - 5349:5349
+    # - 5349:5349/udp
+    # - 49152-65535
+    # - 49152-65535/udp
+
+  matrix_client:
+    image: vectorim/element-web
+    networks:
+    - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.matrix-client.entrypoints: websecure
+      traefik.http.routers.matrix-client.rule: Host(`{{subdomain_matrix}}.{{domain}}`)
+      traefik.http.routers.matrix-client.tls: "true"
+      traefik.http.routers.matrix-client.service: matrix-client
+      traefik.http.services.matrix-client.loadbalancer.server.port: 80
+    volumes:
+    - {{app_root}}/element/config.json:/app/config.json
+
  
   matrix:
     image: matrixdotorg/synapse:{{version_matrix}}
-    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
       SYNAPSE_SERVER_NAME: {{subdomain_matrix}}.{{domain}}
       SYNAPSE_REPORT_STATS: "no"
@@ -33,11 +48,13 @@ services:
       traefik.http.routers.matrix.entrypoints: websecure
       traefik.http.routers.matrix.rule: Host(`{{subdomain_matrix}}.{{domain}}`) && PathPrefix(`/_matrix`, `/_synapse/client`)
       traefik.http.routers.matrix.tls: "true"
+      traefik.http.routers.matrix.service: matrix
       traefik.http.services.matrix.loadbalancer.server.port: 8008
-      traefik.http.routers.matrix_fed.entrypoints: federation
-      traefik.http.routers.matrix_fed.rule: Host(`{{subdomain_matrix}}.{{domain}}`)
-      traefik.http.services.matrix_fed.loadbalancer.server.port: 8448
-{% if server_is_live %} # please keep this part to have automatic certificate issue and renewal
+      traefik.http.routers.matrix-fed.entrypoints: federation
+      traefik.http.routers.matrix-fed.rule: Host(`{{subdomain_matrix}}.{{domain}}`)
+      traefik.http.routers.matrix-fed.service: matrix-fed
+      traefik.http.services.matrix-fed.loadbalancer.server.port: 8448
+{% if server_is_live %}
       traefik.http.routers.matrix.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
