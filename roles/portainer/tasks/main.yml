@@ -1,0 +1,9 @@
+---
+- name: Install portainer
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: portainer
+    data_dirs:
+    - data

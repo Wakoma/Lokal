@@ -9,7 +9,6 @@
     - grafana
     - ldap
     - mariadb
-    - portainer
     - postgres
     - prometheus/data
     - prometheus/etc
@@ -48,6 +47,7 @@
     firewall_disable_ufw: true
     firewall_flush_filter_chains: ["INPUT"]
     firewall_flush_rules_and_chains: false
+    firewall_restart_docker: true
   become: true
 
 - name: "Render traefik configuration"

@@ -6,3 +6,4 @@
   vars:
     app: nextcloud
     mysql_db: '{{mysql_database_nextcloud}}'
+    mysql_user: '{{mysql_user_nextcloud}}'

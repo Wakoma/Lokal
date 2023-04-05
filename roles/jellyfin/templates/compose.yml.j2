@@ -2,7 +2,7 @@ version: "3.8"
 services:
 
   jellyfin:
-    image: linuxserver/jellyfin
+    image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
     environment:
       PUID: '{{uid}}'
@@ -15,7 +15,7 @@ services:
       - "{{project_root}}/base/transmission/data:/media:ro"
     ports:
       - 7359:7359/udp
-      # - 1900:1900/udp  # Can't be used at 1900 because that clashes with unif-controller
+      # - 1900:1900/udp  # DNLA discoverability; can't be used for it clashes with unif-controller
     restart: unless-stopped
     labels:
       traefik.enable: "true"

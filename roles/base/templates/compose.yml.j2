@@ -212,31 +212,6 @@ services:
     - --providers.file.directory=/config
     - --providers.file.watch=true
 
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    user: "{{uid}}:{{gid_docker}}"
-    restart: unless-stopped
-    command: --admin-password {{password_admin}}
-    security_opt:
-    - no-new-privileges:true
-    volumes:
-    - /etc/localtime:/etc/localtime:ro
-    - /var/run/docker.sock:/var/run/docker.sock:ro
-    - {{project_root}}/base/portainer/:/data/
-    networks:
-    - prometheus
-    - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.portainer.entrypoints: websecure
-      traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
-      traefik.http.routers.portainer.tls: "true"
-      traefik.http.services.portainer.loadbalancer.server.port: 9000
-{% if ssl_use_acme %}
-      traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
-{% endif %}
-
   fail2ban:
     image: crazymax/fail2ban:latest
     # no user: "{{uid}}:{{gid}}" because it cannot bind socket /var/run/fail2ban/fail2ban.sock

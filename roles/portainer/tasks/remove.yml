@@ -1,0 +1,7 @@
+---
+- name: Remove portainer
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: remove
+  vars:
+    app: portainer

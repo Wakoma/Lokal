@@ -2,7 +2,7 @@ version: "3.8"
 services:
   kiwix:
     container_name: kiwix
-    image: kiwix/kiwix-serve  # TODO: pin version
+    image: ghcr.io/kiwix/kiwix-serve:{{version_kiwix}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     command:
       - --library

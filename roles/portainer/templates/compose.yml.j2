@@ -1,0 +1,33 @@
+version: "3.8"
+
+networks:
+  traefik:
+    name: traefik
+  prometheus:
+    name: prometheus
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    user: "{{uid}}:{{gid_docker}}"
+    restart: unless-stopped
+    command: --admin-password {{password_admin}}
+    security_opt:
+    - no-new-privileges:true
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - {{app_root}}/data/:/data/
+    networks:
+    - prometheus
+    - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.portainer.entrypoints: websecure
+      traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
+      traefik.http.routers.portainer.tls: "true"
+      traefik.http.services.portainer.loadbalancer.server.port: 9000
+{% if ssl_use_acme %}
+      traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
+{% endif %}
