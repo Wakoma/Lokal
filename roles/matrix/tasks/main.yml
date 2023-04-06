@@ -5,7 +5,6 @@
     tasks_from: install
   vars:
     app: matrix
-    linked_dirs: "{{linked_dirs_matrix}}"
     data_dirs:
     - data
     - config
@@ -30,7 +29,7 @@
     force: false
 
 - name: Generate config and keys
-  shell:
+  ansible.builtin.shell:
     cmd: >
       docker run -it --rm
       --user {{uid}}:{{gid}}
@@ -40,16 +39,16 @@
       matrixdotorg/synapse:latest generate
     creates: "{{app_root}}/data/homeserver.yaml"
 
-- name: Enable user creation if server is not live
-  lineinfile:
-    line: "{{item}}"
+- name: Decide user creation (setup by enable_registration_matrix)
+  ansible.builtin.lineinfile:
+    line: "{{item}}: {{enable_registration_matrix|to_json}}"
+    regex: "{{item}}.*"
     path: "{{app_root}}/data/homeserver.yaml"
     state: present
-  when: enable_user_creation_matrix
+  notify: "matrix : restart"
   loop:
-  - "suppress_key_server_warning: true"
-  - "enable_registration_without_verification: true"
-  - "enable_registration: true"
+  - enable_registration
+  - enable_registration_without_verification
 
 - name: Start matrix app
   ansible.builtin.shell:
@@ -58,7 +57,7 @@
 
 - name: Wait for the server to start up
   ansible.builtin.pause:
-    seconds: 1
+    seconds: 5
 
 - name: Ensure Synapse admin user registered exists
   ansible.builtin.command:
@@ -70,22 +69,6 @@
       -p "{{ admin_password_matrix }}"
       -c /data/homeserver.yaml --admin
       http://localhost:8008
-  register: matrix_synapse_register_user_result
-  changed_when: matrix_synapse_register_user_result.rc == 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout
-  failed_when: matrix_synapse_register_user_result.rc != 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout
-
-- name: Ensure Synapse admin user registered exists
-  ansible.builtin.command:
-    chdir: "{{app_root}}"
-    cmd: >
-      docker compose exec matrix register_new_matrix_user
-      --no-admin
-      -u {{ item.user }}
-      -p "{{ item.password }}"
-      -c /data/homeserver.yaml
-      http://localhost:8008
-  loop: '{{users_matrix}}'
-  when: users_matrix is defined and users_matrix is list
   register: matrix_synapse_register_user_result
   changed_when: matrix_synapse_register_user_result.rc == 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout
   failed_when: matrix_synapse_register_user_result.rc != 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout

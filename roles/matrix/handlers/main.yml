@@ -1,0 +1,4 @@
+- name: restart
+  ansible.builtin.shell:
+    cmd: docker compose restart
+    chdir: "{{app_root}}"
