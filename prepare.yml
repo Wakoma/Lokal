@@ -32,7 +32,6 @@
       groups: [sudo]
       append: yes
       createhome: yes
-      password: "{{ admin_password | password_hash('sha512') }}"
 
   - name: Ensure that the primary user's ssh directory exists
     file:
