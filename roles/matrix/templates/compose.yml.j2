@@ -4,7 +4,7 @@ services:
   matrix_turn:
     image: coturn/coturn
     network_mode: "host"
-    command: --external-ip="{{ip}}" --log-file=stdout --relay-ip="{{ip}}"
+    command: --external-ip="{{external_ipv4}}" --log-file=stdout --relay-ip="{{external_ipv4}}"
     # ports:
     # - 3478:3478
     # - 3478:3478/udp
@@ -54,7 +54,7 @@ services:
       traefik.http.routers.matrix-fed.rule: Host(`{{subdomain_matrix}}.{{domain}}`)
       traefik.http.routers.matrix-fed.service: matrix-fed
       traefik.http.services.matrix-fed.loadbalancer.server.port: 8448
-{% if server_is_live %}
+{% if ssl_use_acme %}
       traefik.http.routers.matrix.tls.certresolver: {{cert_resolver}}
 {% endif %}
 

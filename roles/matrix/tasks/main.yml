@@ -13,7 +13,6 @@
     postgres_db: "{{postgres_db_matrix}}"
     postgres_user: "{{postgres_user_matrix}}"
     postgres_password: "{{postgres_password_matrix}}"
-    start: false # you can postpone starting (by defaults the container starts)
     firewall_tcp:
     - "3478"
     - "5349"
@@ -46,11 +45,20 @@
     line: "{{item}}"
     path: "{{app_root}}/data/homeserver.yaml"
     state: present
-  when: not server_is_live
+  when: enable_user_creation_matrix
   loop:
   - "suppress_key_server_warning: true"
   - "enable_registration_without_verification: true"
   - "enable_registration: true"
+
+- name: Start matrix app
+  ansible.builtin.shell:
+    cmd: docker compose up -d
+    chdir: "{{app_root}}"
+
+- name: Wait for the server to start up
+  ansible.builtin.pause:
+    seconds: 1
 
 - name: Ensure Synapse admin user registered exists
   ansible.builtin.command:
@@ -77,19 +85,7 @@
       -c /data/homeserver.yaml
       http://localhost:8008
   loop: '{{users_matrix}}'
-  when: users_matrix is defined and users_matrix is truthy
+  when: users_matrix is defined and users_matrix is list
   register: matrix_synapse_register_user_result
   changed_when: matrix_synapse_register_user_result.rc == 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout
   failed_when: matrix_synapse_register_user_result.rc != 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout
-
-- name: Render element config
-  ansible.builtin.template:
-    src: "element.json.j2"
-    dest: "{{app_root}}/element/config.json"
-    force: false
-
-# This is the command to start your app manually
-- name: Start matrix app
-  ansible.builtin.shell:
-    cmd: docker compose up -d
-    chdir: "{{app_root}}"

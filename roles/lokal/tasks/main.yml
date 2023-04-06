@@ -38,3 +38,4 @@
     gid: '{{ansible_facts["user_gid"]}}'
     tz: '{{ansible_facts["date_time"]["tz"]}}'
     gid_docker: '{{docker_gid_output.stdout}}'
+    external_ipv4: '{{ansible_facts["default_ipv4"]["address"]}}'
