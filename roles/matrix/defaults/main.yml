@@ -1,0 +1,14 @@
+version_matrix: v1.73.0
+postgres_db_matrix: matrix
+postgres_user_matrix: matrix
+postgres_password_matrix: matrix
+subdomain_matrix: matrix
+admin_password_matrix: "{{password_admin}}"
+
+enable_user_creation_matrix: true
+
+# linked_dirs_matrix:
+#   data:"/mnt/data/matrix"
+
+# users_matrix:
+#   - {user: lokal, password: lokal123}

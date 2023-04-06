@@ -1,0 +1,91 @@
+---
+- name: Install matrix
+  include_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: matrix
+    linked_dirs: "{{linked_dirs_matrix}}"
+    data_dirs:
+    - data
+    - config
+    - element
+    postgres_db: "{{postgres_db_matrix}}"
+    postgres_user: "{{postgres_user_matrix}}"
+    postgres_password: "{{postgres_password_matrix}}"
+    firewall_tcp:
+    - "3478"
+    - "5349"
+    - "49152:65535"
+    firewall_udp:
+    - "3478"
+    - "5349"
+    - "49152:65535"
+    start: false
+
+- name: Render element config
+  ansible.builtin.template:
+    src: "element.json.j2"
+    dest: "{{app_root}}/element/config.json"
+    force: false
+
+- name: Generate config and keys
+  shell:
+    cmd: >
+      docker run -it --rm
+      --user {{uid}}:{{gid}}
+      --mount type=bind,src={{app_root}}/data,dst=/data
+      -e SYNAPSE_SERVER_NAME={{subdomain_matrix}}.{{domain}}
+      -e SYNAPSE_REPORT_STATS=no
+      matrixdotorg/synapse:latest generate
+    creates: "{{app_root}}/data/homeserver.yaml"
+
+- name: Enable user creation if server is not live
+  lineinfile:
+    line: "{{item}}"
+    path: "{{app_root}}/data/homeserver.yaml"
+    state: present
+  when: enable_user_creation_matrix
+  loop:
+  - "suppress_key_server_warning: true"
+  - "enable_registration_without_verification: true"
+  - "enable_registration: true"
+
+- name: Start matrix app
+  ansible.builtin.shell:
+    cmd: docker compose up -d
+    chdir: "{{app_root}}"
+
+- name: Wait for the server to start up
+  ansible.builtin.pause:
+    seconds: 1
+
+- name: Ensure Synapse admin user registered exists
+  ansible.builtin.command:
+    chdir: "{{app_root}}"
+    cmd: >
+      docker compose exec matrix
+      register_new_matrix_user
+      -u admin
+      -p "{{ admin_password_matrix }}"
+      -c /data/homeserver.yaml --admin
+      http://localhost:8008
+  register: matrix_synapse_register_user_result
+  changed_when: matrix_synapse_register_user_result.rc == 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout
+  failed_when: matrix_synapse_register_user_result.rc != 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout
+
+- name: Ensure Synapse admin user registered exists
+  ansible.builtin.command:
+    chdir: "{{app_root}}"
+    cmd: >
+      docker compose exec matrix register_new_matrix_user
+      --no-admin
+      -u {{ item.user }}
+      -p "{{ item.password }}"
+      -c /data/homeserver.yaml
+      http://localhost:8008
+  loop: '{{users_matrix}}'
+  when: users_matrix is defined and users_matrix is list
+  register: matrix_synapse_register_user_result
+  changed_when: matrix_synapse_register_user_result.rc == 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout
+  failed_when: matrix_synapse_register_user_result.rc != 0 and 'User ID already taken' not in matrix_synapse_register_user_result.stdout

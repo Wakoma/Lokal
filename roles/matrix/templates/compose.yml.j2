@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  matrix_turn:
+    image: coturn/coturn
+    network_mode: "host"
+    command: --external-ip="{{external_ipv4}}" --log-file=stdout --relay-ip="{{external_ipv4}}"
+    # ports:
+    # - 3478:3478
+    # - 3478:3478/udp
+    # - 5349:5349
+    # - 5349:5349/udp
+    # - 49152-65535
+    # - 49152-65535/udp
+
+  matrix_client:
+    image: vectorim/element-web
+    networks:
+    - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.matrix-client.entrypoints: websecure
+      traefik.http.routers.matrix-client.rule: Host(`{{subdomain_matrix}}.{{domain}}`)
+      traefik.http.routers.matrix-client.tls: "true"
+      traefik.http.routers.matrix-client.service: matrix-client
+      traefik.http.services.matrix-client.loadbalancer.server.port: 80
+    volumes:
+    - {{app_root}}/element/config.json:/app/config.json
+
+ 
+  matrix:
+    image: matrixdotorg/synapse:{{version_matrix}}
+    environment:
+      SYNAPSE_SERVER_NAME: {{subdomain_matrix}}.{{domain}}
+      SYNAPSE_REPORT_STATS: "no"
+      UID: {{uid}}
+      GID: {{gid}}
+      TZ: {{tz}}
+    volumes:
+    - {{app_root}}/config:/config
+    - {{app_root}}/data:/data
+    restart: unless-stopped
+    networks:
+    - traefik # necessary for extenal access to your app (via a domain name)
+    - postgres # necessary if you want to use the external database
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.matrix.entrypoints: websecure
+      traefik.http.routers.matrix.rule: Host(`{{subdomain_matrix}}.{{domain}}`) && PathPrefix(`/_matrix`, `/_synapse/client`)
+      traefik.http.routers.matrix.tls: "true"
+      traefik.http.routers.matrix.service: matrix
+      traefik.http.services.matrix.loadbalancer.server.port: 8008
+      traefik.http.routers.matrix-fed.entrypoints: federation
+      traefik.http.routers.matrix-fed.rule: Host(`{{subdomain_matrix}}.{{domain}}`)
+      traefik.http.routers.matrix-fed.service: matrix-fed
+      traefik.http.services.matrix-fed.loadbalancer.server.port: 8448
+{% if ssl_use_acme %}
+      traefik.http.routers.matrix.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+networks:
+  traefik:
+    external: true
+  postgres:
+    external: true
