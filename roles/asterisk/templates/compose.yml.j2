@@ -33,6 +33,9 @@ services:
       TLS_CERT: /certs/{{domain}}.crt
       TLS_KEY: /certs/{{domain}}.key
 {% endif %}
+    networks:
+    - traefik
+    - mysql
     volumes:
 {% if not ssl_use_acme %}
     - {{project_root}}/{{domain}}.key:/certs/{{domain}}.key
@@ -50,9 +53,6 @@ services:
 {% if ssl_use_acme %} # please keep this part to have automatic certificate issue and renewal
       traefik.http.routers.asterisk.tls.certresolver: {{cert_resolver}}
 {% endif %}
-    networks:
-      - traefik
-      - mysql
 
 networks:
   traefik:

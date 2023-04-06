@@ -20,6 +20,6 @@
     - data
     - web
     - log
-    mysql_db: db_name_asterisk
-    mysql_user: db_user_asterisk
-    mysql_password: db_password_asterisk
+    mysql_db: "{{db_name_asterisk}}"
+    mysql_user: "{{db_user_asterisk}}"
+    mysql_password: "{{db_password_asterisk}}"
