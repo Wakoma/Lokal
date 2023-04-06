@@ -4,3 +4,8 @@ mysql_database_wordpress: wordpress
 
 version_wordpress: "6.0.2"
 title_wordpress: "Lokal Wordpress"
+
+# If you don't specify the subdomain then wordpress will be installed into the top-level domain
+subdomain_wordpress:
+
+domain_wordpress: "{% if subdomain_wordpress %}{{subdomain_wordpress}}.{% endif %}{{domain}}"
