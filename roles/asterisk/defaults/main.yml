@@ -1,0 +1,5 @@
+subdomain_asterisk: phone
+
+db_name_asterisk: asterisk
+db_user_asterisk: asterisk
+db_password_asterisk: asterisk
