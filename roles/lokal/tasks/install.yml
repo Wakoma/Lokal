@@ -12,16 +12,16 @@
   ansible.builtin.file:
     path: "{{item.value}}"
     state: directory
-  loop: "{{linked_dirs | dict2items }}"
-  when: linked_dirs is defined and linked_dirs is truthy
+  loop: "{{linked_dirs | dict2items}}"
+  when: linked_dirs is defined and linked_dirs|bool  # truthy does not stop None value?!
 
 - name: Link {{app}} external directories
   ansible.builtin.file:
     path: "{{app_root}}/{{item.key}}"
     src: "{{item.value}}"
     state: link
-  loop: "{{linked_dirs | dict2items }}"
-  when: linked_dirs is defined and linked_dirs is truthy 
+  loop: "{{linked_dirs | dict2items}}"
+  when: linked_dirs is defined and linked_dirs|bool
 
 - name: Create {{app}} data directories
   ansible.builtin.file:
@@ -52,37 +52,42 @@
 - name: Create {{app}} MySQL database
   ansible.builtin.shell:
     cmd: >
-      docker exec mariadb
+      docker compose exec mariadb
       mysql -u root --password={{mysql_root_password}} -e 'CREATE DATABASE IF NOT EXISTS {{mysql_db}}' mysql
+    chdir: "{{project_root}}/base"
   when: mysql_db is defined
 
 - name: Create {{app}} MySQL user
   ansible.builtin.shell:
     cmd: >
-      docker exec mariadb
+      docker compose exec mariadb
       mysql -u root --password={{mysql_root_password}} -e "GRANT ALL ON {{mysql_db}}.* TO '{{mysql_user|default(mysql_db)}}'@'%' IDENTIFIED BY '{{mysql_password}}'" mysql
+    chdir: "{{project_root}}/base"
   when: mysql_db is defined
 
-- name: Query {{app}} PostgreSQL database exists
+- name: Does {{app}} PostgreSQL already exist?
   ansible.builtin.shell:
     cmd: >
-      docker exec postgres
+      docker compose exec postgres
       psql -XtAc "SELECT 1 FROM pg_database WHERE datname='{{postgres_db}}'" postgres postgres
+    chdir: "{{project_root}}/base"
   when: postgres_db is defined
   register: psql_db_exists
 
 - name: Create {{app}} PostgreSQL user
   ansible.builtin.shell:
     cmd: >
-      docker exec postgres
+      docker compose exec postgres
       psql -c "CREATE USER {{postgres_user}} WITH NOSUPERUSER NOCREATEDB PASSWORD '{{postgres_password}}'" postgres postgres;
+    chdir: "{{project_root}}/base"
   when: postgres_db is defined and psql_db_exists.stdout is falsy
 
 - name: Create {{app}} PostgreSQL database
   ansible.builtin.shell:
     cmd: >
-      docker exec postgres
+      docker compose exec postgres
       psql -c "CREATE DATABASE {{postgres_db}} OWNER {{postgres_user}}" postgres postgres;
+    chdir: "{{project_root}}/base"
   when: postgres_db is defined and psql_db_exists.stdout is falsy
 
 - name: Open {{app}} firewall ports
