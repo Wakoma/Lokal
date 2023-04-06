@@ -19,4 +19,7 @@
     data_dirs:
     - data
     - web
-    - logs
+    - log
+    mysql_db: db_name_asterisk
+    mysql_user: db_user_asterisk
+    mysql_password: db_password_asterisk
