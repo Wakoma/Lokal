@@ -13,6 +13,18 @@
       autoclean: yes
       autoremove: yes
 
+  - name: Ensure pip installed
+    include_role:
+      name: geerlingguy.pip
+    vars:
+      pip_executable: pip3
+      pip_package: python3-pip
+      pip_install_packages:
+        - name: docker
+          state: present
+        - name: passlib
+          state: present
+
   - name: Ensure that the app user is present
     user:
       name: "{{ app_user }}"
@@ -20,6 +32,7 @@
       groups: [sudo]
       append: yes
       createhome: yes
+      password: "{{ admin_password | password_hash('sha512') }}"
 
   - name: Ensure that the primary user's ssh directory exists
     file:
@@ -45,16 +58,6 @@
       path: "/home/{{ app_user }}/.ssh/authorized_keys"
       state: present
     when: setup_ssh
-
-  - name: Ensure pip installed
-    include_role:
-      name: geerlingguy.pip
-    vars:
-      pip_executable: pip3
-      pip_package: python3-pip
-      pip_install_packages:
-        - name: docker
-          state: present
 
 # geerlingguy.docker MUST be placed after geerlingguy.firewall!
 # geerlingguy.firewall drops INPUT and FORWARD tables that are
