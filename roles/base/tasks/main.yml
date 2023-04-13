@@ -16,6 +16,7 @@
     - traefik/conf
     - traefik/data
     - traefik/logs
+    - traefik/dump
     - transmission
 
 - name: "Install necessary base software"
@@ -60,6 +61,11 @@
   ansible.builtin.copy:
     src: files/prometheus
     dest: '{{project_root}}/base/prometheus/etc/'
+
+- name: "Copy dumper's hook"
+  ansible.builtin.copy:
+    src: files/dumper
+    dest: '{{project_root}}/base/'
 
 - name: Render traefik fail2ban filter
   template:

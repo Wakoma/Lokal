@@ -215,6 +215,21 @@ services:
     - --providers.file.directory=/config
     - --providers.file.watch=true
 
+{% if ssl_use_acme %}
+  dumper:
+    image: ldez/traefik-certs-dumper:v2.8.1
+    command: file --version v2 --watch --source /data/acme.json --dest /dump --post-hook "sh /hook.sh"
+    restart: unless-stopped
+    user: "{{uid}}:{{gid}}"
+    labels:
+      traefik.enable: false
+    volumes:
+      - {{project_root}}/base/traefik/acme:/data
+      - {{project_root}}/base/traefik/dump:/dump
+      - {{project_root}}:/lokal
+      - {{project_root}}/base/dumper/hook.sh:/hook.sh
+{% endif %}
+
   fail2ban:
     image: crazymax/fail2ban:latest
     # no user: "{{uid}}:{{gid}}" because it cannot bind socket /var/run/fail2ban/fail2ban.sock
