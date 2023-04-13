@@ -204,7 +204,10 @@ services:
       traefik.http.services.azuracast.loadbalancer.server.port: 80
     networks:
       - traefik
+      - mysql
 
 networks:
   traefik:
+    external: true
+  mysql:
     external: true
