@@ -16,8 +16,9 @@ services:
   ldap:
     image: nitnelave/lldap:stable
     container_name: ldap
-    ports:
-      - "3890:3890" # LDAP !only for localhost connections - don't allow on firewall!
+    #ports:
+    #   - "3890:3890" # LDAP !only for localhost connections - don't allow on firewall!
+    # don't even export. It is a pain in the ass to disable routing external traffic so this is easier
     #   - "17170:17170" # web front-end
     restart: always
     volumes:
