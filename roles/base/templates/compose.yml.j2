@@ -24,9 +24,9 @@ services:
     volumes:
       - "{{project_root}}/base/ldap/:/data/"
     environment:
-      - UID={{uid}}
-      - GID={{gid}}
-      - TZ={{tz}}
+      UID: "{{uid}}"
+      GID: "{{gid}}"
+      TZ: "{{tz}}"
     networks:
       - traefik
     labels:
@@ -37,11 +37,11 @@ services:
       traefik.http.services.ldap.loadbalancer.server.port: 17170
 
   mariadb:
-    container_name: {{mysql_host}}
+    container_name: "{{mysql_host}}"
     image: mariadb:{{version_mariadb}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
-      MYSQL_ROOT_PASSWORD: {{mysql_root_password}}
+      MYSQL_ROOT_PASSWORD: "{{mysql_root_password}}"
       MARIADB_MYSQL_LOCALHOST_USER: "true"
     networks:
     - mysql
@@ -61,7 +61,7 @@ services:
     image: postgres:{{version_postgres}}
     user: "{{uid}}:{{gid}}"
     environment:
-      POSTGRES_PASSWORD: {{postgres_root_password}}
+      POSTGRES_PASSWORD: "{{postgres_root_password}}"
     ports:
     - '{{postgres_port}}:5432'
     networks:
