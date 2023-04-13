@@ -53,7 +53,7 @@
   ansible.builtin.shell:
     cmd: >
       docker compose exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e 'CREATE DATABASE IF NOT EXISTS {{mysql_db}}' mysql
+      mysql -u root --password={{mysql_root_password}} -e 'CREATE DATABASE IF NOT EXISTS {{mysql_db}}'
     chdir: "{{project_root}}/base"
   when: mysql_db is defined
 
@@ -61,7 +61,7 @@
   ansible.builtin.shell:
     cmd: >
       docker compose exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e "GRANT ALL ON {{mysql_db}}.* TO '{{mysql_user|default(mysql_db)}}'@'%' IDENTIFIED BY '{{mysql_password}}'" mysql
+      mysql -u root --password={{mysql_root_password}} -e "GRANT ALL ON {{mysql_db}}.* TO '{{mysql_user|default(mysql_db)}}'@'%' IDENTIFIED BY '{{mysql_password}}'"
     chdir: "{{project_root}}/base"
   when: mysql_db is defined
 

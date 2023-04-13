@@ -7,21 +7,20 @@
   ansible.builtin.shell: 
     cmd: "docker compose down"
     chdir: "{{app_root}}"
-  notify:
-    - Restart router
+  notify: "lokal : Restart router"
 
 - name: Drop {{app}} MySQL database
   ansible.builtin.shell:
     cmd: >
       docker exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e "DROP DATABASE {{mysql_db}}" mysql
+      mysql -u root --password={{mysql_root_password}} -e "DROP DATABASE {{mysql_db}}"
   when: mysql_db is defined
 
 - name: Drop {{app}} MySQL user
   ansible.builtin.shell:
     cmd: >
       docker exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e "DROP USER '{{mysql_user|default(mysql_db)}}'@'%'" mysql
+      mysql -u root --password={{mysql_root_password}} -e "DROP USER '{{mysql_user|default(mysql_db)}}'@'%'"
   when: mysql_db is defined or mysql_user is defined
 
 - name: Remove PostgreSQL database {{postgres_db}}
