@@ -7,3 +7,10 @@ session_secret_authelia: "{{(lokal_secret + 'session_secret_authelia') | hash('s
 password_smtp_authelia: "{{(lokal_secret + 'password_smtp_authelia') | hash('sha1') | regex_search('\\w{8}') }}"
 storage_password_authelia: "{{(lokal_secret + 'storage_password_authelia') | hash('sha1') | regex_search('\\w{10}') }}"
 storage_encryption_key_authelia: "{{(lokal_secret + 'storage_encryption_key_authelia') | hash('sha1') | regex_search('\\w{20}') }}"
+
+
+version_authentik: "2023.3.1"
+db_authentik: authentik
+db_user_authentik: authentik
+db_pass_authentik: "{{(lokal_secret + 'db_pass_authentik') | hash('sha1') | regex_search('\\w{8}') }}"
+secret_authentik: "{{(lokal_secret + 'secret_authentik') | hash('sha1') | regex_search('\\w{14}') }}"

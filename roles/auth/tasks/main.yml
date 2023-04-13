@@ -6,16 +6,23 @@
   vars:
     app: auth
     data_dirs:
-    - conf
-    - data
-    start: false
+    # - conf
+    # - data
+    - media
+    - templates
+    - redis
+    - certs
+    postgres_db: "{{db_authentik}}"
+    postgres_user: "{{db_user_authentik}}"
+    postgres_password: "{{db_pass_authentik}}"
+#    start: false
 
-- name: Render authelia conf
-  template:
-    src: authelia.yml.j2
-    dest: '{{app_root}}/conf/configuration.yml'
+# - name: Render authelia conf
+#   template:
+#     src: authelia.yml.j2
+#     dest: '{{app_root}}/conf/configuration.yml'
 
-- name: Docker-compose up
-  ansible.builtin.shell: 
-    cmd: "docker compose up -d"
-    chdir: "{{app_root}}"
+# - name: Docker-compose up
+#   ansible.builtin.shell: 
+#     cmd: "docker compose up -d"
+#     chdir: "{{app_root}}"

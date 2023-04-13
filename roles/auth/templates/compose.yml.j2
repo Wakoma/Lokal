@@ -7,37 +7,125 @@ networks:
     external: true
   postgres:
     external: true
+  auth_internal: {}
 
 services:
-  authelia:
-    container_name: authelia
+
+  redis:
+    image: docker.io/library/redis:alpine
     user: "{{uid}}:{{gid}}"
-    image: authelia/authelia
+    container_name: "auth-redis"
+    command: --save 60 1 --loglevel warning
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - {{app_root}}/redis:/data
+    networks:
+      - auth_internal
+
+  migrate:
+    image: ghcr.io/goauthentik/server:{{version_authentik}}
+    user: "{{uid}}:{{gid}}"
+    command: migrate
+    environment:
+      AUTHENTIK_REDIS__HOST: auth-redis
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__USER: "{{db_authentik}}"
+      AUTHENTIK_POSTGRESQL__NAME: "{{db_user_authentik}}"
+      AUTHENTIK_POSTGRESQL__PASSWORD: "{{db_pass_authentik}}"
+    volumes:
+      - {{app_root}}/media:/media
+      - {{app_root}}/templates:/templates
+    networks:
+      - postgres
+      - auth_internal
+
+  server:
+    image: ghcr.io/goauthentik/server:{{version_authentik}}
+    user: "{{uid}}:{{gid}}"
+    restart: unless-stopped
+    depends_on:
+      - migrate
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: auth-redis
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__USER: "{{db_authentik}}"
+      AUTHENTIK_POSTGRESQL__NAME: "{{db_user_authentik}}"
+      AUTHENTIK_POSTGRESQL__PASSWORD: "{{db_pass_authentik}}"
+      AUTHENTIK_SECRET_KEY: "{{secret_authentik}}"
+    volumes:
+      - {{app_root}}/media:/media
+      - {{app_root}}/templates:/templates
     networks:
       - traefik
-      - mail
       - postgres
-    # expose:
-    #   - 9091
-    volumes:
-      - {{app_root}}/conf/:/config/
-      - {{app_root}}/data/:/data/
-    environment:
-      TZ: "{{tz}}"
-      AUTHELIA_JWT_SECRET: "{{jwt_secret_authelia}}"
-      AUTHELIA_SESSION_SECRET: "{{session_secret_authelia}}"
-      # AUTHELIA_STORAGE_PASSWORD: "{{storage_password_authelia}}"
-      # AUTHELIA_STORAGE_ENCRYPTION_KEY: "{{storage_encryption_key_authelia}}"
-      AUTHELIA_NOTIFIER_SMTP_PASSWORD: "{{password_smtp_authelia}}"
+      - auth_internal
     labels:
       traefik.enable: true
-      traefik.http.routers.authelia.rule: Host(`auth.{{domain}}`)
-      traefik.http.routers.authelia.entryPoints: websecure
-      traefik.http.routers.authelia.tls: true
-      traefik.http.middlewares.authelia.forwardAuth.address: http://authelia:9091/api/verify?rd=https%3A%2F%2Fauth.{{domain}}%2F
-      traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader: true
-      traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders: Remote-User,Remote-Groups,Remote-Name,Remote-Email
-      traefik.http.middlewares.authelia-basic.forwardAuth.address: http://authelia:9091/api/verify?auth=basic
-      traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader: true
-      traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders: Remote-User,Remote-Groups,Remote-Name,Remote-Email
+      traefik.http.routers.authentik.rule: Host(`auth.{{domain}}`)
+      traefik.http.routers.authentik.entryPoints: websecure
+      traefik.http.routers.authentik.tls: true
+      traefik.http.services.authentik.loadbalancer.server.port: 9000
+{% if ssl_use_acme %}
+      traefik.http.routers.authentik.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+  worker:
+    image: ghcr.io/goauthentik/server:{{version_authentik}}
+    user: "{{uid}}:{{gid}}"
+    restart: unless-stopped
+    command: worker
+    depends_on:
+      - migrate
+    networks:
+      - postgres
+    environment:
+      AUTHENTIK_REDIS__HOST: auth-redis
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__USER: "{{db_authentik}}"
+      AUTHENTIK_POSTGRESQL__NAME: "{{db_user_authentik}}"
+      AUTHENTIK_POSTGRESQL__PASSWORD: "{{db_pass_authentik}}"
+      AUTHENTIK_SECRET_KEY: "{{secret_authentik}}"
+    volumes:
+      # - /var/run/docker.sock:/var/run/docker.sock
+      - {{app_root}}/media:/media
+      - {{app_root}}/templates:/templates
+      - {{app_root}}/certs:/certs
+    networks:
+      - postgres
+      - auth_internal
+
+  proxy:
+    image: ghcr.io/goauthentik/proxy
+    container_name: auth-proxy
+    hostname: auth-proxy
+    # ports:
+    #  - 9000:9000
+    #  - 9443:9443
+    networks:
+      - traefik
+      - auth_internal
+    depends_on:
+      - migrate
+    environment:
+      AUTHENTIK_HOST: https://auth.{{domain}}
+      AUTHENTIK_INSECURE: "false"
+      AUTHENTIK_TOKEN: token-generated-by-authentik
+      AUTHENTIK_SECRET_KEY: "{{secret_authentik}}"
+      # Starting with 2021.9, you can optionally set this too
+      # when authentik_host for internal communication doesn't match the public URL
+      # AUTHENTIK_HOST_BROWSER: https://external-domain.tld
+    labels:
+      traefik.enable: true
+      traefik.port: 9000
+      traefik.http.routers.authentik.rule: PathPrefix(`/outpost.goauthentik.io/`)
+      traefik.http.middlewares.authentik.forwardauth.address: http://auth-proxy:9000/outpost.goauthentik.io/auth/traefik
+      traefik.http.middlewares.authentik.forwardauth.trustForwardHeader: true
+      traefik.http.middlewares.authentik.forwardauth.authResponseHeaders: X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version
+    restart: unless-stopped
