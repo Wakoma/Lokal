@@ -7,6 +7,7 @@
   ansible.builtin.shell: 
     cmd: "docker compose down"
     chdir: "{{app_root}}"
+  ignore_errors: true  # ignore because docker compose down fails on removing external networks
   notify: "lokal : Restart router"
 
 - name: Drop {{app}} MySQL database
