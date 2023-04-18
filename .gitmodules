@@ -1,3 +1,4 @@
 [submodule "roles/docs/docs"]
 	path = roles/docs/docs
 	url = git@github.com:Wakoma/docs.git
+	branch = main
