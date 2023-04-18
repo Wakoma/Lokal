@@ -12,12 +12,12 @@ services:
     container_name: portainer
     user: "{{uid}}:{{gid_docker}}"
     restart: unless-stopped
-    command: --admin-password {{password_admin}}
+    command: --admin-password '{{password_admin|password_hash('bcrypt')}}'
     security_opt:
     - no-new-privileges:true
     volumes:
     - /etc/localtime:/etc/localtime:ro
-    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /var/run/docker.sock:/var/run/docker.sock
     - {{app_root}}/data/:/data/
     networks:
     - prometheus
