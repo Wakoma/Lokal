@@ -51,11 +51,15 @@ regulation:
   ban_time: 300
 
 notifier:
-  # authelia requires STARTLS for SMTP connection
   disable_startup_check: false
-  smtp:
+{% if "mail" in services %}
+  smtp: # authelia requires STARTLS for SMTP connection
     username: admin
     password: {{password_admin}}
     host: {{domain}}
     port: {{smtp_port}}
     sender: admin@{{domain}}
+{% else %}
+  filesystem:
+    filename: /config/notification.txt
+{% endif %}
