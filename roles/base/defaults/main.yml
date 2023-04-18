@@ -1,6 +1,6 @@
 subdomain_traefik: router
 subdomain_prometheus: metrics
-subdomain_grafana: dash
+subdomain_portainer: containers
 subdomain_transmission: torrent
 
 version_prometheus: "v2.40.6"
