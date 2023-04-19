@@ -15,11 +15,13 @@
     firewall_udp:
     - '5060' # pjsip
     - '5160' # sip
-    - '18000-18500' # rtp ports
+    - '18000-18100' # rtp ports
     data_dirs:
-    - data
-    - web
-    - log
+    # - data
+    # - web
+    # - log
+    - backup
+    - recordings
     mysql_db: "{{db_name_asterisk}}"
     mysql_user: "{{db_user_asterisk}}"
     mysql_password: "{{db_password_asterisk}}"

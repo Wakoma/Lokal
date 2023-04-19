@@ -1,49 +1,34 @@
 version: "3.8"
+
 services:
+
   asterisk:
-    image: tiredofit/freepbx:15
-    container_name: asterisk
-#    user: "{{uid}}:{{gid}}"
-#   network_mode: "host"
+    image: flaviostutz/freepbx:latest
     cap_add:
       - NET_ADMIN
-    # ports:
-    # - '4445:4445' # fop
-    # - '4569:4569' # iax
-    # - '5060:5060' # pjsip
-    # - '5160:5160' # sip
-    # - '8001:8001' # ucp
-    # - '8003:8003' # ucp ssl
-    # - '8008:8008' # ucp
-    # - '8009:8009' # ucp ssl
-    # - '18000-18500:18000-18500/udp' # rtp ports
+    ports:
+      - 8080:80
+      - 5060:5060/udp
+      - 5160:5160/udp
+      - 3306:3306
+      - 18000-18100:18000-18100/udp
     restart: always
     environment:
-      DB_EMBEDDED: "false"
-      DB_HOST: "{{mysql_host}}"  # because we use "host" network mode for fail2ban to work better 
-                                 # and because of the huge port range
+      ADMIN_PASSWORD: {{password_admin}}
+      FAIL2BAN_ENABLE: "TRUE"
+      DB_HOST: "{{mysql_host}}"
       DB_PORT: "{{mysql_port}}"
       DB_NAME: "{{db_name_asterisk}}"
       DB_USER: "{{db_user_asterisk}}"
       DB_PASS: "{{db_password_asterisk}}"
+      ENABLE_SSL: "false"
       ENABLE_FAIL2BAN: "true"
-      RTP_START: 18000
-      RTP_FINISH: 18500
-{% if not ssl_use_acme %}
-      TLS_CERT: /certs/{{domain}}.crt
-      TLS_KEY: /certs/{{domain}}.key
-{% endif %}
     networks:
-    - traefik
-    - mysql
+      - traefik
+      - mysql
     volumes:
-{% if not ssl_use_acme %}
-    - {{project_root}}/{{domain}}.key:/certs/{{domain}}.key
-    - {{project_root}}/{{domain}}.crt:/certs/{{domain}}.crt
-{% endif %}
-    - {{app_root}}/data:/data
-    - {{app_root}}/web:/var/www/html	# FreePBX web files - do we want that?
-    - {{app_root}}/log:/var/log       # Apache, Asterisk and FreePBX Log Files for Fail2Ban
+      - {{app_root}}/backup:/backup
+      - {{app_root}}/recordings:/var/spool/asterisk/monitor
     labels:
       traefik.enable: "true"
       traefik.http.routers.asterisk.entrypoints: websecure
@@ -53,6 +38,54 @@ services:
 {% if ssl_use_acme %} # please keep this part to have automatic certificate issue and renewal
       traefik.http.routers.asterisk.tls.certresolver: {{cert_resolver}}
 {% endif %}
+
+
+#   asterisk:
+#     image: tiredofit/freepbx:15
+#     container_name: asterisk
+# #    user: "{{uid}}:{{gid}}"
+# #   network_mode: "host"
+#     cap_add:
+#       - NET_ADMIN
+#     # ports:
+#     # - '4445:4445' # fop
+#     # - '4569:4569' # iax
+#     # - '5060:5060' # pjsip
+#     # - '5160:5160' # sip
+#     # - '8001:8001' # ucp
+#     # - '8003:8003' # ucp ssl
+#     # - '8008:8008' # ucp
+#     # - '8009:8009' # ucp ssl
+#     # - '18000-18500:18000-18500/udp' # rtp ports
+#     restart: always
+#     environment:
+#       DB_EMBEDDED: "false"
+#       DB_HOST: "{{mysql_host}}"  # because we use "host" network mode for fail2ban to work better 
+#                                  # and because of the huge port range
+#       DB_PORT: "{{mysql_port}}"
+#       DB_NAME: "{{db_name_asterisk}}"
+#       DB_USER: "{{db_user_asterisk}}"
+#       DB_PASS: "{{db_password_asterisk}}"
+#       ENABLE_SSL: "false"
+#       ENABLE_FAIL2BAN: "true"
+#       RTP_START: 18000
+#       RTP_FINISH: 18500
+#     networks:
+#     - traefik
+#     - mysql
+#     volumes:
+#     - {{app_root}}/data:/data
+#     - {{app_root}}/web:/var/www/html	# FreePBX web files - do we want that?
+#     - {{app_root}}/log:/var/log       # Apache, Asterisk and FreePBX Log Files for Fail2Ban
+#     labels:
+#       traefik.enable: "true"
+#       traefik.http.routers.asterisk.entrypoints: websecure
+#       traefik.http.routers.asterisk.rule: Host(`{{subdomain_asterisk}}.{{domain}}`)
+#       traefik.http.routers.asterisk.tls: "true"
+#       traefik.http.services.asterisk.loadbalancer.server.port: 80
+# {% if ssl_use_acme %} # please keep this part to have automatic certificate issue and renewal
+#       traefik.http.routers.asterisk.tls.certresolver: {{cert_resolver}}
+# {% endif %}
 
 networks:
   traefik:
