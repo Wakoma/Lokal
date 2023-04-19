@@ -5,21 +5,21 @@ Is a collection of necessary software that creates the heart of Lokal.
 ## Variables to set
 
 You only need to set a `lokal_secret` that will act as a seed for other
-passwords and `password_admin` that is the password of the "admin" user
-that is allowed to use the base services that don't have own auth protection.
-
-```yaml
-password_admin
-```
+passwords and a `password_admin` that you will be using every time when
+you will be asked to login as an admin user. An admin person in LDAP with
+this password will be created. HTTP simple auth will use this password
+as well (for protecting services that don't have own authentication such
+as portainer).
 
 ### Available versions
 
 - `version_prometheus`: https://hub.docker.com/r/prom/prometheus/tags
-- `version_grafana`: https://hub.docker.com/r/grafana/grafana/tags
 - `version_traefik`: https://hub.docker.com/_/traefik
 
-## Grafana
+## Portainer setup
 
-Default credentials are admin/admin and the default subdomain is `dash`. Once
-you log in then you would want to add a prometheus data source. It lives on
-address `http://prometheus:9090`.
+Portainer comes with default "admin" user with `password_admin` password.
+Upon first usage, it is necessary to set new environment defined by
+the docker socket that is already bound to the portainer container.
+
+![portainer-setup](portainer-setup.png)

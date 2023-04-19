@@ -2,9 +2,11 @@ version: "3.8"
 
 networks:
   traefik:
-    name: traefik
+    external: true
   prometheus:
-    name: prometheus
+    external: true
+  mail:
+    external: true
 
 services:
   grafana:
@@ -28,7 +30,7 @@ services:
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
 {% endif %}
     volumes:
-      - {{project_root}}/base/grafana/:/var/lib/grafana/
+      - {{app_root}}/data/:/var/lib/grafana/
     networks:
       - traefik
       - prometheus
