@@ -7,3 +7,6 @@
     app: grafana
     data_dirs:
     - data
+    mysql_db: "{{mysql_database_grafana}}"
+    mysql_user: "{{mysql_user_grafana}}"
+    mysql_password: "{{mysql_pass_grafana}}"

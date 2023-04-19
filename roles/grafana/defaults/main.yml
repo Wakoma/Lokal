@@ -1,2 +1,6 @@
 subdomain_grafana: dash
 version_grafana: "9.3.2"
+
+mysql_database_grafana: grafana
+mysql_user_grafana: grafana
+mysql_pass_grafana: grafana
