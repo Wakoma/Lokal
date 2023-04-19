@@ -94,33 +94,30 @@ services:
     - {{project_root}}/base/prometheus/data/:/prometheus/
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
-  grafana:
-    container_name: grafana
-    image: grafana/grafana:{{version_grafana}}
-    user: "{{uid}}:{{gid}}"
-    environment:
-#     GF_INSTALL_PLUGINS: grafana-clock-panel,natel-discrete-panel,grafana-piechart-panel
-      GF_AUTH_DISABLE_LOGIN_FORM: "true"
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_USERS_ALLOW_SIGN_UP: "false"
-#     GF_LOG_LEVEL: debug
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    user: "{{uid}}:{{gid_docker}}"
+    restart: unless-stopped
+    command: --admin-password '{{password_admin|password_hash('bcrypt')}}'
+    security_opt:
+    - no-new-privileges:true
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /var/run/docker.sock:/var/run/docker.sock
+    - {{project_root}}/base/portainer/:/data/
+    networks:
+    - prometheus
+    - traefik
     labels:
       traefik.enable: "true"
-      traefik.http.routers.grafana.entrypoints: websecure
-      traefik.http.routers.grafana.rule: Host(`{{subdomain_grafana}}.{{domain}}`)
-      traefik.http.routers.grafana.tls: "true"
-      traefik.http.routers.grafana.middlewares: admin-auth@file
-      traefik.http.services.grafana.loadbalancer.server.port: 3000
+      traefik.http.routers.portainer.entrypoints: websecure
+      traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
+      traefik.http.routers.portainer.tls: "true"
+      traefik.http.services.portainer.loadbalancer.server.port: 9000
 {% if ssl_use_acme %}
-      traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
+      traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
 {% endif %}
-    volumes:
-      - {{project_root}}/base/grafana/:/var/lib/grafana/
-    networks:
-      - traefik
-      - prometheus
-      - mail
-    restart: unless-stopped
 
   traefik:
     image: traefik:{{version_traefik}}

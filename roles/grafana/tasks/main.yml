@@ -1,9 +1,9 @@
 ---
-- name: Install portainer
+- name: Install grafana
   ansible.builtin.include_role:
     name: lokal
     tasks_from: install
   vars:
-    app: portainer
+    app: grafana
     data_dirs:
     - data

@@ -6,7 +6,6 @@
   loop:
     - fail2ban/filter.d
     - fail2ban/jail.d
-    - grafana
     - ldap
     - mariadb
     - postgres
@@ -18,6 +17,7 @@
     - traefik/log
     - traefik/dump
     - transmission
+    - portainer
 
 - name: "Install necessary base software"
   package:
