@@ -1,9 +1,6 @@
-# Install
+# Kiwix
 
-Installation is indempotent. If you bump up the version then run install again to increase
-the version of the container.
+Education software that uses `.zim` files as a source.
 
-# Upgrade
-
-Upgrading is used to only update the library with downloaded files via transmission. Those
-files must be in `completed/` folder and must have `.zim` suffix.
+You can add `.zim` files using either by downloading them with transmission
+on `torrent` subdomain or by pre-loading them manually into `/opt/lokal/kiwix/data/`.

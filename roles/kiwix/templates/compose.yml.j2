@@ -2,16 +2,18 @@ version: "3.8"
 services:
   kiwix:
     container_name: kiwix
-    image: ghcr.io/kiwix/kiwix-serve:{{version_kiwix}}
+    image: ghcr.io/kiwix/kiwix-tools:{{version_kiwix}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     command:
+      - kiwix-serve
+      - --port=8080
       - --library
       - /library/library.xml
     restart: unless-stopped
     volumes:
       - {{app_root}}/data:/data
       - {{app_root}}/library:/library
-      - {{project_root}}/base/transmission/data:/downloads:rw
+      - {{project_root}}/base/transmission/data/complete:/downloads:rw
     networks:
       - traefik
     labels:

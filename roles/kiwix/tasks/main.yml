@@ -24,7 +24,7 @@
   ansible.builtin.shell:
     cmd: >
       docker compose exec kiwix
-      find /downloads/complete -name '*.zim'
+      find /downloads -name '*.zim'
     chdir: "{{ app_root }}"
   register: zims
 
