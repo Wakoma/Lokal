@@ -1,57 +1,46 @@
 version: "3.8"
 services:
-  moodledb:
-    image: docker.io/bitnami/mariadb:10.5
-    user: "{{uid}}:0"  # run the container service as app user (not root)
-    # but keep root to be able to write to `/` of the container
-    environment:
-      - PUID={{uid}}
-      - PGID={{gid}}
-      - ALLOW_EMPTY_PASSWORD=yes
-      - MARIADB_USER=bn_moodle
-      - MARIADB_DATABASE=bitnami_moodle
-      - MARIADB_CHARACTER_SET=utf8mb4
-      - MARIADB_COLLATE=utf8mb4_unicode_ci
-    volumes:
-      - '{{app_root}}/db:/bitnami/mariadb'
-    networks:
-      - moodle
-    # let's not publish 3306 port to the host machine because it is already taken
-    # by the primary MySQL database. Moodle will be able to connect anyway on the
-    # "moodle" network even though the port is not published - publishing is just
-    # for external applications
-
   moodle:
-    image: docker.io/bitnami/moodle:3
-    user: "{{uid}}:0"  # run the container service as app user (not root)
-    # but keep root to be able to write to `/` of the container
+    image: bitnami/moodle:{{version_moodle}}
     environment:
       - PUID={{uid}}
       - PGID={{gid}}
-      - MOODLE_DATABASE_HOST=moodledb
-      - MOODLE_DATABASE_USER=bn_moodle
-      - MOODLE_DATABASE_NAME=bitnami_moodle
-      - ALLOW_EMPTY_PASSWORD=yes
+      - MOODLE_DATABASE_HOST={{mysql_host}}
+      - MOODLE_DATABASE_NAME={{db_name_moodle}}
+      - MOODLE_DATABASE_USER={{db_user_moodle}}
+      - MOODLE_DATABASE_PASSWORD={{db_pass_moodle}}
+      # let moodle create the database
+      - MYSQL_CLIENT_DATABASE_HOST={{mysql_host}}
+      - MYSQL_CLIENT_DATABASE_ROOT_PASSWORD={{mysql_root_password}}
+      - MYSQL_CLIENT_CREATE_DATABASE_NAME={{db_name_moodle}}
+      - MYSQL_CLIENT_CREATE_DATABASE_USER={{db_user_moodle}}
+      - MYSQL_CLIENT_CREATE_DATABASE_PASSWORD={{db_pass_moodle}}
+      - MYSQL_CLIENT_CREATE_DATABASE_CHARACTER_SET=utf8mb4
+      - MYSQL_CLIENT_CREATE_DATABASE_COLLATE=utf8mb4_unicode_ci
+      # moodle admin account
+      - MOODLE_USERNAME=admin
+      - MOODLE_PASSWORD={{password_admin}}
+      - MOODLE_EMAIL={{email_admin}}
+      - MOODLE_HOST={{subdomain_moodle}}.{{domain}}
+      - MOODLE_SITE_NAME="Lokal Moodle"
     volumes:
       - '{{app_root}}/app:/bitnami/moodle'
       - '{{app_root}}/data:/bitnami/moodledata'
-    depends_on:
-      - moodledb
     labels:
       traefik.enable: "true"
       traefik.http.routers.moodle.entrypoints: websecure
-      traefik.http.routers.moodle.rule: Host(`moodle.{{domain}}`)
+      traefik.http.routers.moodle.rule: Host(`{{subdomain_moodle}}.{{domain}}`)
       traefik.http.routers.moodle.tls: "true"
 {% if ssl_use_acme %}
       traefik.http.routers.moodle.tls.certresolver: {{cert_resolver}}
 {% endif %}
       traefik.http.services.moodle.loadbalancer.server.port: 8080
     networks:
-      - moodle
+      - mysql
       - traefik
 
 networks:
   traefik:
     external: true
-  moodle:
-    name: moodle
+  mysql:
+    external: true

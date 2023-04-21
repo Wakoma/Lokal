@@ -9,4 +9,5 @@
     - app
     - data
     - db
+    # no db because moodle's container creates DB on its own
     start: true

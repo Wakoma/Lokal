@@ -1,0 +1,6 @@
+db_name_moodle: moodle
+db_user_moodle: moodle
+db_pass_moodle: moodle
+
+subdomain_moodle: moodle
+version_moodle: 4.1
