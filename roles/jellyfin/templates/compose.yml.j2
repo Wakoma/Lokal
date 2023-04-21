@@ -13,6 +13,7 @@ services:
       - "{{project_root}}/jellyfin/config:/config"
       - "{{project_root}}/jellyfin/data:/data"
       - "{{project_root}}/base/transmission/data:/media:ro"
+      - "/dev/dri:/dev/dri"
     ports:
       - 7359:7359/udp
       # - 1900:1900/udp  # DNLA discoverability; can't be used for it clashes with unif-controller
