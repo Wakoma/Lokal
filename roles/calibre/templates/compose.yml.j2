@@ -1,4 +1,11 @@
 version: "3.8"
+
+networks:
+  calibre:
+    name: calibre
+  traefik:
+    external: true
+
 services:
   calibre:
     image: linuxserver/calibre-web
@@ -11,6 +18,18 @@ services:
       - "{{app_root}}/web:/config"
       - "{{app_root}}/data:/library"
     restart: unless-stopped
+    networks:
+      - calibre
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.calibre.entrypoints: websecure
+      traefik.http.routers.calibre.rule: Host(`{{subdomain_calibre}}.{{domain}}`)
+      traefik.http.routers.calibre.tls: "true"
+      traefik.http.services.calibre.loadbalancer.server.port: 8083
+{% if ssl_use_acme %}
+      traefik.http.routers.calibre.tls.certresolver: {{cert_resolver}}
+{% endif %}
 
   calibre-server:
     image: linuxserver/calibre
@@ -24,4 +43,6 @@ services:
     volumes:
       - "{{app_root}}/server:/config"
       - "{{app_root}}/data:/library"  # used to be /config/Calibre Library
+    networks:
+      - calibre
     restart: unless-stopped
