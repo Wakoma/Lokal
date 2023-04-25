@@ -50,6 +50,52 @@
   - enable_registration
   - enable_registration_without_verification
 
+- name: Allow modules in configuration
+  ansible.builtin.lineinfile:
+    line: "modules:"
+    path: "{{app_root}}/data/homeserver.yaml"
+    state: present
+
+- name: Add LDAP module
+  ansible.builtin.lineinfile:
+    line: >
+        - module: "ldap_auth_provider.LdapAuthProviderModule"
+          config:
+            enabled: true
+            uri: "ldap://ldap:3890"
+            start_tls: false
+            base: "ou=users,{{domain_ldap}}"
+            attributes:
+              uid: "cn"
+              mail: "mail"
+              name: "givenName"
+            # Search auth if anonymous search not enabled
+            bind_dn: "uid=admin,ou=users,{{domain_ldap}}"
+            bind_password: "{{password_admin}}"
+    search_string: ldap_auth_provider.LdapAuthProviderModule
+    path: "{{app_root}}/data/homeserver.yaml"
+    state: present
+  notify: "matrix : restart"
+
+# TODO: Use PostgreSQL instead of Sqlite3
+# Doesn't work because there is already a DB entry present
+# - name: Setup PostgreSQL
+#   ansible.builtin.lineinfile:
+#     line: >
+#       database:
+#         name: psycopg2
+#         args:
+#           user: {{postgres_user_matrix}}
+#           password: {{postgres_password_matrix}}
+#           database: {{postgres_db_matrix}}
+#           host: {{host_postgres}}
+#           cp_min: 5
+#           cp_max: 10
+#     regex: "\s*name:\s*psycopg2\s*"
+#     path: "{{app_root}}/data/homeserver.yaml"
+#     state: present
+#   notify: "matrix : restart"
+
 - name: Start matrix app
   ansible.builtin.shell:
     cmd: docker compose up -d
