@@ -35,6 +35,9 @@ services:
       traefik.http.routers.ldap.rule: Host(`ldap.{{domain}}`)
       traefik.http.routers.ldap.tls: "true"
       traefik.http.services.ldap.loadbalancer.server.port: 17170
+{% if ssl_use_acme %}
+      traefik.http.routers.ldap.tls.certresolver: {{cert_resolver}}
+{% endif %}
 
   mariadb:
     container_name: "{{mysql_host}}"
