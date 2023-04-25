@@ -1,1 +1,0 @@
-domain_ldap: "{%for part in domain.split('.')%}dc={{part}}{%if not loop.last%},{%endif%}{%endfor%}"

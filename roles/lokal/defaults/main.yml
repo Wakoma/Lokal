@@ -1,9 +1,9 @@
 # Mandatory settings
 # password_admin
 # email_admin
+# domain
 
 # Common base settings
-domain: lokal.network
 project_root: "/opt/lokal"
 backup_root: "/opt/lokal-backup"
 lang: en_US
@@ -51,3 +51,6 @@ postgres_port: 5432
 firewall_tcp: []
 firewall_udp: []
 firewall: false
+
+# LDAP integration
+domain_ldap: "{%for part in domain.split('.')%}dc={{part}}{%if not loop.last%},{%endif%}{%endfor%}"
