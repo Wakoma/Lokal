@@ -29,12 +29,14 @@ services:
       AUTHELIA_SESSION_SECRET: "{{session_secret_authelia}}"
       # AUTHELIA_STORAGE_PASSWORD: "{{storage_password_authelia}}"
       # AUTHELIA_STORAGE_ENCRYPTION_KEY: "{{storage_encryption_key_authelia}}"
-      AUTHELIA_NOTIFIER_SMTP_PASSWORD: "{{password_smtp_authelia}}"
     labels:
       traefik.enable: true
       traefik.http.routers.authelia.rule: Host(`auth.{{domain}}`)
       traefik.http.routers.authelia.entryPoints: websecure
       traefik.http.routers.authelia.tls: true
+{% if ssl_use_acme %}
+      traefik.http.routers.authelia.tls.certresolver: {{cert_resolver}}
+{% endif %}
       traefik.http.middlewares.authelia.forwardAuth.address: http://authelia:9091/api/verify?rd=https%3A%2F%2Fauth.{{domain}}%2F
       traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader: true
       traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders: Remote-User,Remote-Groups,Remote-Name,Remote-Email
