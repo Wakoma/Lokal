@@ -24,6 +24,9 @@ services:
       traefik.http.routers.matrix-client.tls: "true"
       traefik.http.routers.matrix-client.service: matrix-client
       traefik.http.services.matrix-client.loadbalancer.server.port: 80
+{% if ssl_use_acme %}
+      traefik.http.routers.matrix-client.tls.certresolver: {{cert_resolver}}
+{% endif %}
     volumes:
     - {{app_root}}/element/config.json:/app/config.json
 
