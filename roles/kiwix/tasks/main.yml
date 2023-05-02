@@ -13,7 +13,7 @@
   ansible.builtin.copy:
     content: "<library/>"
     dest: "{{app_root}}/library/library.xml"
-    force: false
+    force: true # always force-refresh the whole library (will clear removed downloads)
 
 - name: Docker-compose up
   ansible.builtin.shell: 
@@ -25,6 +25,7 @@
     cmd: >
       docker compose exec kiwix
       find /downloads -name '*.zim'
+#     -exec cp -u {} /opt/lokal/kiwix/data/ \;
     chdir: "{{ app_root }}"
   register: zims
 
@@ -46,7 +47,7 @@
   register: zims
 
 # luckily, this is an indempotent action
-- name: Update library with transmission-downloaded zim files
+- name: Update library with manually added zim files to {{app_root}}/data
   ansible.builtin.shell:
     cmd: >
       docker compose exec kiwix
