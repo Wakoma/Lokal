@@ -2,6 +2,7 @@ version: "3.8"
 services:
   moodle:
     image: bitnami/moodle:{{version_moodle}}
+    restart: unless-stopped
     environment:
       - PUID={{uid}}
       - PGID={{gid}}
