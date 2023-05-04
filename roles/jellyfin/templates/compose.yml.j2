@@ -2,7 +2,7 @@ version: "3.8"
 services:
 
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
+    image: lscr.io/linuxserver/jellyfin:{{version_jellyfin}}
     container_name: jellyfin
     environment:
       PUID: '{{uid}}'
