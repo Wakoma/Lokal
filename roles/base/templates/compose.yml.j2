@@ -48,7 +48,7 @@ services:
       MARIADB_MYSQL_LOCALHOST_USER: "true"
     networks:
     - mysql
-    - prometheus
+#    - prometheus # where does MariaDB publish its metrics? On :3306?
     healthcheck:
       test: mysql --protocol tcp -u root --password={{mysql_root_password}} -e "SELECT 1 FROM DUAL" mysql
       interval: 60s
@@ -77,7 +77,7 @@ services:
   prometheus:
     container_name: prometheus
     image: prom/prometheus:{{version_prometheus}}
-    user: "{{uid}}:{{gid}}"
+    user: "{{uid}}:{{gid_docker}}"
     labels:
       traefik.enable: "true"
       traefik.http.routers.prometheus.entrypoints: websecure
@@ -88,6 +88,7 @@ services:
 {% if ssl_use_acme %}
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
 {% endif %}
+      prometheus.noscrape: "true"  # don't scrape itself
     networks:
     - traefik
     - prometheus
@@ -95,6 +96,7 @@ services:
     volumes:
     - {{project_root}}/base/prometheus/etc/prometheus/:/etc/prometheus/
     - {{project_root}}/base/prometheus/data/:/prometheus/
+    - /var/run/docker.sock:/var/run/docker.sock  # for docker (dynamic) service discovery
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   portainer:
@@ -102,7 +104,7 @@ services:
     container_name: portainer
     user: "{{uid}}:{{gid_docker}}"
     restart: unless-stopped
-    command: --admin-password '{{password_admin|password_hash('bcrypt')}}'
+    command: --admin-password '{{password_admin|password_hash("bcrypt")}}'
     security_opt:
     - no-new-privileges:true
     volumes:
@@ -135,9 +137,11 @@ services:
       traefik.http.routers.traefik.tls: "true"
       traefik.http.services.traefik.loadbalancer.server.port: 8080
       traefik.http.routers.traefik.middlewares: admin-auth@file
+      prometheus.port: 8082
 {% if ssl_use_acme %}
       traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
 {% endif %}
+      prometheus.host: "traefik:8082"
     networks:
     - traefik
     - prometheus
@@ -245,7 +249,7 @@ services:
     - {{project_root}}/base/fail2ban/:/data/
 
   transmission:
-    image: linuxserver/transmission
+    image: linuxserver/transmission:{{version_transmission}}
     container_name: transmission
 #   no user: "{{uid}}:{{gid}}" because it drops the privileges itself
     environment:

@@ -49,7 +49,7 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.matrix.entrypoints: websecure
-      traefik.http.routers.matrix.rule: Host(`{{subdomain_matrix}}.{{domain}}`) && PathPrefix(`/_matrix`, `/_synapse/client`)
+      traefik.http.routers.matrix.rule: Host(`{{subdomain_matrix}}.{{domain}}`) && PathPrefix(`/_matrix`, `/_synapse/client`, `/synaptic-admin`)
       traefik.http.routers.matrix.tls: "true"
       traefik.http.routers.matrix.service: matrix
       traefik.http.services.matrix.loadbalancer.server.port: 8008

@@ -32,6 +32,7 @@ services:
 {% if ssl_use_acme %}
       traefik.http.routers.grafana.tls.certresolver: {{cert_resolver}}
 {% endif %}
+      prometheus.noscrape: "true"  # don't scrape grafana - it just needs to see prometheus
     volumes:
       - {{app_root}}/data/:/var/lib/grafana/
     networks:

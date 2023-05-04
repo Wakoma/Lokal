@@ -16,10 +16,33 @@ as portainer).
 - `version_prometheus`: https://hub.docker.com/r/prom/prometheus/tags
 - `version_traefik`: https://hub.docker.com/_/traefik
 
-## Portainer setup
+## Portainer
 
 Portainer comes with default "admin" user with `password_admin` password.
 Upon first usage, it is necessary to set new environment defined by
 the docker socket that is already bound to the portainer container.
 
 ![portainer-setup](portainer-setup.png)
+
+## Prometheus
+
+Base provide prometheus to gather your app's metrics. To let prometheus
+auto-discover your service, simply add it to `prometheus` network and define
+label `prometheus.port` so prometheus knows on which one (out of all exposed/published)
+ports it should scrape the metrics.
+If your service provides metrics on a different path then `/metrics` then you can
+specify your custom path using `prometheus.path` label
+
+```yaml
+services:
+  <your-service>:
+    labels:
+      prometheus.port: 8082
+      prometheus.path: "/my/custom/metrics-endpoint"
+      prometheus.interval: "1d" # e.g. 1d, 1h30m, 5m, 10s
+```
+
+**Sources**:
+
+- relabelling config (what to put in the "relabel_config" section) https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+- example of dynamic docker service discovery https://github.com/prometheus/prometheus/blob/release-2.43/documentation/examples/prometheus-docker.yml

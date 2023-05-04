@@ -27,6 +27,29 @@
   become: true
   when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
 
+- name: Ensure docker config directory exists
+  file:
+    state: directory
+    dest: /etc/docker
+    group: docker
+  become: true
+
+- name: Ensure docker config file exists
+  copy:
+    content: "{\n}\n"
+    dest: /etc/docker/daemon.json
+    group: docker
+    force: false
+  become: true
+
+- name: Allow prometheus to gather docker's statistics
+  lineinfile:
+    regexp: 'metrics-addr'
+    line: '"metrics-addr": "127.0.0.1:9323"'
+    insertbefore: "}"
+    path: /etc/docker/daemon.json
+  become: true
+
 - name: Init IPTABLES firewall
   ansible.builtin.import_role:
     name: geerlingguy.firewall.d

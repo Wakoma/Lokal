@@ -20,6 +20,9 @@ services:
 {% if ssl_use_acme %}
       traefik.http.routers.netdata.tls.certresolver: {{cert_resolver}}
 {% endif %}
+      prometheus.path: "/api/v1/allmetrics"
+      prometheus.host: "netdata:19999"
+      prometheus.params: "?format=prometheus"  # not-implemented yet
     networks:
       - traefik
       - prometheus

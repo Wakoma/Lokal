@@ -1,4 +1,13 @@
 version: "3.8"
+
+networks:
+  traefik:
+    external: true
+  prometheus:
+    external: true
+  unifi:
+    name: unifi
+
 services:
   unifi-controller:
     image: linuxserver/unifi-controller
@@ -17,7 +26,7 @@ services:
       - 5514:5514/udp    # remote syslog
     restart: unless-stopped
     networks:
-      - prometheus
+      - unifi
       - traefik
     labels:
       traefik.enable: "true"
@@ -40,12 +49,9 @@ services:
       UP_UNIFI_DEFAULT_USER: '{{up_unifi_default_user}}'
       UP_UNIFI_DEFAULT_PASS: '{{up_unifi_default_pass}}'
     networks:
+      - unifi
       - prometheus
+    labels:
+      prometheus.host: "unifi-poller:9130"
     depends_on:
       - unifi-controller
-
-networks:
-  traefik:
-    external: true
-  prometheus:
-    external: true
