@@ -27,7 +27,7 @@ scrape_configs:
       action: keep
     # scrape only targets that have declared their scraping port
     - source_labels: [__meta_docker_container_label_prometheus_port]
-      target_label: [__meta_docker_port_private]
+      target_label: __meta_docker_port_private
       action: keepequal
     # set container name as instance name
     - source_labels: [__meta_docker_container_name]

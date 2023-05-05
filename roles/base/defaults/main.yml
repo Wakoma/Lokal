@@ -3,7 +3,7 @@ subdomain_prometheus: metrics
 subdomain_portainer: containers
 subdomain_transmission: torrent
 
-version_prometheus: "v2.40.6"
+version_prometheus: "v2.43.1"
 version_traefik: "v2.9.6"
 version_grafana: "9.3.2"
 version_mariadb: "10.5.8-focal"
