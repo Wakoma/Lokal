@@ -48,7 +48,6 @@ services:
       MARIADB_MYSQL_LOCALHOST_USER: "true"
     networks:
     - mysql
-#    - prometheus # where does MariaDB publish its metrics? On :3306?
     healthcheck:
       test: mysql --protocol tcp -u root --password={{mysql_root_password}} -e "SELECT 1 FROM DUAL" mysql
       interval: 60s
@@ -65,11 +64,8 @@ services:
     user: "{{uid}}:{{gid}}"
     environment:
       POSTGRES_PASSWORD: "{{postgres_root_password}}"
-    ports:
-    - '{{postgres_port}}:5432'
     networks:
     - postgres
-    - prometheus
     restart: unless-stopped
     volumes:
     - {{project_root}}/base/postgres/:/var/lib/postgresql/data/
@@ -88,7 +84,6 @@ services:
 {% if ssl_use_acme %}
       traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
 {% endif %}
-      prometheus.noscrape: "true"  # don't scrape itself
     networks:
     - traefik
     - prometheus
