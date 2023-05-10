@@ -11,7 +11,7 @@ rule_files:
 scrape_configs:
   - job_name: "docker"
     static_configs:
-    - targets: ["localhost:9323"]
+    - targets: ["host.docker.internal:9323"]
 
   - job_name: "traefik"
     static_configs:

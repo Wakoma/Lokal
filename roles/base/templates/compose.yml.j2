@@ -88,6 +88,8 @@ services:
     - traefik
     - prometheus
     restart: unless-stopped
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
     volumes:
     - {{project_root}}/base/prometheus/etc/prometheus/:/etc/prometheus/
     - {{project_root}}/base/prometheus/data/:/prometheus/
