@@ -61,15 +61,12 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:{{version_postgres}}
+    image:  postgis/postgis:{{version_postgres}}
     user: "{{uid}}:{{gid}}"
     environment:
       POSTGRES_PASSWORD: "{{postgres_root_password}}"
-    ports:
-    - '{{postgres_port}}:5432'
     networks:
     - postgres
-    - prometheus
     restart: unless-stopped
     volumes:
     - {{project_root}}/base/postgres/:/var/lib/postgresql/data/

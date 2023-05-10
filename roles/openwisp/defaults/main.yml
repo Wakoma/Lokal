@@ -1,0 +1,12 @@
+
+# All nodes that want to form a mesh network must have this value identical
+# shared_secret_openwisp: "shared_secret"
+
+# If you want to use tunnel for your mesh network (necessary when connected)
+# to the Internet
+tunnel_openwisp: no
+tunnel_interface_openwisp: tunnel01
+
+# You might receive your uuid and key from the mesh network administrator
+# uuid_openwisp: your-uuid
+# key_openwisp: md5sum(mac_address + shared_secret)
