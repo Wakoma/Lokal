@@ -1,5 +1,11 @@
 version: "3"
 
+networks:
+  ipam:
+    config:
+      - subnet: "{{tunnel_subnet_openwisp}}"
+  openwisp: {}
+
 services:
   dashboard:
     image: openwisp/openwisp-dashboard:latest
@@ -7,16 +13,76 @@ services:
     build:
       context: images
       dockerfile: openwisp_dashboard/Dockerfile
-      args:
-        DASHBOARD_APP_PORT: 8000
-    env_file:
-      - .env
+    environment: &common_settings
+      DASHBOARD_APP_PORT: 8000
+      DASHBOARD_APP_SERVICE: dashboard
+      PYTHONUNBUFFERED: 1
+      TZ: "{{tz}}"
+      DASHBOARD_INTERNAL: dashboard
+      API_INTERNAL: api
+      DB_ENGINE: django.contrib.gis.db.backends.postgis
+      DB_NAME: "{{db_name_openwisp}}"
+      DB_USER: "{{db_user_openwisp}}"
+      DB_PASS: "{{db_pass_openwisp}}"
+      DB_HOST: "{{host_postgres}}"
+      DB_PORT: "{{port_postgres}}"
+      DB_SSLMODE: disable
+      DB_SSLKEY: None
+      DB_SSLCERT: None
+      DB_SSLROOTCERT: None
+      DB_OPTIONS: "{}"
+      VPN_NAME: default
+      DEBUG_MODE: "False"
+      REDIS_HOST: redis
+      INFLUXDB_DB: "{{influxdb_name_openwisp}}"
+      INFLUXDB_USER: "{{influxdb_user_openwisp}}"
+      INFLUXDB_PASS: "{{influxdb_pass_openwisp}}"
+      INFLUXDB_HOST: influxdb
+      INFLUXDB_PORT: 8086
+      INFLUXDB_DEFAULT_RETENTION_POLICY: 0m0s
+      EMAIL_BACKEND: mail.backends.CeleryEmailBackend
+      EMAIL_HOST: postfix
+      EMAIL_HOST_PORT: 25
+      EMAIL_HOST_USER: ""
+      EMAIL_HOST_PASSWORD: ""
+      EMAIL_HOST_TLS: False
+      EMAIL_TIMEOUT: 10
+      EMAIL_DJANGO_DEFAULT: "{{email_admin}}"
+      DJANGO_LOG_LEVEL: ERROR
+      DJANGO_LANGUAGE_CODE: {{lang}}
+      DJANGO_FREERADIUS_ALLOWED_HOSTS: "{{tunnel_subnet_openwisp}}"
+      DJANGO_X509_DEFAULT_CERT_VALIDITY: 1825
+      DJANGO_X509_DEFAULT_CA_VALIDITY: 3650
+      DJANGO_SECRET_KEY: "{{(lokal_secret + 'django_secret_key') | hash('sha1') | regex_search('\\w{12}') }}"
+      DJANGO_CORS_HOSTS: "{{domain}}"
+      DJANGO_SENTRY_DSN: ""
+      DJANGO_LEAFET_CENTER_X_AXIS: 0
+      DJANGO_LEAFET_CENTER_Y_AXIS: 0
+      DJANGO_LEAFET_ZOOM: 1
+      # VPN Configurations
+      VPN_DOMAIN: "mesh.{{domain}}"
+      VPN_NAME: default
+      VPN_CLIENT_NAME: default-management-vpn
+      X509_NAME_CA: default
+      X509_NAME_CERT: default
+      X509_COUNTRY_CODE: "{{country}}"
+      X509_STATE: default
+      X509_CITY: default
+      X509_ORGANIZATION_NAME: "{{project_name}}"
+      X509_ORGANIZATION_UNIT_NAME: "{{project_name}}"
+      X509_EMAIL: "{{email_admin}}"
+      X509_COMMON_NAME: "{{project_name}}"
+      # Modules Enabled
+      USE_OPENWISP_RADIUS: "True"
+      USE_OPENWISP_TOPOLOGY: "True"
+      USE_OPENWISP_FIRMWARE: "True"
+      USE_OPENWISP_MONITORING: "True"
     volumes:
-      - openwisp_static:/opt/openwisp/static
-      - openwisp_media:/opt/openwisp/media
-      - openwisp_private_storage:/opt/openwisp/private
-      - influxdb_data:/var/lib/influxdb
-      - ./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
+      - "{{app_root}}/static:/opt/openwisp/static"
+      - "{{app_root}}/media:/opt/openwisp/media"
+      - "{{app_root}}/private:/opt/openwisp/private"
+      - "{{app_root}}/influxdb:/var/lib/influxdb"
+      # - ./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
     depends_on:
       - postgres
       - redis
@@ -26,35 +92,27 @@ services:
   api:
     image: openwisp/openwisp-api:latest
     restart: always
-    build:
-      context: images
-      dockerfile: openwisp_api/Dockerfile
-      args:
-        API_APP_PORT: 8001
-    env_file:
-      - .env
+    environment:
+      API_APP_PORT: 8001
+      *common_settings
     volumes:
-      - influxdb_data:/var/lib/influxdb
-      - openwisp_media:/opt/openwisp/media
-      - openwisp_private_storage:/opt/openwisp/private
-      - ./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
+      - "{{project_root}}/influxdb:/var/lib/influxdb"
+      - "{{project_root}}/media:/opt/openwisp/media"
+      - "{{project_root}}/private:/opt/openwisp/private"
+      # - "{{project_root}}/./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
     depends_on:
+      - dashboard
+    networks:
       - postgres
       - redis
-      - dashboard
+      - openwisp
 
   websocket:
     image: openwisp/openwisp-websocket:latest
     restart: always
-    build:
-      context: images
-      dockerfile: openwisp_websocket/Dockerfile
-      args:
-        WEBSOCKET_APP_PORT: 8002
-    env_file:
-      - .env
-    volumes:
-      - ./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
+    environment:
+      WEBSOCKET_APP_PORT: 8002
+      *common_settings
     depends_on:
       - dashboard
 
@@ -63,12 +121,19 @@ services:
     restart: always
     environment:
       - MODULE_NAME=celery
+      *common_settings
+      &celery_settings
+      CRON_DELETE_OLD_RADACCT: 365
+      CRON_DELETE_OLD_POSTAUTH: 365
+      CRON_CLEANUP_STALE_RADACCT: 365
+      CRON_DELETE_OLD_USERS: 12
     volumes:
-      - openwisp_media:/opt/openwisp/media
-      - openwisp_private_storage:/opt/openwisp/private
-      - ./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
-    env_file:
-      - .env
+      - "{{app_root}}/media:/opt/openwisp/media"
+      - "{{app_root}}/private:/opt/openwisp/private"
+      # - ./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
+    networks:
+      - postgres
+      - openwisp
     depends_on:
       - postgres
       - redis
@@ -79,10 +144,12 @@ services:
     restart: always
     environment:
       - MODULE_NAME=celery_monitoring
+      *common_settings
+      *celery_settings
     volumes:
-      - openwisp_media:/opt/openwisp/media
-      - openwisp_private_storage:/opt/openwisp/private
-      - ./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
+      - "{{app_root}}/media:/opt/openwisp/media"
+      - "{{app_root}}/private:/opt/openwisp/private"
+      # - ./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
     env_file:
       - .env
     depends_on:
@@ -94,11 +161,9 @@ services:
     image: openwisp/openwisp-dashboard:latest
     restart: always
     environment:
-      - MODULE_NAME=celerybeat
-    env_file:
-      - .env
-    volumes:
-      - ./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
+      MODULE_NAME: celerybeat
+      *celery_settings
+      *common_settings
     depends_on:
       - postgres
       - redis
@@ -107,22 +172,24 @@ services:
   nginx:
     image: openwisp/openwisp-nginx:latest
     restart: always
-    build:
-      context: images
-      dockerfile: openwisp_nginx/Dockerfile
-    env_file:
-      - .env
+    environment:
+      SSL_CERT_MODE: "No"
+      API_DOMAIN: "mesh.{{domain}}"
+      DASHBOARD_DOMAIN: "mesh.{{domain}}"
+      DASHBOARD_INTERNAL: dashboard
+      API_INTERNAL: api
     volumes:
-      - openwisp_static:/opt/openwisp/public/static:ro
-      - openwisp_media:/opt/openwisp/public/media:ro
-      - openwisp_private_storage:/opt/openwisp/public/private:ro
-      - openwisp_certs:/etc/letsencrypt
-      - ./customization/theme:/opt/openwisp/public/custom:ro
+    - "{{app_root}}/static:/opt/openwisp/public/static:ro"
+    - "{{app_root}}/media:/opt/openwisp/public/media:ro"
+    - "{{app_root}}/private:/opt/openwisp/public/private:ro"
+    - "{{app_root}}/certs:/etc/letsencrypt"
+    # - ./customization/theme:/opt/openwisp/public/custom:ro
     networks:
-      default:
+      traefik: {}
+      openwisp:
         aliases:
-         - dashboard.internal
-         - api.internal
+        - dashboard.internal
+        - api.internal
     ports:
       - "80:80"
       - "443:443"
@@ -131,7 +198,7 @@ services:
       - api
       - websocket
 
-  freeradius:
+  freeradius: # TODO
     image: openwisp/openwisp-freeradius:latest
     restart: always
     build:
@@ -142,74 +209,64 @@ services:
     ports:
       - "1812:1812/udp"
       - "1813:1813/udp"
-    depends_on:
+    networks:
       - postgres
+    depends_on:
       - api
       - dashboard
 
-  postfix:
-    image: openwisp/openwisp-postfix:latest
-    restart: always
-    build:
-      context: images
-      dockerfile: openwisp_postfix/Dockerfile
-    env_file:
-      - .env
-    volumes:
-      - openwisp_certs:/etc/ssl/mail
+  # postfix:
+  #   image: openwisp/openwisp-postfix:latest
+  #   restart: always
+  #     dockerfile: openwisp_postfix/Dockerfile
+  #   environment:
+  #     MODULE_NAME: postfix
+  #     TZ: "{{tz}}"
+  #     POSTFIX_MYHOSTNAME: "mail"
+  #     POSTFIX_ALLOWED_SENDER_DOMAINS: "{{domain}}"
+  #     POSTFIX_RELAYHOST: null
+  #     POSTFIX_DESTINATION: "{{domain}}"
+  #     POSTFIX_RELAYHOST_USERNAME: null
+  #     POSTFIX_RELAYHOST_PASSWORD: null
+  #     POSTFIX_RELAYHOST_TLS_LEVEL: may
+  #     POSTFIX_MYNETWORKS: '170.0.0.0/8 [::1]/128 '
+  #     POSTFIX_MESSAGE_SIZE_LIMIT: 0
+  #     POSTFIX_DEBUG_MYNETWORKS: null
+  #   volumes:
+  #     - {{project_root}}/{{domain}}.crt:/etc/ssl/mail/{{domain}}.crt
+  #     - {{project_root}}/{{domain}}.key:/etc/ssl/mail/{{domain}}.key
 
 {% if setup_tunnel_openwisp %}
   openvpn:
-    image: openwisp/openwisp-openvpn:latest
+    image: kylemanna/openvpn:{{tunnel_version_openwisp}}
     restart: always
-    build:
-      context: images
-      dockerfile: openwisp_openvpn/Dockerfile
     ports:
       - "1194:1194/udp"
-    env_file:
-      - .env
-    depends_on:
+    volumes:
+      - "{{app_root}}/openvpn:/etc/openvpn"
+    environment:
+      MODULE_NAME: openvpn
+      *common_settings
+    networks:
       - postgres
     cap_add:
       - NET_ADMIN
 {% endif %}
 
-  postgres:
-    image: mdillon/postgis:11-alpine
-    restart: always
-    environment:
-      - POSTGRES_DB=$DB_NAME
-      - POSTGRES_USER=$DB_USER
-      - POSTGRES_PASSWORD=$DB_PASS
-      - TZ=$TZ
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   influxdb:
     image: influxdb:1.8-alpine
     restart: always
     environment:
-      - INFLUXDB_DB=$INFLUXDB_NAME
-      - INFLUXDB_USER=$INFLUXDB_USER
-      - INFLUXDB_USER_PASSWORD=$INFLUXDB_PASS
+      INFLUXDB_DB: "{{influxdb_name_openwisp}}"
+      INFLUXDB_USER: "{{influxdb_user_openwisp}}"
+      INFLUXDB_USER_PASSWORD: "{{influxdb_pass_openwisp}}"
     volumes:
-      - influxdb_data:/var/lib/influxdb
+      - "{{app_root}}/influxdb:/var/lib/influxdb"
+    networks:
+    - openwisp
 
   redis:
     image: redis:alpine
     restart: always
-
-volumes:
-  influxdb_data: {}
-  postgres_data: {}
-  openwisp_certs: {}
-  openwisp_media: {}
-  openwisp_static: {}
-  openwisp_private_storage: {}
-
-networks:
-  default:
-    ipam:
-      config:
-        - subnet: 172.18.0.0/16
+    networks:
+    - openwisp
