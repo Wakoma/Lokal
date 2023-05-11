@@ -1,6 +1,11 @@
 # Base
 
 Is a collection of necessary software that creates the heart of Lokal.
+It gives you
+
+1. MySQL database at `mysql_host` (you need to join "mysql" network with your container)
+2. PostgreSQL with PostGIS at `postgres_host` (you need to join "postgres" network with your container)
+
 
 ## Variables to set
 
