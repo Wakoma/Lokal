@@ -1,0 +1,9 @@
+---
+- name: Restore openwisp
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: restore
+  vars:
+    app: openwisp
+    postgres_db: "{{db_name_openwisp}}"
+    postgres_user: "{{db_user_openwisp}}"

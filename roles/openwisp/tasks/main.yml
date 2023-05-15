@@ -1,0 +1,20 @@
+---
+- name: Install openwisp
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: openwisp
+    data_dirs:
+    - media
+    - static
+    - private
+    - certs
+    - influxdb
+    - openvpn
+    postgres_db: "{{db_name_openwisp}}"
+    postgres_user: "{{db_user_openwisp}}"
+    postgres_password: "{{db_pass_openwisp}}"
+    postgres_extensions: 
+    - postgis
+    start: true

@@ -17,3 +17,8 @@ tunnel_version_openwisp: "2.4"
 db_user_openwisp: "openwisp"
 db_name_openwisp: "openwisp"
 db_pass_openwisp: "openwisp"
+
+# InfluxDB credentials
+influxdb_name_openwisp: "openwisp"
+influxdb_user_openwisp: "openwisp"
+influxdb_pass_openwisp: "openwisp"

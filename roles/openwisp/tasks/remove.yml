@@ -1,0 +1,9 @@
+---
+- name: Remove opwnwisp
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: remove
+  vars:
+    app: opwnwisp
+    postgres_db: "{{db_name_openwisp}}"
+    postgres_user: "{{db_user_openwisp}}"

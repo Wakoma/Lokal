@@ -90,6 +90,15 @@
     chdir: "{{project_root}}/base"
   when: postgres_db is defined and psql_db_exists.stdout is falsy
 
+- name: Create extensions for {{app}} in PostgreSQL
+  ansible.builtin.shell:
+    cmd: >
+      docker compose exec postgres
+      psql -c "CREATE EXTENSION IF NOT EXISTS {{item}}" {{postgres_db}} postgres;
+    chdir: "{{project_root}}/base"
+  when: postgres_db is defined and postgres_extensions is defined
+  loop: "{{postgres_extensions}}"
+
 - name: Open {{app}} firewall ports
   become: true
   vars:
