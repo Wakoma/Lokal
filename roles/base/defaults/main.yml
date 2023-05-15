@@ -7,7 +7,7 @@ version_prometheus: "v2.40.6"
 version_traefik: "v2.9.6"
 version_grafana: "9.3.2"
 version_mariadb: "10.5.8-focal"
-version_postgres: "15"
+version_postgres: "15-3.3"
 jwt_secret_lldap: "{{(lokal_secret + 'jwt_secret_lldap') | hash('sha1') | regex_search('\\w{10}') }}"
 
 port_postgres: "5432" # do not change!
