@@ -2,6 +2,8 @@
 # All nodes that want to form a mesh network must have this value identical
 # shared_secret_openwisp: "shared_secret"
 
+subdomain_openwisp: openwisp
+
 # If you want to use tunnel for your mesh network (necessary when connected)
 # to the Internet
 tunnel_openwisp: no

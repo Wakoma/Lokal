@@ -12,23 +12,23 @@ networks:
 
 services:
   dashboard:
-    image: openwisp/openwisp-dashboard:latest
-    # user: "{{uid}}:0"
+    image: wakoma/openwisp-dashboard:latest
+    user: "0:0"  # run specifically as root and drop the privileges later
     restart: always
     environment:
-{% set common_settings %}DASHBOARD_APP_PORT: 8000
-      DASHBOARD_APP_SERVICE: dashboard
-      PYTHONUNBUFFERED: 1
+{% set common_settings %}PYTHONUNBUFFERED: 1
       UID: "{{uid}}"
       GID: "{{gid}}"
       TZ: "{{tz}}"
-      SSL_CERT_MODE: "no"
+      DASHBOARD_APP_SERVICE: dashboard
+      DASHBOARD_APP_PORT: 8000
       API_INTERNAL: api
       API_DOMAIN: api
       DASHBOARD_INTERNAL: dashboard
-      DASHBOARD_DOMAIN: "mesh.{{domain}}"
+      DASHBOARD_DOMAIN: "{{subdomain_openwisp}}.{{domain}}"
       RADIUS_INTERNAL: radius
       RADIUS_DOMAIN: "{{domain}}"
+      SSL_CERT_MODE: "False"
       DB_ENGINE: django.contrib.gis.db.backends.postgis
       DB_NAME: "{{db_name_openwisp}}"
       DB_USER: "{{db_user_openwisp}}"
@@ -69,7 +69,7 @@ services:
       DJANGO_LEAFET_CENTER_Y_AXIS: 0
       DJANGO_LEAFET_ZOOM: 1
       # VPN Configurations
-      VPN_DOMAIN: "mesh.{{domain}}"
+      VPN_DOMAIN: "{{subdomain_openwisp}}.{{domain}}"
       VPN_NAME: default
       VPN_CLIENT_NAME: default-management-vpn
       X509_NAME_CA: default
@@ -86,6 +86,9 @@ services:
       USE_OPENWISP_TOPOLOGY: "True"
       USE_OPENWISP_FIRMWARE: "True"
       USE_OPENWISP_MONITORING: "True"
+      USE_OPENWISP_CELERY_NETWORK: "True"
+      USE_OPENWISP_CELERY_MONITORING: "True"
+      USE_OPENWISP_CELERY_FIRMWARE: "True"
 {% endset %}
       {{common_settings}}
     volumes:
@@ -104,7 +107,7 @@ services:
       - openwisp
 
   api:
-    image: openwisp/openwisp-api:latest
+    image: wakoma/openwisp-api:latest
     restart: always
     # user: "{{uid}}:0"
     environment:
@@ -123,7 +126,7 @@ services:
       - openwisp
 
   websocket:
-    image: openwisp/openwisp-websocket:latest
+    image: wakoma/openwisp-websocket:latest
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -137,7 +140,7 @@ services:
       - openwisp
 
   celery:
-    image: openwisp/openwisp-dashboard:latest
+    image: wakoma/openwisp-dashboard:latest
     restart: always
     user: "{{uid}}:{{gid}}"
     environment:
@@ -162,7 +165,7 @@ services:
       - dashboard
 
   celery_monitoring:
-    image: openwisp/openwisp-dashboard:latest
+    image: wakoma/openwisp-dashboard:latest
     restart: always
     # user: "{{uid}}:{{gid}}"
     environment:
@@ -182,7 +185,7 @@ services:
       - dashboard
 
   celerybeat:
-    image: openwisp/openwisp-dashboard:latest
+    image: wakoma/openwisp-dashboard:latest
     restart: always
     # user: "{{uid}}:{{gid}}"  # requires root to create /opt/openwisp/celerybeat.pid
     environment:
@@ -199,16 +202,16 @@ services:
       - dashboard
 
   nginx:
-    image: ghcr.io/wakoma/openwisp-nginx:latest
+    image: wakoma/openwisp-nginx:latest
     restart: always
     environment:
       {{common_settings}}
     volumes:
-    - "{{app_root}}/static:/opt/openwisp/public/static:ro"
-    - "{{app_root}}/media:/opt/openwisp/public/media:ro"
-    - "{{app_root}}/private:/opt/openwisp/public/private:ro"
-    - "{{app_root}}/certs:/etc/letsencrypt"
-    # - ./customization/theme:/opt/openwisp/public/custom:ro
+      - "{{app_root}}/static:/opt/openwisp/public/static:ro"
+      - "{{app_root}}/media:/opt/openwisp/public/media:ro"
+      - "{{app_root}}/private:/opt/openwisp/public/private:ro"
+      - "{{app_root}}/certs:/etc/letsencrypt"
+      # - ./customization/theme:/opt/openwisp/public/custom:ro
     networks:
       - traefik
       - openwisp
@@ -221,7 +224,7 @@ services:
       - websocket
     labels:
       traefik.enable: true
-      traefik.http.routers.mesh.rule: Host(`mesh.{{domain}}`)
+      traefik.http.routers.mesh.rule: Host(`{{subdomain_openwisp}}.{{domain}}`)
       traefik.http.routers.mesh.entryPoints: websecure
       traefik.http.routers.mesh.tls: true
       traefik.http.services.mesh.loadbalancer.server.port: 80
@@ -230,7 +233,7 @@ services:
 {% endif %}
 
   radius:
-    image: openwisp/openwisp-freeradius:latest
+    image: wakoma/openwisp-radius:latest
     restart: always
     user: "{{uid}}:{{gid}}"
     ports:
@@ -262,8 +265,8 @@ services:
       POSTFIX_MESSAGE_SIZE_LIMIT: 0
       POSTFIX_DEBUG_MYNETWORKS: null
     volumes:
-      - {{project_root}}/{{domain}}.crt:/etc/ssl/mail/{{domain}}.crt
-      - {{project_root}}/{{domain}}.key:/etc/ssl/mail/{{domain}}.key
+      - {{project_root}}/{{domain}}.crt:/etc/ssl/mail/{{subdomain_openwisp}}.{{domain}}.crt
+      - {{project_root}}/{{domain}}.key:/etc/ssl/mail/{{subdomain_openwisp}}.{{domain}}.key
     networks:
       - openwisp
 
