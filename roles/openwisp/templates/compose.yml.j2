@@ -12,18 +12,19 @@ networks:
 
 services:
   dashboard:
-    image: wakoma/openwisp-dashboard:latest
-    user: "0:0"  # run specifically as root and drop the privileges later
+    image: wakoma/openwisp-dashboard:{{docker_version_openwisp}}
+    user: "{{uid}}:{{gid}}"
     restart: always
     environment:
 {% set common_settings %}PYTHONUNBUFFERED: 1
-      UID: "{{uid}}"
-      GID: "{{gid}}"
       TZ: "{{tz}}"
+      UWSGI_LISTEN: 64
+      UWSGI_PROCESSES: 1
+      UWSGI_THREADS: 1
       DASHBOARD_APP_SERVICE: dashboard
       DASHBOARD_APP_PORT: 8000
       API_INTERNAL: api
-      API_DOMAIN: api
+      API_DOMAIN: api.{{subdomain_openwisp}}.{{domain}}
       DASHBOARD_INTERNAL: dashboard
       DASHBOARD_DOMAIN: "{{subdomain_openwisp}}.{{domain}}"
       RADIUS_INTERNAL: radius
@@ -48,7 +49,6 @@ services:
       INFLUXDB_HOST: influxdb
       INFLUXDB_PORT: 8086
       INFLUXDB_DEFAULT_RETENTION_POLICY: 0m0s
-      EMAIL_BACKEND: mail.backends.CeleryEmailBackend
       EMAIL_HOST: postfix
       EMAIL_HOST_PORT: 25
       EMAIL_HOST_USER: ""
@@ -56,14 +56,15 @@ services:
       EMAIL_HOST_TLS: False
       EMAIL_TIMEOUT: 10
       ADMIN_PASSWORD: "{{password_admin}}"
-      EMAIL_DJANGO_DEFAULT: "{{email_admin}}"
-      DJANGO_LOG_LEVEL: ERROR
+      EMAIL_DJANGO_DEFAULT: {{email_admin}}
+      DJANGO_LOG_LEVEL: INFO
       DJANGO_LANGUAGE_CODE: {{lang|lower|replace("_", "-")}}
+      DJANGO_ALLOWED_HOSTS: "{{subdomain_openwisp}}.{{domain}}"
+      DJANGO_CORS_HOSTS: "https://{{subdomain_openwisp}}.{{domain}},http://{{subdomain_openwisp}}.{{domain}}"
       DJANGO_FREERADIUS_ALLOWED_HOSTS: "{{tunnel_subnet_openwisp}}"
       DJANGO_X509_DEFAULT_CERT_VALIDITY: 1825
       DJANGO_X509_DEFAULT_CA_VALIDITY: 3650
       DJANGO_SECRET_KEY: "{{(lokal_secret + 'django_secret_key') | hash('sha1') | regex_search('\\w{12}') }}"
-      DJANGO_CORS_HOSTS: "https://{{domain}}"
       DJANGO_SENTRY_DSN: ""
       DJANGO_LEAFET_CENTER_X_AXIS: 0
       DJANGO_LEAFET_CENTER_Y_AXIS: 0
@@ -86,9 +87,9 @@ services:
       USE_OPENWISP_TOPOLOGY: "True"
       USE_OPENWISP_FIRMWARE: "True"
       USE_OPENWISP_MONITORING: "True"
-      USE_OPENWISP_CELERY_NETWORK: "True"
+      USE_OPENWISP_CELERY_NETWORK: "False"
       USE_OPENWISP_CELERY_MONITORING: "True"
-      USE_OPENWISP_CELERY_FIRMWARE: "True"
+      USE_OPENWISP_CELERY_FIRMWARE: "False"
 {% endset %}
       {{common_settings}}
     volumes:
@@ -107,9 +108,9 @@ services:
       - openwisp
 
   api:
-    image: wakoma/openwisp-api:latest
+    image: wakoma/openwisp-api:{{docker_version_openwisp}}
     restart: always
-    # user: "{{uid}}:0"
+    user: "{{uid}}:{{gid}}"
     environment:
       API_APP_PORT: 8001
       {{ common_settings }}
@@ -126,8 +127,9 @@ services:
       - openwisp
 
   websocket:
-    image: wakoma/openwisp-websocket:latest
+    image: wakoma/openwisp-websocket:{{docker_version_openwisp}}
     restart: always
+    user: "{{uid}}:{{gid}}"
     volumes:
       - /etc/localtime:/etc/localtime:ro
     environment:
@@ -140,7 +142,7 @@ services:
       - openwisp
 
   celery:
-    image: wakoma/openwisp-dashboard:latest
+    image: wakoma/openwisp-dashboard:{{docker_version_openwisp}}
     restart: always
     user: "{{uid}}:{{gid}}"
     environment:
@@ -165,9 +167,9 @@ services:
       - dashboard
 
   celery_monitoring:
-    image: wakoma/openwisp-dashboard:latest
-    restart: always
-    # user: "{{uid}}:{{gid}}"
+    image: wakoma/openwisp-dashboard:{{docker_version_openwisp}}
+    restart: on-failure
+    user: "{{uid}}:{{gid}}"
     environment:
       MODULE_NAME: celery_monitoring
       {{common_settings}}
@@ -185,9 +187,9 @@ services:
       - dashboard
 
   celerybeat:
-    image: wakoma/openwisp-dashboard:latest
+    image: wakoma/openwisp-dashboard:{{docker_version_openwisp}}
     restart: always
-    # user: "{{uid}}:{{gid}}"  # requires root to create /opt/openwisp/celerybeat.pid
+    user: "{{uid}}:{{gid}}"
     environment:
       MODULE_NAME: celerybeat
       {{celery_settings}}

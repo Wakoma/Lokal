@@ -11,6 +11,9 @@ tunnel_interface_openwisp: tun0
 tunnel_subnet_openwisp: "10.8.0.0/16"
 tunnel_version_openwisp: "2.4"
 
+# Version od docker openwisp image
+docker_version_openwisp: "0.3.1"
+
 # You might receive your uuid and key from the mesh network administrator
 # uuid_openwisp: your-uuid
 # key_openwisp: md5sum(mac_address + shared_secret)
