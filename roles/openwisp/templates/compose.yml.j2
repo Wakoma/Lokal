@@ -57,7 +57,7 @@ services:
       EMAIL_TIMEOUT: 10
       ADMIN_PASSWORD: "{{password_admin}}"
       EMAIL_DJANGO_DEFAULT: {{email_admin}}
-      DJANGO_LOG_LEVEL: INFO
+      DJANGO_LOG_LEVEL: WARNING
       DJANGO_LANGUAGE_CODE: {{lang|lower|replace("_", "-")}}
       DJANGO_ALLOWED_HOSTS: "{{subdomain_openwisp}}.{{domain}}"
       DJANGO_CORS_HOSTS: "https://{{subdomain_openwisp}}.{{domain}},http://{{subdomain_openwisp}}.{{domain}}"
@@ -93,6 +93,7 @@ services:
 {% endset %}
       {{common_settings}}
     volumes:
+      - "{{app_root}}/openwisp:/etc/config/openwisp"
       - "{{app_root}}/static:/opt/openwisp/static"
       - "{{app_root}}/media:/opt/openwisp/media"
       - "{{app_root}}/private:/opt/openwisp/private"
@@ -115,6 +116,7 @@ services:
       API_APP_PORT: 8001
       {{ common_settings }}
     volumes:
+      - "{{app_root}}/openwisp:/etc/config/openwisp"
       - "{{project_root}}/influxdb:/var/lib/influxdb"
       - "{{project_root}}/media:/opt/openwisp/media"
       - "{{project_root}}/private:/opt/openwisp/private"
@@ -155,6 +157,7 @@ services:
 {% endset %}
       {{celery_settings}}
     volumes:
+      - "{{app_root}}/openwisp:/etc/config/openwisp"
       - "{{app_root}}/media:/opt/openwisp/media"
       - "{{app_root}}/private:/opt/openwisp/private"
       - /etc/localtime:/etc/localtime:ro
@@ -175,6 +178,7 @@ services:
       {{common_settings}}
       {{celery_settings}}
     volumes:
+      - "{{app_root}}/openwisp:/etc/config/openwisp"
       - "{{app_root}}/media:/opt/openwisp/media"
       - "{{app_root}}/private:/opt/openwisp/private"
       - /etc/localtime:/etc/localtime:ro

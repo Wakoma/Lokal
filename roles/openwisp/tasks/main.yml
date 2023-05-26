@@ -6,6 +6,7 @@
   vars:
     app: openwisp
     data_dirs:
+    - openwisp
     - media
     - static
     - private
@@ -17,4 +18,16 @@
     postgres_password: "{{db_pass_openwisp}}"
     postgres_extensions: 
     - postgis
-    start: true
+    start: false
+
+- name: Render opwnwisp config
+  ansible.builtin.template:
+    src: "openwisp.j2"
+    dest: "{{app_root}}/openwisp/openwisp"
+    force: false
+
+- name: Docker-compose up
+  ansible.builtin.shell:
+    cmd: "docker compose up -d"
+    chdir: "{{app_root}}"
+  notify: "lokal : Restart router"
