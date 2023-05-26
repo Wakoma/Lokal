@@ -24,24 +24,20 @@
       mysql -u root --password={{mysql_root_password}} -e "DROP USER '{{mysql_user|default(mysql_db)}}'@'%'"
   when: mysql_db is defined or mysql_user is defined
 
-- name: Remove PostgreSQL database {{postgres_db}}
-  community.postgresql.postgresql_db:
-    name: "{{postgres_db}}"
-    login_host: localhost
-    login_password: "{{postgres_root_password}}"
-    login_port: "{{postgres_port}}"
-    owner: "{{postgres_user}}"
-    state: absent
+- name: Remove {{app}} PostgreSQL database
+  ansible.builtin.shell:
+    cmd: >
+      docker compose exec postgres
+      psql -c "DROP DATABASE {{postgres_db}}" postgres postgres;
+    chdir: "{{project_root}}/base"
   when: postgres_db is defined
 
-- name: Remove PostgreSQL user {{postgres_user}}
-  community.postgresql.postgresql_user:
-    name: "{{postgres_user}}"
-    password: "{{postgres_password}}"
-    login_host: localhost
-    login_password: "{{postgres_root_password}}"
-    login_port: "{{postgres_port}}"
-    state: absent
+- name: Remove {{app}} PostgreSQL user
+  ansible.builtin.shell:
+    cmd: >
+      docker compose exec postgres
+      psql -c "DROP USER {{postgres_user}}" postgres postgres;
+    chdir: "{{project_root}}/base"
   when: postgres_db is defined
 
 - name: Remove firewall rules
