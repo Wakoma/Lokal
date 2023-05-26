@@ -4,8 +4,10 @@
 # domain
 
 # Common base settings
+project_name: Lokal
 project_root: "/opt/lokal"
 backup_root: "/opt/lokal-backup"
+country: US
 lang: en_US
 locale: en_US.utf-8  # cs_CZ.utf8
 ssh_port: 22

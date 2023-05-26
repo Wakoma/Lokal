@@ -1,0 +1,29 @@
+
+# All nodes that want to form a mesh network must have this value identical
+# shared_secret_openwisp: "shared_secret"
+
+subdomain_openwisp: openwisp
+
+# If you want to use tunnel for your mesh network (necessary when connected)
+# to the Internet
+tunnel_openwisp: no
+tunnel_interface_openwisp: tun0
+tunnel_subnet_openwisp: "10.8.0.0/16"
+tunnel_version_openwisp: "2.4"
+
+# Version od docker openwisp image
+docker_version_openwisp: "1.0"
+
+# You might receive your uuid and key from the mesh network administrator
+# uuid_openwisp: your-uuid
+# key_openwisp: md5sum(mac_address + shared_secret)
+
+# Postgres credentials
+db_user_openwisp: "openwisp"
+db_name_openwisp: "openwisp"
+db_pass_openwisp: "openwisp"
+
+# InfluxDB credentials
+influxdb_name_openwisp: "openwisp"
+influxdb_user_openwisp: "openwisp"
+influxdb_pass_openwisp: "openwisp"
