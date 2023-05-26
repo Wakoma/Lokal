@@ -88,7 +88,7 @@
 #           user: {{postgres_user_matrix}}
 #           password: {{postgres_password_matrix}}
 #           database: {{postgres_db_matrix}}
-#           host: {{host_postgres}}
+#           host: {{postgres_host}}
 #           cp_min: 5
 #           cp_max: 10
 #     regex: "\s*name:\s*psycopg2\s*"
