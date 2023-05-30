@@ -7,8 +7,9 @@ networks:
     name: mysql
   prometheus:
     name: prometheus
-  mail:
-    name: mail
+  # mail is not currently part of `base` package - so don't create the mail network here
+  # mail:
+  #   name: mail
   postgres:
     name: postgres
 

@@ -1,5 +1,9 @@
 version: "3.8"
 
+networks:
+  mail:
+    name: mail
+
 services:
   mail:
     image: docker.io/mailserver/docker-mailserver:latest
@@ -8,7 +12,6 @@ services:
     domainname: "{{domain}}"
     hostname: "mail"
     env_file: "{{app_root}}/mailserver.env"
-    network_mode: "host"
     cap_add:
       - NET_ADMIN
     # ports:
@@ -22,15 +25,15 @@ services:
       - {{app_root}}/state/:/var/mail-state/
       - {{app_root}}/logs/:/var/log/mail/
       - {{app_root}}/config/:/tmp/docker-mailserver/
-{% if not ssl_use_acme %}
       - {{project_root}}/{{domain}}.key:/var/certs/{{domain}}.key
       - {{project_root}}/{{domain}}.crt:/var/certs/{{domain}}.crt
-{% endif %}
     restart: always
     stop_grace_period: 1m
     healthcheck:
       test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
       timeout: 3s
       retries: 0
+    labels:
+      traefik.enable: true
 
 

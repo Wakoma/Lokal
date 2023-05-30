@@ -16,7 +16,7 @@ services:
     networks:
       - mysql
       - traefik
-      - mail
+      # - mail
     restart: unless-stopped
     volumes:
       - {{app_root}}/app:/var/www/html
@@ -58,7 +58,7 @@ services:
     networks:
       - mysql
       - traefik
-      - mail
+      # - mail
 
 networks:
   traefik:
