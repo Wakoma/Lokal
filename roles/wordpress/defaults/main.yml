@@ -2,7 +2,7 @@ mysql_user_wordpress: wordpress
 mysql_password_wordpress: wordpress
 mysql_database_wordpress: wordpress
 
-version_wordpress: "6.0.2"
+version_wordpress: "6.2.2"
 title_wordpress: "Lokal Wordpress"
 
 # If you don't specify the subdomain then wordpress will be installed into the top-level domain

@@ -1,5 +1,15 @@
 # Wordpress
 
+After installation, you should have an `"admin"` user with the password supplied
+in `password_admin` variable.
+
+You can upgrade wordpress either by settings `version_wordpress` to higher value
+than is in `roles/wordpress/defaults.yml` or you can use the web-interface for
+upgrading as well. This role is clever enought not to downgrade when it is run
+with outdated image version.
+
+**The following part is kind-of obsolete technical details**
+
 ## Install
 
 The basic install can be run only once. Afterwards, would be the danger of downgrading your
