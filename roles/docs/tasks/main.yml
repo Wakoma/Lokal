@@ -10,16 +10,31 @@
     - web
     start: false
 
-- name: Clear old docs
+- name: Stop running server
+  ansible.builtin.shell: 
+    cmd: "docker compose down"
+    chdir: "{{app_root}}"
+
+- name: Clear old markdown files
   ansible.builtin.file:
-    path: "{{app_root}}/data/docs/" 
+    path: "{{app_root}}/data/docs/"
     state: absent
 
-- name: Copy markdown files
+- name: Clear old build
+  ansible.builtin.file:
+    path: "{{app_root}}/data/web/"
+    state: absent
+
+- name: Update markdown files
   ansible.builtin.copy:
     src: "docs/docs"
     dest: "{{app_root}}/data/"
     force: true # always update
+
+- name: Clear old build
+  ansible.builtin.file:
+    path: "{{app_root}}/data/web/"
+    state: directory
 
 - name: Copy mkdocs config
   ansible.builtin.copy:
