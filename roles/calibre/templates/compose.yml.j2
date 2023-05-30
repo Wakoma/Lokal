@@ -1,8 +1,6 @@
 version: "3.8"
 
 networks:
-  calibre:
-    name: calibre
   traefik:
     external: true
 
@@ -13,13 +11,12 @@ services:
     environment:
       - PUID={{ uid }}
       - PGID={{ gid }}
-      - TZ={{ tz }}
+      # - TZ={{ tz }}  # it requires database in Etz/UTC format or Europe/Prague
     volumes:
       - "{{app_root}}/web:/config"
-      - "{{app_root}}/data:/library"
+      - "{{app_root}}/data/metadata.db:/app/calibre-web/metadata.db"
     restart: unless-stopped
     networks:
-      - calibre
       - traefik
     labels:
       traefik.enable: "true"
@@ -30,19 +27,3 @@ services:
 {% if ssl_use_acme %}
       traefik.http.routers.calibre.tls.certresolver: {{cert_resolver}}
 {% endif %}
-
-  calibre-server:
-    image: linuxserver/calibre
-    container_name: calibre-server
-    environment:
-      - PUID={{ uid }}
-      - PGID={{ gid }}
-      - TZ={{ tz }}
-      - GUAC_USER={{user_calibre}}
-      - GUAC_PASS={{password_calibre}}
-    volumes:
-      - "{{app_root}}/server:/config"
-      - "{{app_root}}/data:/library"  # used to be /config/Calibre Library
-    networks:
-      - calibre
-    restart: unless-stopped

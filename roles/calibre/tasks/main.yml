@@ -7,5 +7,16 @@
     app: calibre
     data_dirs:
     - data
-    - server
     - web
+    start: false
+
+- name: Copy initial calibre DB
+  ansible.builtin.copy:
+    src: files/metadata.db
+    dest: "{{app_root}}/data/"
+    force: false
+
+- name: Docker-compose up
+  ansible.builtin.shell: 
+    cmd: "docker compose up -d"
+    chdir: "{{app_root}}"
