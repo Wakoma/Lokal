@@ -56,6 +56,7 @@
   ansible.builtin.template:
     src: traefik/dynamic.yml.j2
     dest: '{{project_root}}/base/traefik/conf/dynamic.yml'
+    force: true
 
 - name: "Copy prometheus config"
   ansible.builtin.copy:
