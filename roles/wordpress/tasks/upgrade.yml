@@ -13,7 +13,3 @@
   ansible.builtin.file:
     path: "{{ project_root }}/wordpress/app"
     state: directory
-
-- name: Database upgrade
-  ansible.builtin.debug:
-    msg: Please visit https://{{domain}}/wp-admin/upgrade.php to run the DB upgrade

@@ -11,7 +11,7 @@ services:
       WORDPRESS_DB_PASSWORD: {{mysql_password_wordpress}}
       WORDPRESS_DB_NAME: {{mysql_user_wordpress}}
       WORDPRESS_CONFIG_EXTRA: |
-        define('WP_ALLOW_MULTISITE', true );
+        define('WP_ALLOW_MULTISITE', false );
         define('AUTOMATIC_UPDATER_DISABLED', true );
     networks:
       - mysql
@@ -27,23 +27,17 @@ services:
       traefik.http.routers.wordpress.entrypoints: websecure
       traefik.http.routers.wordpress.rule: Host(`{{domain_wordpress}}`)
       traefik.http.routers.wordpress.tls: "true"
+      # traefik.http.middlewares.wordpress.headers.HTTP_X_FORWARDED_PROTO: "https://{{domain_wordpress}}"
+      # traefik.http.routers.wordpress.middlewares: wordpress
       traefik.http.services.wordpress.loadbalancer.server.port: 80
 {% if ssl_use_acme %}
       traefik.http.routers.wordpress.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
   wordpress_cli:
-    depends_on:
-      - wordpress
     image: wordpress:cli
     user: "{{uid}}:{{gid}}"
-    command: |
-      wp core install
-        --url={{domain_wordpress}}
-        --title="{{title_wordpress}}"
-        --admin_user=admin
-        --admin_password="{{password_admin}}"
-        --admin_email=admin@{{domain}}
+    command: wp cli version  # current command does nothing and will be replaced at runtime
     environment:
       WORDPRESS_DB_HOST: {{mysql_host}}
       WORDPRESS_DB_USER: {{mysql_user_wordpress}}
@@ -65,5 +59,7 @@ networks:
     external: true
   mysql:
     external: true
+  # mail:
+  #   external: true
   mail:
     external: true

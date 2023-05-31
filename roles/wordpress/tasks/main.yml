@@ -36,3 +36,22 @@
     data_dirs:
     - app
     - data
+
+- name: Wordpress initial installation
+  ansible.builtin.shell:
+    cmd: >
+      docker compose run --rm wordpress_cli
+      wp core install
+        --url={{domain_wordpress}}
+        --title="{{title_wordpress}}"
+        --admin_user=admin
+        --admin_password="{{password_admin}}"
+        --admin_email=admin@{{domain}}
+    chdir: "{{app_root}}"
+  when: version_output is not defined
+
+- name: Wordpress DB upgrade
+  ansible.builtin.shell:
+    cmd: docker compose run --rm wordpress_cli wp core update-db
+    chdir: "{{app_root}}"
+  when: version_runtime_wordpress is defined and version_runtime_wordpress is truthy and version_runtime_wordpress is version(version_wordpress, '<')
