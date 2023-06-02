@@ -117,9 +117,9 @@ services:
       {{ common_settings }}
     volumes:
       - "{{app_root}}/openwisp:/etc/config/openwisp"
-      - "{{project_root}}/influxdb:/var/lib/influxdb"
-      - "{{project_root}}/media:/opt/openwisp/media"
-      - "{{project_root}}/private:/opt/openwisp/private"
+      - "{{app_root}}/influxdb:/var/lib/influxdb"
+      - "{{app_root}}/media:/opt/openwisp/media"
+      - "{{app_root}}/private:/opt/openwisp/private"
       - /etc/localtime:/etc/localtime:ro
       # - "{{project_root}}/./customization/configuration/django/:/opt/openwisp/openwisp/configuration:ro
     depends_on:
