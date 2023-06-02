@@ -14,7 +14,7 @@ services:
       # - TZ={{ tz }}  # it requires database in Etz/UTC format or Europe/Prague
     volumes:
       - "{{app_root}}/web:/config"
-      - "{{app_root}}/data/metadata.db:/app/calibre-web/metadata.db"
+      - "{{app_root}}/data:/app/calibre-web/data"
     restart: unless-stopped
     networks:
       - traefik
