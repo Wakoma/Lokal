@@ -1,0 +1,9 @@
+---
+- name: Install home
+  include_role:
+    name: common
+    tasks_from: install
+  vars:
+    app: home
+    data_dirs:
+    - config
