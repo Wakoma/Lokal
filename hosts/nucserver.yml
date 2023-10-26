@@ -1,0 +1,17 @@
+all:
+  hosts: "10.208.191.255"
+  vars:
+    ssl_cert: "hosts/redepsp.info.cert"
+    ssl_key: "hosts/redepsp.info.key"
+    domain: redepsp.info
+    email_admin: hiure@riseup.net
+    password_admin: strong-password
+    lokal_secret: nui3fhAoiSDUndakd12
+    ansible_user: psp
+    services:
+        - kiwix
+        - wordpress
+        - jellyfin
+        - calibre
+        - nextcloud
+    project_root: /home/psp

@@ -1,0 +1,7 @@
+all:
+  hosts: "10.208.191.255"
+  vars:
+    app_user: psp
+    ansible_user: root
+    setup_ssh: true
+    ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDa/lHfBL8gTJDmqZ1EM1jEdYxnZ0t7p7Q+Qk1vWLdOG8prEISggwM1XE8jMUc07f9PhNTUpPXILQFxt83JaUv/0qK84ziPX83p5JWROpAmlnJgpd3LG8qui0nHKbE7x2AMRzamqxKilr85URzBjMvta2Je1466BtrGrrf0N/Zuina7CUDUvj50z1enErpFBxV9cBQ5L4NY3Riz0EMhuscWRrSf9Y2OdL0vv7NbGV6QYZOK1FMt/UlK4BSKpF+HVI4lnq6ghDsp40Uo2ER2/Sh5tx4mXqDlIVOF3Ki2aQ+gVtf0Ny7658hn71IjFbb8v9EG/zAIIb4EeVer/f0dr6KutFOTrpxjaxeNIiEwmRTiy+rqaHv/Vk2fnoJpYNMBOhEcHvGjmfulXrLBvEPmmhOuZNDIO6ITzEacDogwtE2wa9xgXWgOKPmqXq+rbq7kjB7pwQEwToaGnwTwNTlzgflFl5dtJpo0p7spXFlDSr8bf9j2pbIyrWeLTgrKf58XGic= hiure@meteoro
