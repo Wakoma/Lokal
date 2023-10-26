@@ -12,9 +12,12 @@ services:
       NEXTCLOUD_ADMIN_PASSWORD: {{admin_password_nextcloud}}
       OVERWRITEHOST: "{{subdomain_nextcloud}}.{{domain}}"
       OVERWRITEPROTOCOL: https
+      APACHE_BODY_LIMIT: 0
+      PHP_UPLOAD_LIMIT: 16G
     volumes:
     - {{app_root}}/config:/config
     - {{app_root}}/data:/var/www/html
+    - /mnt/nextcloud:/mnt/nextcloud
     restart: unless-stopped
     networks:
     - mysql
