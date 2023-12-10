@@ -1,0 +1,9 @@
+version_yourapp: "13"
+
+# Security does not matter much here because all connections
+# to the database are blocked from outside. To get a security
+# breach, you would need to install the security thread yourself
+mysql_user_yourapp: "your_app"
+mysql_password_yourapp: "your_app"
+mysql_database_yourapp: "your_app"
+

@@ -1,0 +1,7 @@
+This is just an example of a static file - can be a binary or anything
+else that will get copied to the remote server and bound in a folder
+into the docker container. Thus it will be accessible on predefined
+path. This file will be copied with the {{ansible_user}} user and
+priviledges. It will be mounted in the docker with {{uid}}:{{gid}}
+permissions which are usually 1000:1000. We aim to run all containers
+unpriviledged.
