@@ -5,8 +5,28 @@
     tasks_from: install
   vars:
     app: jellyfin
+    app_version: "{{version_jellyfin}}"
     data_dirs:
     - data
     - config
     firewall_udp:
     - 7359
+    start: false
+
+- name: Create LDAP plugin folder
+  ansible.builtin.file:
+    state: directory
+    path: "{{app_root}}/config/data/plugins/ldapauth/"
+
+- name: Download and uzip the LDAP plugin
+  ansible.builtin.unarchive:
+    src: https://github.com/jellyfin/jellyfin-plugin-ldapauth/releases/download/v17/ldap-authentication_17.0.0.0.zip
+    remote_src: yes
+    dest: "{{app_root}}/config/data/plugins/ldapauth/"
+    creates: "{{app_root}}/config/data/plugins/ldapauth/LDAP-Auth.dll"
+
+- name: Start jellyfin
+  ansible.builtin.shell:
+    cmd: "docker compose up -d"
+    chdir: "{{app_root}}"
+  notify: "lokal : Restart router"
