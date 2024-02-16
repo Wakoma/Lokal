@@ -1,0 +1,169 @@
+version: "3.8"
+
+networks:
+  traefik:
+    external: true
+  mysql:
+    external: true
+  prometheus:
+    external: true
+  postgres:
+    external: true
+  ldap:
+    name: ldap
+  mail:
+    name: mail
+
+services:
+  ldap:
+    image: glauth/glauth-plugins:latest
+    container_name: ldap
+    #ports:
+    #   - "3890:3890" # LDAP !only for localhost connections - don't allow on firewall!
+    restart: always
+    volumes:
+      - "{{project_root}}/ldap:/app/config"
+    environment:
+      UID: "{{uid}}"
+      GID: "{{gid}}"
+      TZ: "{{tz}}"
+    networks:
+    - ldap
+
+  ldap-ui:
+    image: zen3515/glauth-ui:latest
+    container_name: ldap-ui
+    restart: unless-stopped
+    networks:
+      - mysql
+    volumes:
+      # Mount Folder that contains DB and config file outside the container
+      - '{{project_root}}/base/ldap:/home/ldap/db'
+    environment:
+      - SECRET_KEY={{ldap_secret}}
+      - DATABASE_URL=mysql+pymysql://ldap:ldap@{{mysql_host}}:{{mysql_port}}/ldap
+      - ADMIN_GROUP=admin
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.ldap.entrypoints: websecure
+      traefik.http.routers.ldap.rule: Host(`ldap.{{domain}}`)
+      traefik.http.routers.ldap.tls: "true"
+      traefik.http.services.ldap.loadbalancer.server.port: 80
+{% if ssl_use_acme %}
+      traefik.http.routers.ldap.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+  webmail:
+    image: sailfrog/cypht-docker:latest
+    container_name: webmail
+    volumes:
+    - {{app_root}}/webmail:/var/lib/hm3/users
+    environment:
+      CYPHT_AUTH_USERNAME: "admin"
+      CYPHT_AUTH_PASSWORD: "{{password_admin}}"
+      CYPHT_DB_CONNECTION_TYPE: host
+      CYPHT_AUTH_TYPE: IMAP
+      CYPHT_IMAP_AUTH_SERVER: "mail.{{domain}}"
+      CYPHT_IMAP_AUTH_PORT: 993
+      CYPHT_DEFAULT_SMTP_SERVER: "mail.{{domain}}"
+      CYPHT_DEFAULT_SMTP_PORT: 465
+      CYPHT_DB_HOST: mariadb
+      CYPHT_DB_NAME: cypht
+      CYPHT_DB_USER: cypht
+      CYPHT_DB_PASS: cypht
+      CYPHT_SESSION_TYPE: DB
+      CYPHT_SINGLE_SERVER_MODE: true
+      CYPHT_DEFAULT_EMAIL_DOMAIN: "mail.{{domain}}"
+    networks:
+    - mysql
+    - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mail.entrypoints: websecure
+      traefik.http.routers.mail.rule: Host(`mail.{{domain}}`)
+      traefik.http.routers.mail.tls: "true"
+      traefik.http.services.mail.loadbalancer.server.port: 80
+{% if ssl_use_acme %}
+      traefik.http.routers.mail.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
+  # mail:
+  #   image: foxcpp/maddy:0.6
+  #   container_name: mail
+  #   network_mode: host
+  #   # ports:
+  #   # - "465:465"  # ESMTP (implicit TLS)
+  #   # - "993:993"  # IMAP4 (implicit TLS)
+  #   # - "25:25"    # SMTP  (explicit TLS => STARTTLS)
+  #   # - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
+  #   # - "587:587"  # ESMTP (explicit TLS => STARTTLS)
+  #   volumes:
+  #   - {{app_root}}/mail/:/data
+  #   - {{project_root}}/.certs/mail.{{domain}}:/etc/ssl:ro
+  #   restart: always
+  #   stop_grace_period: 1m
+  #   environment:
+  #     MADDY_HOSTNAME: "mail.{{domain}}"
+  #     MADDY_DOMAIN: "{{domain}}"
+  #   depends_on:
+  #   - webmail
+
+  mail:
+    image: docker.io/mailserver/docker-mailserver:latest
+    container_name: mail
+    hostname: "mail.{{domain}}"
+    domainname: "mail.{{domain}}"
+    env_file: "{{app_root}}/mailserver.env"
+    cap_add:
+    - NET_ADMIN
+    # network_mode: host
+    ports:
+    - "465:465"  # ESMTP (implicit TLS)
+    - "993:993"  # IMAP4 (implicit TLS)
+    # - "25:25"    # SMTP  (explicit TLS => STARTTLS)
+    # - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
+    # - "587:587"  # ESMTP (explicit TLS => STARTTLS)
+    volumes:
+    - {{app_root}}/data/:/var/mail/
+    - {{app_root}}/state/:/var/mail-state/
+    - {{app_root}}/logs/:/var/log/mail/
+    - {{app_root}}/config/:/tmp/docker-mailserver/
+    - {{project_root}}/base/traefik/acme/acme.json:/etc/letsencrypt/acme.json:ro
+    restart: always
+    stop_grace_period: 1m
+    depends_on:
+    - webmail
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0
+
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+#   no user: "{{uid}}:{{gid}}" because it drops the privileges itself
+    environment:
+      PUID: "{{uid}}"
+      PGID: "{{gid}}"
+      TZ: "{{tz}}"
+    volumes:
+    - {{project_root}}/base/transmission/config/:/config/
+    - {{project_root}}/base/transmission/data/:/downloads/
+    - {{project_root}}/base/transmission/watch/:/watch/
+    ports:
+    - 9091:9091
+    - 51413:51413
+    - 51413:51413/udp
+    restart: unless-stopped
+    networks:
+    - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.transmission.entrypoints: websecure
+      traefik.http.routers.transmission.rule: Host(`{{transmission_subdomain}}.{{domain}}`)
+      traefik.http.routers.transmission.tls: "true"
+      traefik.http.services.transmission.loadbalancer.server.port: 9091
+      traefik.http.routers.transmission.middlewares: admin-auth@file
+{% if ssl_use_acme %}
+      traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
+{% endif %}

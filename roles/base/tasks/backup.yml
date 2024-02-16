@@ -1,6 +1,9 @@
 ---
-- name: "Backup data"
-  ansible.builtin.shell:
-    cmd: "tar -czf {{backup_dir}}/files.tgz grafana ldap"
-    chdir: "{{project_root}}/base/"
-  become: yes # we need to become root to preserve docker's user owner of the files
+- name: Backup base
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: backup
+  vars:
+    app: base
+    mysql_db: "{{mysql_database_your_app}}"  # to backup MySQL database
+    postgres_db: "{{postgres_db_your_app}}"  # to backup PostgreSQL database

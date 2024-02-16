@@ -17,7 +17,7 @@
   - name: Check selected service is listed in services variable
     ansible.builtin.fail:
       msg: "Services to install: {{install}} are not defined in services variable: {{services}}"
-    when: "install is defined and install|split(',')|difference(['base', ] + services) is truthy"
+    when: "install is defined and install|split(',')|difference(['lokal','base'] + services) is truthy"
 
   - name: Install specified services
     loop: "{{ install | split(',') }}"

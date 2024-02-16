@@ -52,6 +52,13 @@ ansible-playbook -i hosts/<your-host-file> playbook.yml
 ```
 You can run installation multiple times. It should only check that everything is setup correctly. If you'd increase version in software in your hosts file or we would increase the version in the underlying roles than running the installation again would update the application.
 
+#### Upgrade
+
+First, you can upgrade used ansible roles
+```bash
+ansible-galaxy install -f -r requirements.yml
+```
+
 ### Backup
 
 You can either backup concrete services by specifying `-e backup=service1,service2`.

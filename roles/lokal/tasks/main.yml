@@ -5,21 +5,29 @@
     state: directory
     owner: '{{ansible_facts["user_id"]}}'
   loop:
-    - "{{project_root}}"
     - "{{backup_root}}"
+    - "{{project_root}}"
+    - "{{project_root}}/.certs"
   become: true
   when: "not backup is defined and not restore is defined"
+
+- name: Create folders for certificates
+  ansible.builtin.file:
+    path: "{{project_root}}/.certs/{{domain}}"
+    state: directory
+    owner: '{{ansible_facts["user_id"]}}'
+  when: ssl_key is defined and ssl_cert is defined
 
 - name: Get certificates - key
   ansible.builtin.copy:
     src: "{{ssl_key}}"
-    dest: "{{project_root}}/{{domain}}.key"
+    dest: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
   when: ssl_key is defined and ssl_cert is defined
 
 - name: Get certificates - cert
   ansible.builtin.copy:
     src: "{{ssl_cert}}"
-    dest: "{{project_root}}/{{domain}}.crt"
+    dest: "{{project_root}}/.certs/{{domain}}/{{domain}}.crt"
   when: ssl_key is defined and ssl_cert is defined
 
 - name: "Generate self-signed certs"
@@ -39,3 +47,14 @@
     tz: '{{ansible_facts["date_time"]["tz"]}}'
     gid_docker: '{{docker_gid_output.stdout}}'
     external_ipv4: '{{ansible_facts["default_ipv4"]["address"]}}'
+
+- name: Create lokal base directory
+  file:
+    path: "{{ project_root }}/lokal"
+    state: directory
+  register: lokal_dir
+
+- name: "Install basic infrastructure"
+  include_tasks:
+    file: include/install-basic-infrastructure.yml
+  when: "lokal_dir.changed or (install is defined and install is contains('lokal'))"

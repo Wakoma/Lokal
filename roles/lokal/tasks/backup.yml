@@ -1,3 +1,15 @@
+#
+# Backup role usage - create roles/your_app/tasks/backup.yml with the following content:
+# 
+# - name: Backup your-app
+#   ansible.builtin.include_role:
+#     name: lokal
+#     tasks_from: backup
+#   vars:
+#     app: your-app
+#     mysql_db: "{{mysql_database_your_app}}"  # to backup MySQL database
+#     postgres_db: "{{postgres_db_your_app}}"  # to backup PostgreSQL database
+
 - name: "Get current timestamp"
   register: timestamp_result
   shell: date '+%Y%m%dT%H%M%S'
@@ -20,7 +32,7 @@
   ansible.builtin.shell:
     cmd: "tar -czf {{backup_dir}}/files.tgz ."
     chdir: "{{project_root}}/{{app}}"
-  become: yes # we need to become root to preserve docker's user owner of the files
+  become: true # we need to become root to preserve docker's user owner of the files
 
 - name: "Backup {{app}} MySQL to {{backup_dir}}"
   ansible.builtin.shell:

@@ -7,38 +7,10 @@ networks:
     name: mysql
   prometheus:
     name: prometheus
-  # mail is not currently part of `base` package - so don't create the mail network here
-  # mail:
-  #   name: mail
   postgres:
     name: postgres
 
 services:
-  ldap:
-    image: nitnelave/lldap:stable
-    container_name: ldap
-    #ports:
-    #   - "3890:3890" # LDAP !only for localhost connections - don't allow on firewall!
-    # don't even export. It is a pain in the ass to disable routing external traffic so this is easier
-    #   - "17170:17170" # web front-end
-    restart: always
-    volumes:
-      - "{{project_root}}/base/ldap/:/data/"
-    environment:
-      UID: "{{uid}}"
-      GID: "{{gid}}"
-      TZ: "{{tz}}"
-    networks:
-      - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.ldap.entrypoints: websecure
-      traefik.http.routers.ldap.rule: Host(`ldap.{{domain}}`)
-      traefik.http.routers.ldap.tls: "true"
-      traefik.http.services.ldap.loadbalancer.server.port: 17170
-{% if ssl_use_acme %}
-      traefik.http.routers.ldap.tls.certresolver: {{cert_resolver}}
-{% endif %}
 
   mariadb:
     container_name: "{{mysql_host}}"
@@ -58,19 +30,21 @@ services:
       timeout: 1s
     restart: unless-stopped
     volumes:
-    - {{project_root}}/base/mariadb/:/var/lib/mysql/
+    - {{lokal_root}}/mariadb/:/var/lib/mysql/
 
   postgres:
     container_name: postgres
-    image:  postgis/postgis:{{version_postgres}}
-    user: "{{uid}}:{{gid}}"
+    image: postgis/postgis:{{version_postgres}}
+    # user: "{{uid}}:{{gid}}"
     environment:
-      POSTGRES_PASSWORD: "{{postgres_root_password}}"
+      POSTGRES_PASS: "{{postgres_root_password}}"
+      DEFAULT_COLLATION: "{{locale}}"
+      DEFAULT_CTYPE: "{{locale}}"
     networks:
     - postgres
     restart: unless-stopped
     volumes:
-    - {{project_root}}/base/postgres/:/var/lib/postgresql/data/
+    - {{lokal_root}}/postgres/:/opt/postgres/data/
 
   prometheus:
     container_name: prometheus
@@ -91,8 +65,8 @@ services:
     - prometheus
     restart: unless-stopped
     volumes:
-    - {{project_root}}/base/prometheus/etc/prometheus/:/etc/prometheus/
-    - {{project_root}}/base/prometheus/data/:/prometheus/
+    - {{lokal_root}}/prometheus/etc/prometheus/:/etc/prometheus/
+    - {{lokal_root}}/prometheus/data/:/prometheus/
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   portainer:
@@ -106,7 +80,7 @@ services:
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - /var/run/docker.sock:/var/run/docker.sock
-    - {{project_root}}/base/portainer/:/data/
+    - {{lokal_root}}/portainer/:/data/
     networks:
     - prometheus
     - traefik
@@ -142,6 +116,8 @@ services:
     ports:
     - 80:80
     - 443:443
+#    - 465:465
+#    - 993:993
     - 8448:8448
     restart: unless-stopped
     environment:
@@ -152,13 +128,12 @@ services:
 {% endif %}
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
-    - "{{project_root}}/base/traefik/log:/var/log"  # used for fail2ban
-    - "{{project_root}}/base/traefik/acme:/acme"
+    - "{{lokal_root}}/traefik/log:/var/log"  # used for fail2ban
+    - "{{lokal_root}}/traefik/acme:/acme"
 {% if not ssl_use_acme %}
-    - {{project_root}}/{{domain}}.key:/certs/{{domain}}.key
-    - {{project_root}}/{{domain}}.crt:/certs/{{domain}}.crt
+    - {{project_root}}/.certs/{{domain}}/:/certs/
 {% endif %}
-    - "{{project_root}}/base/traefik/conf:/config"
+    - "{{lokal_root}}/traefik/conf:/config"
     command:
     - --accessLog=true
     - --api.insecure=false
@@ -187,8 +162,8 @@ services:
     - --entrypoints.websecure.address=:443/tcp
     - --entryPoints.federation.address=:8448
     - --entryPoints.metrics.address=:8082
-    # - --entryPoints.smtp.address=:465  # do not bind those port - the mail container do this on its own
-    # - --entryPoints.imap.address=:993  # do not bind those port - the mail container do this on its own
+#    - --entryPoints.smtp.address=:465  # do not bind those port - the mail container do this on its own
+#    - --entryPoints.imap.address=:993  # do not bind those port - the mail container do this on its own
     - --entrypoints.web.http.redirections.entryPoint.to=websecure
     - --entrypoints.web.http.redirections.entryPoint.scheme=https
     - --entrypoints.web.http.redirections.entrypoint.permanent=true
@@ -216,16 +191,17 @@ services:
 {% if ssl_use_acme %}
   dumper:
     image: ldez/traefik-certs-dumper:v2.8.1
+    container_name: dumper
     command: file --version v2 --watch --source /data/acme.json --dest /dump --post-hook "sh /hook.sh"
     restart: unless-stopped
     user: "{{uid}}:{{gid}}"
     labels:
       traefik.enable: false
     volumes:
-      - {{project_root}}/base/traefik/acme:/data
-      - {{project_root}}/base/traefik/dump:/dump
-      - {{project_root}}:/lokal
-      - {{project_root}}/base/dumper/hook.sh:/hook.sh
+      - {{lokal_root}}/traefik/acme:/data
+      - {{lokal_root}}/traefik/dump:/dump
+      - {{project_root}}/.certs:/lokal
+      - {{lokal_root}}/dumper/hook.sh:/hook.sh
 {% endif %}
 
   fail2ban:
@@ -239,35 +215,5 @@ services:
     - NET_ADMIN
     - NET_RAW
     volumes:
-    - {{project_root}}/base/traefik/log/:/var/log/traefik/:ro
-    - {{project_root}}/base/fail2ban/:/data/
-
-  transmission:
-    image: linuxserver/transmission
-    container_name: transmission
-#   no user: "{{uid}}:{{gid}}" because it drops the privileges itself
-    environment:
-      PUID: "{{uid}}"
-      PGID: "{{gid}}"
-      TZ: "{{tz}}"
-    volumes:
-    - {{project_root}}/base/transmission/config/:/config/
-    - {{project_root}}/base/transmission/data/:/downloads/
-    - {{project_root}}/base/transmission/watch/:/watch/
-    ports:
-    - 9091:9091
-    - 51413:51413
-    - 51413:51413/udp
-    restart: unless-stopped
-    networks:
-    - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.transmission.entrypoints: websecure
-      traefik.http.routers.transmission.rule: Host(`{{subdomain_transmission}}.{{domain}}`)
-      traefik.http.routers.transmission.tls: "true"
-      traefik.http.services.transmission.loadbalancer.server.port: 9091
-      traefik.http.routers.transmission.middlewares: admin-auth@file
-{% if ssl_use_acme %}
-      traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
-{% endif %}
+    - {{lokal_root}}/traefik/log/:/var/log/traefik/:ro
+    - {{lokal_root}}/fail2ban/:/data/

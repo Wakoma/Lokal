@@ -24,11 +24,6 @@ staging_acme: false # use only staging ACME
 # cert resolver can be "dns", "http", or "tls"
 cert_resolver: http
 
-# Email is a part of Lokal - you can specify your own SMTP server
-# and the installation of Lokal SMTP will be skipped
-smtp_host: "mail"
-smtp_port: 465
-
 # If you are using "cert_resolver: dns" then you need to give API access to
 # your DNS (domain) provider so the cert resolver can create domains and certificates
 dns_provider: namecheap
@@ -54,5 +49,12 @@ firewall_tcp: []
 firewall_udp: []
 firewall: false
 
-# LDAP integration
-domain_ldap: "{%for part in domain.split('.')%}dc={{part}}{%if not loop.last%},{%endif%}{%endfor%}"
+version_prometheus: "latest" # v2.40.6
+version_traefik: "latest" # v2.9.6
+version_grafana: "latest" # 9.3.2
+version_mariadb: "10.6.16-focal"
+version_postgres: "16-3.4"
+
+subdomain_traefik: router
+subdomain_prometheus: metrics
+subdomain_portainer: containers

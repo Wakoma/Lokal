@@ -1,3 +1,15 @@
+#
+# Restore usage: create roles/your-role/tasks/restore.yml with following content
+#
+# - name: Restore your-app
+#   ansible.builtin.include_role:
+#     name: lokal
+#     tasks_from: restore
+#   vars:
+#     app: your-app
+#     mysql_db: "{{mysql_database_your_app}}"  # to backup MySQL database
+#     postgres_db: "{{postgres_db_your_app}}"  # to backup PostgreSQL database
+
 - name: List possible backup files
   ansible.builtin.find:
     paths: "{{backup_root}}/{{app}}"
@@ -17,13 +29,13 @@
   ansible.builtin.shell:
     cmd: "docker compose down"
     chdir: "{{project_root}}/{{app}}"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: "Restore {{ app }} data from {{ latest_backup.path }}"
   ansible.builtin.shell:
     cmd: "tar -xzf {{latest_backup.path}}/files.tgz"
     chdir: "{{project_root}}/{{app}}"
-  become: yes
+  become: true
 
 - name: "Uzip {{app}} MySQL dump file"
   ansible.builtin.shell:

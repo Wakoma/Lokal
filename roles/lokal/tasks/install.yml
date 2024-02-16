@@ -49,55 +49,15 @@
     content: "{{app_version}}"
   when: app_version is defined
 
-- name: Create {{app}} MySQL database
-  ansible.builtin.shell:
-    cmd: >
-      docker compose exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e 'CREATE DATABASE IF NOT EXISTS {{mysql_db}}'
-    chdir: "{{project_root}}/base"
+- name: "Call lokal/tasks/mysqldb/create.yml"
+  ansible.builtin.include_tasks:
+    file: mysqldb/create.yml
   when: mysql_db is defined
 
-- name: Create {{app}} MySQL user
-  ansible.builtin.shell:
-    cmd: >
-      docker compose exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e "GRANT ALL ON {{mysql_db}}.* TO '{{mysql_user|default(mysql_db)}}'@'%' IDENTIFIED BY '{{mysql_password}}'"
-    chdir: "{{project_root}}/base"
-  when: mysql_db is defined
-
-- name: Does {{app}} PostgreSQL already exist?
-  ansible.builtin.shell:
-    cmd: >
-      docker compose exec postgres
-      psql -XtAc "SELECT 1 FROM pg_database WHERE datname='{{postgres_db}}'" postgres postgres
-    chdir: "{{project_root}}/base"
+- name: "Call lokal/tasks/postgresqldb/create.yml"
+  ansible.builtin.include_tasks:
+    file: postgresqldb/create.yml
   when: postgres_db is defined
-  register: psql_db_exists
-
-- name: Create {{app}} PostgreSQL user
-  ansible.builtin.shell:
-    cmd: >
-      docker compose exec postgres
-      psql -c "CREATE USER {{postgres_user}} WITH NOSUPERUSER NOCREATEDB PASSWORD '{{postgres_password}}'" postgres postgres;
-    chdir: "{{project_root}}/base"
-  when: postgres_db is defined and psql_db_exists.stdout is falsy
-
-- name: Create {{app}} PostgreSQL database
-  ansible.builtin.shell:
-    cmd: >
-      docker compose exec postgres
-      psql -c "CREATE DATABASE {{postgres_db}} OWNER {{postgres_user}}" postgres postgres;
-    chdir: "{{project_root}}/base"
-  when: postgres_db is defined and psql_db_exists.stdout is falsy
-
-- name: Create extensions for {{app}} in PostgreSQL
-  ansible.builtin.shell:
-    cmd: >
-      docker compose exec postgres
-      psql -c "CREATE EXTENSION IF NOT EXISTS {{item}}" {{postgres_db}} postgres;
-    chdir: "{{project_root}}/base"
-  when: postgres_db is defined and postgres_extensions is defined
-  loop: "{{postgres_extensions}}"
 
 - name: Open {{app}} firewall ports
   become: true
@@ -112,7 +72,7 @@
 
 - name: Render {{app}} docker-compose.yml
   ansible.builtin.template:
-    src: "compose.yml.j2"
+    src: "roles/{{app}}/templates/compose.yml"
     dest: "{{app_root}}/docker-compose.yml"
     mode: "0600"
 

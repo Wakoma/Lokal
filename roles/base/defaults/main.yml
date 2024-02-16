@@ -1,14 +1,12 @@
-subdomain_traefik: router
-subdomain_prometheus: metrics
-subdomain_portainer: containers
-subdomain_transmission: torrent
+# Email is a part of Lokal - you can specify your own SMTP server
+# and the installation of Lokal SMTP will be skipped
+smtp_host: "mail"
+smtp_port: 465
+imap_port: 993
 
-version_prometheus: "v2.40.6"
-version_traefik: "v2.9.6"
-version_grafana: "9.3.2"
-version_mariadb: "10.5.8-focal"
-version_postgres: "15-3.3"
-jwt_secret_lldap: "{{(lokal_secret + 'jwt_secret_lldap') | hash('sha1') | regex_search('\\w{10}') }}"
+transmission_subdomain: torrent
 
-port_postgres: "5432" # do not change!
-port_mysql: "3306" # do not change!
+# LDAP integration
+ldap_port: "3890"
+ldap_domain: "{%for part in domain.split('.')%}dc={{part}}{%if not loop.last%},{%endif%}{%endfor%}"
+ldap_secret: "{{(lokal_secret + 'ldap_secret') | hash('sha1') | regex_search('\\w{20}') }}"

@@ -1,0 +1,90 @@
+---
+- name: Export app_root variable
+  ansible.builtin.set_fact:
+    lokal_root: "{{project_root}}/lokal"
+
+- name: Create app dirs
+  ansible.builtin.file:
+    path: '{{lokal_root}}/{{item}}'
+    state: directory
+  loop:
+    - fail2ban/filter.d
+    - fail2ban/jail.d
+    - mariadb
+    - dumper
+    - postgres
+    - prometheus/data
+    - prometheus/etc
+    - traefik/acme
+    - traefik/conf
+    - traefik/data
+    - traefik/log
+    - traefik/dump
+    - portainer
+
+- name: "Install necessary base software"
+  package:
+    name:
+      - python3-passlib
+    state: present
+  become: true
+  when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
+
+- name: Init IPTABLES firewall
+  ansible.builtin.import_role:
+    name: geerlingguy.firewall.d
+  vars:
+    firewall_state: started
+    firewall_enabled_at_boot: true
+    firewall_allowed_tcp_ports:
+      # ssh
+      - "{{ansible_port | default(22)}}"
+      # web
+      - 80
+      - 443
+      - 8448 # federation
+    firewall_disable_ufw: true
+    firewall_flush_filter_chains: ["INPUT"]
+    firewall_flush_rules_and_chains: false
+    firewall_restart_docker: true
+  become: true
+
+- name: "Render traefik configuration"
+  ansible.builtin.template:
+    src: traefik/dynamic.yml
+    dest: '{{lokal_root}}/traefik/conf/dynamic.yml'
+    force: true
+
+- name: "Copy prometheus config"
+  ansible.builtin.copy:
+    src: files/prometheus
+    dest: '{{lokal_root}}/prometheus/etc/'
+
+- name: "Copy dumper's hook"
+  ansible.builtin.copy:
+    src: files/dumper/hook.sh
+    dest: '{{lokal_root}}/dumper/hook.sh'
+
+- name: Render traefik fail2ban filter
+  ansible.builtin.template:
+    src: fail2ban/traefik-filter.conf.j2
+    dest: '{{lokal_root}}/fail2ban/filter.d/traefik-filter.conf'
+
+- name: Render traefik fail2ban jail
+  ansible.builtin.template:
+    src: fail2ban/traefik-jail.conf.j2
+    dest: '{{lokal_root}}/fail2ban/jail.d/traefik.conf'
+
+- name: Render base docker-compose.yml
+  ansible.builtin.template:
+    src: compose.yml
+    dest: '{{lokal_root}}/docker-compose.yml'
+
+- name: Docker-compose up
+  ansible.builtin.shell:
+    cmd: "docker compose up -d"
+    chdir: "{{lokal_root}}"
+
+- name: Give the base time to boot up - takes at least 10 seconds
+  ansible.builtin.pause:
+    seconds: 10
