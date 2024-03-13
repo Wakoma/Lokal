@@ -1,0 +1,7 @@
+---
+- name: Restore piwigo
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: restore
+  vars:
+    app: piwigo

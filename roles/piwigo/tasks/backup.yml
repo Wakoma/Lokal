@@ -1,0 +1,7 @@
+---
+- name: Backup piwigo
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: backup
+  vars:
+    app: piwigo
