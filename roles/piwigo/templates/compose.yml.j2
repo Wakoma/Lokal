@@ -4,22 +4,20 @@ services:
     image: lscr.io/linuxserver/piwigo:latest
     container_name: piwigo
     environment:
-      PUID: '{{uid}}'
-      PGID: '{{gid}}'
+      PUID: 1000
+      PGID: 1000
       TZ: '{{tz}}'
       PIWIGO_PublishedServerUrl: https://{{subdomain_piwigo}}.{{domain}}
     volumes:
       - "{{project_root}}/piwigo/config:/config"
       - "{{project_root}}/piwigo/data:/gallery"
-    ports:
-      # Check with Tomas about ports
     restart: unless-stopped
     labels:
       traefik.enable: "true"
       traefik.http.routers.piwigo.entrypoints: websecure
-      traefik.http.routers.piwigo.rule: Host(`{{subdomain_jellyfin}}.{{domain}}`)
+      traefik.http.routers.piwigo.rule: Host(`{{subdomain_piwigo}}.{{domain}}`)
       traefik.http.routers.piwigo.tls: "true"
-      traefik.http.services.piwigo.loadbalancer.server.port: 8096
+      traefik.http.services.piwigo.loadbalancer.server.port: 80
 {% if ssl_use_acme %}
       traefik.http.routers.piwigo.tls.certresolver: {{cert_resolver}}
 {% endif %}

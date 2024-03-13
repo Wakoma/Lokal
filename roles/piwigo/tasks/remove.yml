@@ -5,4 +5,4 @@
     tasks_from: remove
   vars:
     app: piwigo
-    firewall: true
+    firewall: false

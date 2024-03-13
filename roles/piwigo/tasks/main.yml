@@ -8,5 +8,3 @@
     data_dirs:
     - data
     - config
-    firewall_udp:
-    - 7359
