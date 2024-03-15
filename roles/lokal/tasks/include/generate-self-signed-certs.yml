@@ -2,6 +2,7 @@
 - name: Ensure SSL private key
   community.crypto.openssl_privatekey:
     path: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
+    state: present
 
 - name: Create SSL CSR
   community.crypto.openssl_csr:

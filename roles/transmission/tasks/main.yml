@@ -1,0 +1,16 @@
+---
+- name: Install transmission
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: transmission
+    data_dirs:
+    - config
+    - data
+    - watch
+    firewall_tcp:
+    - 9091
+    - 51413
+    firewall_udp:
+    - 51413

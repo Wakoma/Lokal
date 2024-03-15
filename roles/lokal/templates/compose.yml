@@ -30,21 +30,21 @@ services:
       timeout: 1s
     restart: unless-stopped
     volumes:
-    - {{lokal_root}}/mariadb/:/var/lib/mysql/
+    - "{{lokal_root}}/mariadb/:/var/lib/mysql/"
 
   postgres:
     container_name: postgres
-    image: postgis/postgis:{{version_postgres}}
-    # user: "{{uid}}:{{gid}}"
+    image: nickblah/postgis:12-bullseye-postgis-3
+    user: "{{uid}}:{{gid}}"
     environment:
-      POSTGRES_PASS: "{{postgres_root_password}}"
+      POSTGRES_PASSWORD: "{{postgres_root_password}}"
       DEFAULT_COLLATION: "{{locale}}"
       DEFAULT_CTYPE: "{{locale}}"
     networks:
     - postgres
     restart: unless-stopped
     volumes:
-    - {{lokal_root}}/postgres/:/opt/postgres/data/
+    - "{{lokal_root}}/postgres/:/opt/postgres/data/"
 
   prometheus:
     container_name: prometheus
@@ -187,6 +187,7 @@ services:
     - --serversTransport.insecureSkipVerify=true
     - --providers.file.directory=/config
     - --providers.file.watch=true
+    - --tls.domains={{domain}}
 
 {% if ssl_use_acme %}
   dumper:

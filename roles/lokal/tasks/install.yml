@@ -8,6 +8,27 @@
     path: "{{app_root}}"
     state: directory
 
+- name: Link provided SSL certificate for this subdomain
+  ansible.builtin.file:
+    state: link
+    src: "{{project_root}}/.certs/{{domain}}/{{domain}}.cert"
+    dest: "{{project_root}}/.certs/{{app_domain}}/{{app_domain}}.cert"
+  when: ssl_key is defined and ssl_cert is defined
+
+- name: Link provided SSL key for this subdomain
+  ansible.builtin.file:
+    state: link
+    src: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
+    dest: "{{project_root}}/.certs/{{app_domain}}/{{app_domain}}.key"
+  when: ssl_key is defined and ssl_cert is defined
+
+- name: Self-sign certificate for the domain
+  ansible.builtin.include_tasks:
+    file: include/generate-self-signed-certs.yml
+  vars:
+    domain: "{{app_domain}}"
+  when: not ssl_use_acme and not (ssl_key is defined and ssl_cert is defined)
+
 - name: Create {{app}} external data directories
   ansible.builtin.file:
     path: "{{item.value}}"
@@ -50,12 +71,12 @@
   when: app_version is defined
 
 - name: "Call lokal/tasks/mysqldb/create.yml"
-  ansible.builtin.include_tasks:
+  ansible.builtin.import_tasks:
     file: mysqldb/create.yml
   when: mysql_db is defined
 
 - name: "Call lokal/tasks/postgresqldb/create.yml"
-  ansible.builtin.include_tasks:
+  ansible.builtin.import_tasks:
     file: postgresqldb/create.yml
   when: postgres_db is defined
 

@@ -1,0 +1,17 @@
+[[users]]
+  name = "admin"
+  uidnumber = 5001
+  primarygroup = 5500
+  passsha256 = "{{ password_admin | hash('sha256') }}"
+
+[[groups]]
+  name = "admin"
+  gidnumber = 5500
+
+[[groups]]
+  name = "mail"
+  gidnumber = 5501
+
+[[groups]]
+  name = "editors"
+  gidnumber = 5502

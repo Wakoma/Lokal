@@ -1,0 +1,36 @@
+version: "3.8"
+
+networks:
+  traefik:
+    external: true
+
+services:
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+#   no user: "{{uid}}:{{gid}}" because it drops the privileges itself
+    environment:
+      PUID: "{{uid}}"
+      PGID: "{{gid}}"
+      TZ: "{{tz}}"
+    volumes:
+    - "{{project_root}}/transmission/config/:/config/"
+    - "{{project_root}}/transmission/data/:/downloads/"
+    - "{{project_root}}/transmission/watch/:/watch/"
+    ports:
+    - 9091:9091
+    - 51413:51413
+    - 51413:51413/udp
+    restart: unless-stopped
+    networks:
+    - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.transmission.entrypoints: websecure
+      traefik.http.routers.transmission.rule: Host(`{{transmission_subdomain}}.{{domain}}`)
+      traefik.http.routers.transmission.tls: "true"
+      traefik.http.services.transmission.loadbalancer.server.port: 9091
+      traefik.http.routers.transmission.middlewares: admin-auth@file
+{% if ssl_use_acme %}
+      traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
+{% endif %}

@@ -16,39 +16,29 @@ networks:
 
 services:
   ldap:
-    image: glauth/glauth-plugins:latest
+    image: nitnelave/lldap:stable
     container_name: ldap
     #ports:
     #   - "3890:3890" # LDAP !only for localhost connections - don't allow on firewall!
+    # don't even export. It is a pain in the ass to disable routing external traffic so this is easier
+    #   - "17170:17170" # web front-end
     restart: always
     volumes:
-      - "{{project_root}}/ldap:/app/config"
+      - "{{project_root}}/base/ldap/:/data/"
     environment:
       UID: "{{uid}}"
       GID: "{{gid}}"
       TZ: "{{tz}}"
     networks:
-    - ldap
-
-  ldap-ui:
-    image: zen3515/glauth-ui:latest
-    container_name: ldap-ui
-    restart: unless-stopped
-    networks:
+      - traefik
       - mysql
-    volumes:
-      # Mount Folder that contains DB and config file outside the container
-      - '{{project_root}}/base/ldap:/home/ldap/db'
-    environment:
-      - SECRET_KEY={{ldap_secret}}
-      - DATABASE_URL=mysql+pymysql://ldap:ldap@{{mysql_host}}:{{mysql_port}}/ldap
-      - ADMIN_GROUP=admin
+      - mail
     labels:
       traefik.enable: "true"
       traefik.http.routers.ldap.entrypoints: websecure
       traefik.http.routers.ldap.rule: Host(`ldap.{{domain}}`)
       traefik.http.routers.ldap.tls: "true"
-      traefik.http.services.ldap.loadbalancer.server.port: 80
+      traefik.http.services.ldap.loadbalancer.server.port: 17170
 {% if ssl_use_acme %}
       traefik.http.routers.ldap.tls.certresolver: {{cert_resolver}}
 {% endif %}
@@ -57,7 +47,7 @@ services:
     image: sailfrog/cypht-docker:latest
     container_name: webmail
     volumes:
-    - {{app_root}}/webmail:/var/lib/hm3/users
+    - "{{app_root}}/webmail:/var/lib/hm3/users"
     environment:
       CYPHT_AUTH_USERNAME: "admin"
       CYPHT_AUTH_PASSWORD: "{{password_admin}}"
@@ -77,6 +67,7 @@ services:
     networks:
     - mysql
     - traefik
+    - mail
     labels:
       traefik.enable: "true"
       traefik.http.routers.mail.entrypoints: websecure
@@ -87,36 +78,13 @@ services:
       traefik.http.routers.mail.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
-  # mail:
-  #   image: foxcpp/maddy:0.6
-  #   container_name: mail
-  #   network_mode: host
-  #   # ports:
-  #   # - "465:465"  # ESMTP (implicit TLS)
-  #   # - "993:993"  # IMAP4 (implicit TLS)
-  #   # - "25:25"    # SMTP  (explicit TLS => STARTTLS)
-  #   # - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
-  #   # - "587:587"  # ESMTP (explicit TLS => STARTTLS)
-  #   volumes:
-  #   - {{app_root}}/mail/:/data
-  #   - {{project_root}}/.certs/mail.{{domain}}:/etc/ssl:ro
-  #   restart: always
-  #   stop_grace_period: 1m
-  #   environment:
-  #     MADDY_HOSTNAME: "mail.{{domain}}"
-  #     MADDY_DOMAIN: "{{domain}}"
-  #   depends_on:
-  #   - webmail
-
   mail:
-    image: docker.io/mailserver/docker-mailserver:latest
+    image: foxcpp/maddy:0.6
     container_name: mail
-    hostname: "mail.{{domain}}"
-    domainname: "mail.{{domain}}"
-    env_file: "{{app_root}}/mailserver.env"
-    cap_add:
-    - NET_ADMIN
-    # network_mode: host
+    networks:
+    - mail
+    - ldap
+    # user: "{{uid}}:{{gid}}"
     ports:
     - "465:465"  # ESMTP (implicit TLS)
     - "993:993"  # IMAP4 (implicit TLS)
@@ -124,46 +92,44 @@ services:
     # - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
     # - "587:587"  # ESMTP (explicit TLS => STARTTLS)
     volumes:
-    - {{app_root}}/data/:/var/mail/
-    - {{app_root}}/state/:/var/mail-state/
-    - {{app_root}}/logs/:/var/log/mail/
-    - {{app_root}}/config/:/tmp/docker-mailserver/
-    - {{project_root}}/base/traefik/acme/acme.json:/etc/letsencrypt/acme.json:ro
+    - {{app_root}}/maddy/:/data
+    - {{project_root}}/.certs/mail.{{domain}}:/etc/ssl:ro
     restart: always
     stop_grace_period: 1m
+    environment:
+      MADDY_HOSTNAME: "mail.{{domain}}"
+      MADDY_DOMAIN: "{{domain}}"
     depends_on:
     - webmail
-    healthcheck:
-      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
-      timeout: 3s
-      retries: 0
 
-  transmission:
-    image: linuxserver/transmission
-    container_name: transmission
-#   no user: "{{uid}}:{{gid}}" because it drops the privileges itself
-    environment:
-      PUID: "{{uid}}"
-      PGID: "{{gid}}"
-      TZ: "{{tz}}"
-    volumes:
-    - {{project_root}}/base/transmission/config/:/config/
-    - {{project_root}}/base/transmission/data/:/downloads/
-    - {{project_root}}/base/transmission/watch/:/watch/
-    ports:
-    - 9091:9091
-    - 51413:51413
-    - 51413:51413/udp
-    restart: unless-stopped
-    networks:
-    - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.transmission.entrypoints: websecure
-      traefik.http.routers.transmission.rule: Host(`{{transmission_subdomain}}.{{domain}}`)
-      traefik.http.routers.transmission.tls: "true"
-      traefik.http.services.transmission.loadbalancer.server.port: 9091
-      traefik.http.routers.transmission.middlewares: admin-auth@file
-{% if ssl_use_acme %}
-      traefik.http.routers.transmission.tls.certresolver: {{cert_resolver}}
-{% endif %}
+  # mail:
+  #   image: docker.io/mailserver/docker-mailserver:latest
+  #   container_name: mail
+  #   hostname: "mail.{{domain}}"
+  #   domainname: "mail.{{domain}}"
+  #   env_file: "{{app_root}}/mailserver.env"
+  #   cap_add:
+  #   - NET_ADMIN
+  #   ports:
+  #   - "465:465"  # ESMTP (implicit TLS)
+  #   - "993:993"  # IMAP4 (implicit TLS)
+  #   # - "25:25"    # SMTP  (explicit TLS => STARTTLS)
+  #   # - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
+  #   # - "587:587"  # ESMTP (explicit TLS => STARTTLS)
+  #   networks:
+  #   - ldap
+  #   - mail
+  #   volumes:
+  #   - {{app_root}}/mail/data/:/var/mail/
+  #   - {{app_root}}/mail/state/:/var/mail-state/
+  #   - {{app_root}}/mail/logs/:/var/log/mail/
+  #   - {{app_root}}/mail/config/:/tmp/docker-mailserver/
+  #   - {{project_root}}/lokal/traefik/acme/acme.json:/etc/letsencrypt/acme.json:ro
+  #   restart: always
+  #   stop_grace_period: 1m
+  #   depends_on:
+  #   - webmail
+  #   healthcheck:
+  #     test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+  #     timeout: 3s
+  #     retries: 0
