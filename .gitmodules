@@ -2,6 +2,3 @@
 	path = roles/docs/docs
 	url = git@github.com:Wakoma/docs.git
 	branch = main
-[submodule "hosts"]
-	path = hosts
-	url = https://github.com/wakoma/hosts
