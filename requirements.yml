@@ -1,22 +1,13 @@
----
 # Run following command to install requirements from this file
 # ansible-galaxy install -r requirements.yml
 roles:
 - name: geerlingguy.docker
-  version: 2.9.0
+  version: 7.0.2
 
 - name: geerlingguy.pip
-  version: 2.0.0
-
 - name: geerlingguy.firewall
-  version: 2.5.0
-
 - name: geerlingguy.security
-  version: 2.1.0
-
 - name: bguerel.self_signed_certificate
-  version: v1.0.1
-
 - name: geerlingguy.firewall.d
   src: git+https://github.com/katomaso/ansible-role-firewall.git
   version: master
@@ -28,3 +19,5 @@ collections:
 - name: community.mysql
 - name: community.postgresql
 - name: community.general
+- name: community.crypto
+
