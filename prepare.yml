@@ -13,18 +13,6 @@
       autoclean: yes
       autoremove: yes
 
-  - name: Ensure pip installed
-    include_role:
-      name: geerlingguy.pip
-    vars:
-      pip_executable: pip3
-      pip_package: python3-pip
-      pip_install_packages:
-        - name: docker
-          state: present
-        - name: passlib
-          state: present
-
   - name: Ensure that the app user is present
     user:
       name: "{{ app_user }}"
@@ -76,6 +64,6 @@
     vars:
       security_sudoers_passwordless:
       - '{{ app_user }}'
-      security_ssh_permit_root_login: "no"
+      security_ssh_permit_root_login: '{{ ssh_allow_root | default("no") }}'
       security_ssh_port: '{{ ssh_port | default("22")}}'
       security_fail2ban_enabled: "false" # we handle fail2ban on our own
