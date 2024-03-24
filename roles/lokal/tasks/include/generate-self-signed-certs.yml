@@ -1,21 +1,26 @@
 ---
+- name: Set cert_domain variable
+  set_fact:
+    cert_domain: "{{ domain }}"
+  when: cert_domain is not defined
+
 - name: Ensure SSL private key
   community.crypto.openssl_privatekey:
-    path: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
+    path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.key"
     state: present
 
 - name: Create SSL CSR
   community.crypto.openssl_csr:
-    path: "{{project_root}}/.certs/{{domain}}/{{domain}}.csr"
-    privatekey_path: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
+    path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.csr"
+    privatekey_path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.key"
     organization_name: "Wakoma"
-    commonName: "{{domain}}"
-    email_address: "{{email_admin}}"
+    commonName: "{{ cert_domain }}"
+    email_address: "{{ email_admin }}"
     country_name: "US"
 
 - name: Create SSL certificate
   community.crypto.x509_certificate:
     provider: "selfsigned"
-    path: "{{project_root}}/.certs/{{domain}}/{{domain}}.crt"
-    privatekey_path: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
-    csr_path: "{{project_root}}/.certs/{{domain}}/{{domain}}.csr"
+    path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.crt"
+    privatekey_path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.key"
+    csr_path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.csr"

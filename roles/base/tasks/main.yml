@@ -52,7 +52,7 @@
   ansible.builtin.import_tasks:
     file: "roles/lokal/tasks/include/generate-self-signed-certs.yml"
   vars:
-    domain: "mail.{{domain}}"
+    cert_domain: "mail.{{domain}}"
   when: not ssl_use_acme and not (ssl_key is defined and ssl_cert is defined)
 
 - name: Render maddy (mail) config

@@ -1,6 +1,0 @@
----
-- name: Download source code
-  get_url:
-    url: "https://github.com/yvesago/glauth-ui-light/archive/refs/heads/main.zip"
-    dest: "/tmp/go{{ golang_version }}.linux-amd64.tar.gz"
-    mode: 0644

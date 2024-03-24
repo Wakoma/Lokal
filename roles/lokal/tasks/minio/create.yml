@@ -1,0 +1,27 @@
+---
+- name: Create {{app}} minio bucket
+  ansible.builtin.shell:
+    cmd: >
+      docker compose exec minio
+      mc mb --ignore-existing local/{{app}}
+    chdir: "{{project_root}}/lokal"
+
+- name: Create {{app}} minio bucket
+  ansible.builtin.shell:
+    cmd: >
+      docker compose exec minio
+      mc admin user add local {{app}} {{app_password}}
+    chdir: "{{project_root}}/lokal"
+
+- name: Render minio policy
+  ansible.builtin.template:
+    src: policy.json
+    dest: /tmp/{{app}}-policy.json
+
+- name: Create {{app}} minio bucket
+  ansible.builtin.shell:
+    cmd: >
+      docker compose exec minio
+      mc admin policy attach local {{app}} --user {{app}} /tmp/{{app}}-policy.json
+    chdir: "{{project_root}}/lokal"
+
