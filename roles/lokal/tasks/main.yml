@@ -28,7 +28,7 @@
   include_tasks:
     file: include/generate-self-signed-certs.yml
   when: not ssl_use_acme and not (ssl_key is defined and ssl_cert is defined)
-  
+
 - name: Get docker gid
   ansible.builtin.shell:
     cmd: 'cat /etc/group | grep docker | cut -d: -f 3'

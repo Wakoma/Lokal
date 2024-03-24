@@ -1,0 +1,7 @@
+---
+- name: Create {{app}} minio bucket
+  ansible.builtin.shell:
+    cmd: >
+      docker compose exec minio
+      mc mb --ignore-existing local/{{app}}
+    chdir: "{{project_root}}/lokal"

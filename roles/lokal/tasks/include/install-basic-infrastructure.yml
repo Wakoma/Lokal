@@ -21,6 +21,8 @@
     - traefik/log
     - traefik/dump
     - portainer
+    - minio/config
+    - minio/data
 
 - name: "Install necessary base software"
   package:
@@ -74,6 +76,11 @@
   ansible.builtin.template:
     src: fail2ban/traefik-jail.conf.j2
     dest: '{{lokal_root}}/fail2ban/jail.d/traefik.conf'
+
+- name: Render minio client config
+  ansible.builtin.template:
+    src: minio/config.json
+    dest: '{{lokal_root}}/minio/config/config.json'
 
 - name: Render base docker-compose.yml
   ansible.builtin.template:
