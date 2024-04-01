@@ -88,16 +88,16 @@
 
 # Docker should take care of this. This role purpose should be only closing ports
 # that we don't want the internet to access.
-- name: Open {{app}} firewall ports
-  become: true
-  vars:
-    firewall_group: "{{app}}"
-    firewall_allowed_tcp_ports: "{{firewall_tcp}}"
-    firewall_allowed_udp_ports: "{{firewall_udp}}"
-    # firewall_restart_docker: true
-  ansible.builtin.import_role:
-    name: geerlingguy.firewall.d
-  when: firewall_tcp is truthy or firewall_udp is truthy
+# - name: Open {{app}} firewall ports
+#   become: true
+#   vars:
+#     firewall_group: "{{app}}"
+#     firewall_allowed_tcp_ports: "{{firewall_tcp}}"
+#     firewall_allowed_udp_ports: "{{firewall_udp}}"
+#     # firewall_restart_docker: true
+#   ansible.builtin.import_role:
+#     name: geerlingguy.firewall.d
+#   when: firewall_tcp is truthy or firewall_udp is truthy
 
 - name: Render {{app}} docker-compose.yml
   ansible.builtin.template:

@@ -32,24 +32,26 @@
   become: true
   when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
 
-- name: Init IPTABLES firewall
-  ansible.builtin.import_role:
-    name: geerlingguy.firewall.d
-  vars:
-    firewall_state: started
-    firewall_enabled_at_boot: true
-    firewall_allowed_tcp_ports:
-      # ssh
-      - "{{ansible_port | default(22)}}"
-      # web
-      - 80
-      - 443
-      - 8448 # federation
-    firewall_disable_ufw: true
-    firewall_flush_filter_chains: ["INPUT"]
-    firewall_flush_rules_and_chains: false
-    firewall_restart_docker: true
-  become: true
+# Maybe we don't need to do that. Docker manages the firewall itself and unless we expose a port
+# to the host, we don't need to do anything. So don't expose ports. Use internal docker network.
+# - name: Init IPTABLES firewall
+#   ansible.builtin.import_role:
+#     name: geerlingguy.firewall.d
+#   vars:
+#     firewall_state: started
+#     firewall_enabled_at_boot: true
+#     firewall_allowed_tcp_ports:
+#       # ssh
+#       - "{{ansible_port | default(22)}}"
+#       # web
+#       - 80
+#       - 443
+#       - 8448 # federation
+#     firewall_disable_ufw: true
+#     firewall_flush_filter_chains: ["INPUT"]
+#     firewall_flush_rules_and_chains: false
+#     firewall_restart_docker: true
+#   become: true
 
 - name: "Render traefik configuration"
   ansible.builtin.template:
