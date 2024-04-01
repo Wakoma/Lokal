@@ -25,6 +25,10 @@ services:
     - prometheus
 {% include "labels.yml" %}
 
+  redis:
+    image: redis:6.0.9
+    restart: unless-stopped
+
 networks:
   traefik:
     external: true
