@@ -1,0 +1,39 @@
+---
+- name: Install qpixel
+  include_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: qpixel
+    data_dirs:
+    - data
+    - config
+    mysql_db: "{{qpixel_mysql}}"
+    mysql_user: "{{qpixel_mysql_user}}"
+    mysql_password: "{{qpixel_mysql_password}}"
+    create_bucket: "true"
+    start: false # you can postpone starting (by defaults the container starts)
+
+- name: Render database config
+  ansible.builtin.template:
+    src: "database.yml"
+    dest: "{{app_root}}/config/database.yml"
+    force: false
+
+- name: Render storage config
+  ansible.builtin.template:
+    src: "storage.yml"
+    dest: "{{app_root}}/config/storage.yml"
+    force: false
+
+- name: Copy a needed file (but I have no clue what it does)
+  ansible.builtin.copy:
+    src: "files/.irbrc"
+    dest: "{{app_root}}/.irbrc" # {{app_root}} is accessible because the lokal.install already ran
+    force: false
+
+# This is the command to start your app manually
+- name: Start the app
+  ansible.builtin.shell:
+    cmd: "docker compose up -d"
+    chdir: "{{app_root}}"
