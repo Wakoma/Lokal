@@ -51,4 +51,4 @@
 - name: "Install basic infrastructure"
   include_tasks:
     file: include/install-basic-infrastructure.yml
-  when: "lokal_dir.changed or (install is defined and install is contains('lokal'))"
+  when: "lokal_dir.changed or (install is defined and (install is contains('lokal') or install is contains('all')))"

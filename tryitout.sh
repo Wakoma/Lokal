@@ -58,4 +58,4 @@ else
 fi
 
 # run the installation
-ansible-playbook --ask-become-pass -i hosts/local playbook.yml
+ansible-playbook --ask-become-pass -i hosts/local playbook.yml $*

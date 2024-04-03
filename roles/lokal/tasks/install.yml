@@ -2,7 +2,7 @@
 - name: Export app_root variable
   ansible.builtin.set_fact:
     app_root: "{{project_root}}/{{app}}"
-    app_password: "{{app_password | default(app)}}"
+    app_domain: "{{app_domain | default(app + '.' + domain)}}"
 
 - name: Create {{app}} directory
   ansible.builtin.file:
@@ -84,7 +84,7 @@
 - name: "Call lokal/tasks/minio/create.yml"
   ansible.builtin.import_tasks:
     file: minio/create.yml
-  when: create_bucket is defined
+  when: minio_bucket is defined
 
 # Docker should take care of this. This role purpose should be only closing ports
 # that we don't want the internet to access.

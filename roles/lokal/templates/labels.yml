@@ -1,0 +1,9 @@
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.{{app}}.entrypoints: websecure
+      traefik.http.routers.{{app}}.rule: Host(`{{app_domain}}`)
+      traefik.http.routers.{{app}}.tls: "true"
+      traefik.http.services.{{app}}.loadbalancer.server.port: {{app_port|default(80)}}
+{% if ssl_use_acme %} # please keep this part to have automatic certificate issue and renewal
+      traefik.http.routers.{{app}}.tls.certresolver: {{cert_resolver}}
+{% endif %}

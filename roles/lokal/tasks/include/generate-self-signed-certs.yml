@@ -4,6 +4,11 @@
     cert_domain: "{{ domain }}"
   when: cert_domain is not defined
 
+- name: Ensure cert directory
+  ansible.builtin.file:
+    path: "{{ project_root }}/.certs/{{ cert_domain }}"
+    state: directory
+
 - name: Ensure SSL private key
   community.crypto.openssl_privatekey:
     path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.key"
