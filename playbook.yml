@@ -6,7 +6,7 @@
 
   tasks:
   - name: Install all services
-    loop: "{{['lokal', ] + services}}"
+    loop: "{{services}}"
     loop_control:
       loop_var: service
     include_role:

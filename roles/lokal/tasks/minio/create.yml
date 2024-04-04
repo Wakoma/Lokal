@@ -16,12 +16,19 @@
 - name: Render minio policy
   ansible.builtin.template:
     src: policy.json
-    dest: /tmp/{{app}}-policy.json
+    dest: "{{project_root}}/lokal/minio/config/policies/{{app}}.json"
 
-- name: Create {{app}} minio bucket
+- name: Create {{app}} minio policy
   ansible.builtin.shell:
     cmd: >
       docker compose exec minio
-      mc admin policy attach local {{app}} --user {{minio_user}} /tmp/{{app}}-policy.json
+      mc admin policy create local {{app}} /.mc/policies/{{app}}.json
+    chdir: "{{project_root}}/lokal"
+
+- name: Apply {{app}} minio policy
+  ansible.builtin.shell:
+    cmd: >
+      docker compose exec minio
+      mc admin policy attach local {{app}} --user {{minio_user}}
     chdir: "{{project_root}}/lokal"
 

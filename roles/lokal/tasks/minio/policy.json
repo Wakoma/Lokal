@@ -1,5 +1,5 @@
 {
-    "Version": "1",
+    "Version": "{{today}}",
     "Statement": [
       {
         "Effect": "Allow",

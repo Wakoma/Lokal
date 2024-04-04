@@ -1,34 +1,4 @@
 ---
-- name: Ensure base dirs exist"
-  ansible.builtin.file:
-    path: '{{item}}'
-    state: directory
-    owner: '{{ansible_facts["user_id"]}}'
-  loop:
-    - "{{backup_root}}"
-    - "{{project_root}}"
-    - "{{project_root}}/.certs"
-    - "{{project_root}}/.certs/{{domain}}"
-  become: true
-  when: "not backup is defined and not restore is defined"
-
-- name: Get certificates - key
-  ansible.builtin.copy:
-    src: "{{ssl_key}}"
-    dest: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
-  when: ssl_key is defined and ssl_cert is defined
-
-- name: Get certificates - cert
-  ansible.builtin.copy:
-    src: "{{ssl_cert}}"
-    dest: "{{project_root}}/.certs/{{domain}}/{{domain}}.crt"
-  when: ssl_key is defined and ssl_cert is defined
-
-- name: "Generate self-signed certs"
-  include_tasks:
-    file: include/generate-self-signed-certs.yml
-  when: not ssl_use_acme and not (ssl_key is defined and ssl_cert is defined)
-
 - name: Get docker gid
   ansible.builtin.shell:
     cmd: 'cat /etc/group | grep docker | cut -d: -f 3'
@@ -41,14 +11,9 @@
     tz: '{{ansible_facts["date_time"]["tz"]}}'
     gid_docker: '{{docker_gid_output.stdout}}'
     external_ipv4: '{{ansible_facts["default_ipv4"]["address"]}}'
-
-- name: Create lokal base directory
-  file:
-    path: "{{ project_root }}/lokal"
-    state: directory
-  register: lokal_dir
+    today: '{{ansible_facts["date_time"]["date"]}}'
 
 - name: "Install basic infrastructure"
   include_tasks:
     file: include/install-basic-infrastructure.yml
-  when: "lokal_dir.changed or (install is defined and (install is contains('lokal') or install is contains('all')))"
+  when: not backup is defined and not restore is defined and not remove is defined

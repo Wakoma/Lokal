@@ -1,4 +1,42 @@
 ---
+- name: Ensure base dirs exist"
+  ansible.builtin.file:
+    path: '{{item}}'
+    state: directory
+    owner: '{{ansible_facts["user_id"]}}'
+  loop:
+    - "{{backup_root}}"
+    - "{{project_root}}"
+    - "{{project_root}}/.certs"
+    - "{{project_root}}/.certs/{{domain}}"
+  become: true
+  when: "not backup is defined and not restore is defined"
+
+- name: "Install necessary base software"
+  package:
+    name:
+      - python3-passlib
+    state: present
+  become: true
+  when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
+
+- name: Get certificates - key
+  ansible.builtin.copy:
+    src: "{{ssl_key}}"
+    dest: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
+  when: ssl_key is defined and ssl_cert is defined
+
+- name: Get certificates - cert
+  ansible.builtin.copy:
+    src: "{{ssl_cert}}"
+    dest: "{{project_root}}/.certs/{{domain}}/{{domain}}.crt"
+  when: ssl_key is defined and ssl_cert is defined
+
+- name: "Generate self-signed certs"
+  include_tasks:
+    file: include/generate-self-signed-certs.yml
+  when: not ssl_use_acme and not (ssl_key is defined and ssl_cert is defined)
+
 - name: Export app_root variable
   ansible.builtin.set_fact:
     lokal_root: "{{project_root}}/lokal"
@@ -21,16 +59,9 @@
     - traefik/log
     - traefik/dump
     - portainer
-    - minio/config
     - minio/data
-
-- name: "Install necessary base software"
-  package:
-    name:
-      - python3-passlib
-    state: present
-  become: true
-  when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
+    - minio/config
+    - minio/config/policies
 
 # Maybe we don't need to do that. Docker manages the firewall itself and unless we expose a port
 # to the host, we don't need to do anything. So don't expose ports. Use internal docker network.
