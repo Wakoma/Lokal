@@ -1,6 +1,6 @@
 services:
   qpixel:
-    image: qpixel:{{version_qpixel}}
+    image: Wakoma/qpixel:{{qpixel_version}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
       LOCAL_DEV_PORT: 3000
@@ -12,13 +12,18 @@ services:
       MYSQL_USER: qpixel
       MYSQL_PASSWORD: qpixel
       COMMUNITY_ADMIN_USERNAME: admin
-      COMMUNITY_ADMIN_PASSWORD: "{{password_lokal}}"
+      COMMUNITY_ADMIN_PASSWORD: "{{password_admin}}"
       COMMUNITY_ADMIN_EMAIL: admin@{{domain}}
+      SECRET_KEY_BASE: "{{(lokal_secret + 'secret_key_base') | hash('sha1') | regex_search('\\w{24}') }}"
     volumes:  # use only bind-mounts inside {{app_root}} folder as shown below
     - {{app_root}}/config/database.yml:/code/config/database.yml
     - {{app_root}}/config/storage.yml:/code/config/storage.yml
+    - {{app_root}}/log:/code/log
+    - /tmp:/code/tmp
     - {{app_root}}/.irbrc:/code/.irbrc
     restart: unless-stopped
+    depends_on:
+    - redis
     networks:
     - traefik # necessary for extenal access to your app (via a domain name)
     - mysql # necessary if you want to use the external mysql database
@@ -26,7 +31,7 @@ services:
 {% include "labels.yml" %}
 
   redis:
-    image: redis:6.0.9
+    image: redis:alpine
     restart: unless-stopped
 
 networks:

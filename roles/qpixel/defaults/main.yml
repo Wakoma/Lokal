@@ -1,5 +1,10 @@
+qpixel_community_name: Lokal community
 qpixel_mysql: qpixel
 qpixel_mysql_user: qpixel
-qpixel_mysql_password: qpixel
+qpixel_mysql_password: Qpixel678423
 qpixel_minio_user: qpixel
-qpixel_minio_password: qpixel
+qpixel_minio_password: Qpixel678423
+qpixel_minio_bucket: qpixel
+qpixel_version: "2024.3"
+qpixel_subdomain: "qpixel"
+qpixel_domain: "{{qpixel_subdomain}}.{{domain}}"

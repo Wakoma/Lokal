@@ -2,18 +2,18 @@ default: &default
   adapter: mysql2
   encoding: utf8mb4
   collation: utf8mb4_unicode_ci
-  host: db
+  host: {{mysql_host}}
   port: 3306
   username: {{qpixel_mysql_user}}
   password: {{qpixel_mysql_password}}
 
 development:
   <<: *default
-  database: qpixel_dev
+  database: {{qpixel_mysql}}_dev
 
 test:
   <<: *default
-  database: qpixel_test
+  database: {{qpixel_mysql}}_test
 
 production:
   <<: *default

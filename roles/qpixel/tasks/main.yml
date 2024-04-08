@@ -5,14 +5,29 @@
     tasks_from: install
   vars:
     app: qpixel
+    app_domain: "{{qpixel_domain}}"
+    app_port: 3000
     data_dirs:
     - data
     - config
+    - log
     mysql_db: "{{qpixel_mysql}}"
     mysql_user: "{{qpixel_mysql_user}}"
     mysql_password: "{{qpixel_mysql_password}}"
-    create_bucket: "true"
+    minio_user: "{{qpixel_minio_user}}"
+    minio_password: "{{qpixel_minio_password}}"
+    minio_bucket: "{{qpixel_minio_bucket}}"
     start: false # you can postpone starting (by defaults the container starts)
+
+# qpixel's entrypoint runs migrations for preduction and development databases
+# non-negotiable. Once I get more info about the app, I can remove that
+- name: Create MySQL-dev database and user
+  ansible.builtin.import_tasks:
+    file: roles/lokal/tasks/mysqldb/create.yml
+  vars:
+    mysql_db: "{{qpixel_mysql}}_dev"
+    mysql_user: "{{qpixel_mysql_user}}"
+    mysql_password: "{{qpixel_mysql_password}}"
 
 - name: Render database config
   ansible.builtin.template:

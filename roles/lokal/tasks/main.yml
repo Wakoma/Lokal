@@ -16,4 +16,4 @@
 - name: "Install basic infrastructure"
   include_tasks:
     file: include/install-basic-infrastructure.yml
-  when: not backup is defined and not restore is defined and not remove is defined
+  when: not backup is defined and not restore is defined and not remove is defined and (not install is defined or install == "all" or "lokal" in install)
