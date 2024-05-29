@@ -1,0 +1,24 @@
+services:
+  odoo:
+    user: "{{uid}}:{{gid}}"
+    image: odoo:{{app_version}}
+    command: ["--proxy-mode"]
+    restart: unless-stopped
+    networks:
+      - traefik
+      - postgres
+    environment:
+    - HOST=postgres
+    - USER={{odoo_db_user}}
+    - PASSWORD={{odoo_db_password}}
+    volumes:
+    - {{app_root}}/data:/var/lib/odoo
+    - {{app_root}}/addons:/mnt/extra-addons
+    - {{app_root}}/config:/etc/odoo
+{% include "labels.yml" %}
+
+networks:
+  traefik:
+    external: true
+  postgres:
+    external: true

@@ -1,25 +1,23 @@
 services:
   qpixel:
-    image: Wakoma/qpixel:{{qpixel_version}}
-    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    image: wakoma/qpixel:{{qpixel_version}}
+    # user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
-      LOCAL_DEV_PORT: 3000
-      COMMUNITY_NAME: {{qpixel_community_name}}
+      COMMUNITY_NAME: "{{qpixel_community_name}}"
+      COMMUNITY_HOST: "{{app_domain}}"
+      LANG: cs_CZ.UTF-8
       RAILS_ENV: production
+      RAILS_SERVE_STATIC_FILES: true
       CONFIRMABLE_ALLOWED_ACCESS_DAYS: 2
-      MYSQL_ROOT_PASSWORD: qpixel
-      MYSQL_DATABASE: qpixel
-      MYSQL_USER: qpixel
-      MYSQL_PASSWORD: qpixel
       COMMUNITY_ADMIN_USERNAME: admin
       COMMUNITY_ADMIN_PASSWORD: "{{password_admin}}"
       COMMUNITY_ADMIN_EMAIL: admin@{{domain}}
+      COMMUNITY_OTHERS_SHOW: "false"
       SECRET_KEY_BASE: "{{(lokal_secret + 'secret_key_base') | hash('sha1') | regex_search('\\w{24}') }}"
     volumes:  # use only bind-mounts inside {{app_root}} folder as shown below
     - {{app_root}}/config/database.yml:/code/config/database.yml
     - {{app_root}}/config/storage.yml:/code/config/storage.yml
     - {{app_root}}/log:/code/log
-    - /tmp:/code/tmp
     - {{app_root}}/.irbrc:/code/.irbrc
     restart: unless-stopped
     depends_on:
@@ -28,11 +26,15 @@ services:
     - traefik # necessary for extenal access to your app (via a domain name)
     - mysql # necessary if you want to use the external mysql database
     - prometheus
+    - qpixel
 {% include "labels.yml" %}
 
   redis:
     image: redis:alpine
+    hostname: redis
     restart: unless-stopped
+    networks:
+      - qpixel
 
 networks:
   traefik:
@@ -41,6 +43,8 @@ networks:
     external: true
   prometheus:
     external: true
+  qpixel:
+    driver: bridge
 
 
 

@@ -1,0 +1,5 @@
+odoo_subdomain: odoo
+odoo_domain: "{{subdomain}}.{{domain}}"
+odoo_db: "{{odoo_domain | replace('.', '_')}}"
+odoo_db_user: "{{odoo_domain | replace('.', '_')}}"
+odoo_db_password: odoo

@@ -1,0 +1,11 @@
+---
+- name: Remove {{qpixel_domain}}
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: remove
+  vars:
+    app: "{{qpixel_domain}}"
+    mysql_db: "{{qpixel_mysql_db}}"
+    mysql_user: "{{qpixel_mysql_user}}"
+    minio_buncke: "{{qpixel_minio_bucket}}"
+    minio_user: "{{qpixel_minio_user}}"

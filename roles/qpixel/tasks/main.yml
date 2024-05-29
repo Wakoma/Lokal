@@ -1,12 +1,13 @@
 ---
 - name: Install qpixel
-  include_role:
+  import_role:
     name: lokal
     tasks_from: install
   vars:
     app: qpixel
     app_domain: "{{qpixel_domain}}"
     app_port: 3000
+    app_version: 2024.3
     data_dirs:
     - data
     - config
@@ -19,7 +20,7 @@
     minio_bucket: "{{qpixel_minio_bucket}}"
     start: false # you can postpone starting (by defaults the container starts)
 
-# qpixel's entrypoint runs migrations for preduction and development databases
+# qpixel's entrypoint runs migrations for production and development databases
 # non-negotiable. Once I get more info about the app, I can remove that
 - name: Create MySQL-dev database and user
   ansible.builtin.import_tasks:
@@ -52,3 +53,7 @@
   ansible.builtin.shell:
     cmd: "docker compose up -d"
     chdir: "{{app_root}}"
+
+# User.last.update(confirmed_at: DateTime.now, is_global_admin: true)
+# bundle exec rails assets:precompile
+# if app_installed
