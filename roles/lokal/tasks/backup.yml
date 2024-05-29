@@ -1,6 +1,6 @@
 #
 # Backup role usage - create roles/your_app/tasks/backup.yml with the following content:
-# 
+#
 # - name: Backup your-app
 #   ansible.builtin.include_role:
 #     name: lokal
@@ -16,42 +16,42 @@
 
 - name: "Get name of backup directory"
   set_fact:
-    backup_dir: "{{backup_root}}/{{app}}/{{timestamp_result.stdout}}"
+    backup_dir: "{{backup_root}}/{{app_domain}}/{{timestamp_result.stdout}}"
 
-- name: "Create {{app}} backup dir"
+- name: "Create {{app_domain}} backup dir"
   ansible.builtin.file:
     path: "{{backup_dir}}"
     state: directory
 
-- name: "Stop {{app}} service"
+- name: "Stop {{app_domain}} service"
   ansible.builtin.shell:
     cmd: "docker compose stop"
-    chdir: "{{project_root}}/{{app}}"
+    chdir: "{{project_root}}/{{app_domain}}"
 
-- name: "Backup {{app}} data"
+- name: "Backup {{app_domain}} data"
   ansible.builtin.shell:
     cmd: "tar -czf {{backup_dir}}/files.tgz ."
-    chdir: "{{project_root}}/{{app}}"
+    chdir: "{{project_root}}/{{app_domain}}"
   become: true # we need to become root to preserve docker's user owner of the files
 
-- name: "Backup {{app}} MySQL to {{backup_dir}}"
+- name: "Backup {{app_domain}} MySQL to {{backup_dir}}"
   ansible.builtin.shell:
     cmd: >
       docker exec mariadb
       mysqldump -u root --password={{mysql_root_password}} --routines --triggers --add-drop-table --flush-logs
       {{mysql_db}} | gzip > {{backup_dir}}/mysql.sql.gz
-    chdir: "{{project_root}}/base"
+    chdir: "{{project_root}}/lokal"
   when: mysql_db is defined
 
-- name: "Backup {{app}} PostgreSQL to {{backup_dir}}"
+- name: "Backup {{app_domain}} PostgreSQL to {{backup_dir}}"
   ansible.builtin.shell:
     cmd: >
       docker exec postgres
       pg_dump -U postgres {{postgres_db}} | gzip > {{backup_dir}}/postgres.sql.gz
-    chdir: "{{project_root}}/base"
+    chdir: "{{project_root}}/lokal"
   when: postgres_db is defined
 
 - name: "Start the service again"
   ansible.builtin.shell:
     cmd: "docker compose start"
-    chdir: "{{project_root}}/{{app}}"
+    chdir: "{{project_root}}/{{app_domain}}"

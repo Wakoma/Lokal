@@ -1,54 +1,58 @@
 ---
 - name: Export app_root variable
   ansible.builtin.set_fact:
-    app_root: "{{project_root}}/{{app}}"
+    app_root: "{{project_root}}/{{app_domain}}"
 
 - name: Docker-compose down
-  ansible.builtin.shell: 
+  ansible.builtin.shell:
     cmd: "docker compose down"
     chdir: "{{app_root}}"
   ignore_errors: true  # ignore because docker compose down fails on removing external networks
   notify: "lokal : Restart router"
 
-- name: Drop {{app}} MySQL database
+- name: Drop {{app_domain}} MySQL database
   ansible.builtin.shell:
     cmd: >
       docker exec mariadb
       mysql -u root --password={{mysql_root_password}} -e "DROP DATABASE {{mysql_db}}"
   when: mysql_db is defined
+  ignore_errors: true
 
-- name: Drop {{app}} MySQL user
+- name: Drop {{app_domain}} MySQL user
   ansible.builtin.shell:
     cmd: >
       docker exec mariadb
       mysql -u root --password={{mysql_root_password}} -e "DROP USER '{{mysql_user|default(mysql_db)}}'@'%'"
   when: mysql_db is defined or mysql_user is defined
+  ignore_errors: true
 
-- name: Remove {{app}} PostgreSQL database
+- name: Remove {{app_domain}} PostgreSQL database
   ansible.builtin.shell:
     cmd: >
       docker compose exec postgres
-      psql -c "DROP DATABASE {{postgres_db}}" postgres postgres;
-    chdir: "{{project_root}}/base"
+      psql -c 'DROP DATABASE "{{postgres_db}}"' postgres postgres;
+    chdir: "{{project_root}}/lokal"
   when: postgres_db is defined
+  ignore_errors: true
 
-- name: Remove {{app}} PostgreSQL user
+- name: Remove {{app_domain}} PostgreSQL user
   ansible.builtin.shell:
     cmd: >
       docker compose exec postgres
-      psql -c "DROP USER {{postgres_user}}" postgres postgres;
-    chdir: "{{project_root}}/base"
-  when: postgres_db is defined
+      psql -c 'DROP USER "{{postgres_user}}"' postgres postgres;
+    chdir: "{{project_root}}/lokal"
+  when: postgres_user is defined
+  ignore_errors: true
 
-- name: Remove firewall rules
-  vars:
-    firewall_remove: true
-    firewall_group: "{{app}}"
-  ansible.builtin.import_role:
-    name: geerlingguy.firewall.d
-  become: true
-  when: firewall
-  notify: Reload docker
+# - name: Remove firewall rules
+#   vars:
+#     firewall_remove: true
+#     firewall_group: "{{app_domain}}"
+#   ansible.builtin.import_role:
+#     name: geerlingguy.firewall.d
+#   become: true
+#   when: firewall
+#   notify: Reload docker
 
 - name: Remove the app directory {{app_root}}
   ansible.builtin.file:
@@ -57,6 +61,6 @@
   become: true
 
 - name: Docker purge unused images
-  ansible.builtin.shell: 
+  ansible.builtin.shell:
     cmd: docker image prune -f
     chdir: "{{project_root}}"

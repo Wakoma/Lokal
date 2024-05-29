@@ -12,7 +12,7 @@
 
 - name: List possible backup files
   ansible.builtin.find:
-    paths: "{{backup_root}}/{{app}}"
+    paths: "{{backup_root}}/{{app_domain}}"
     file_type: directory
   register: available_backups
 
@@ -28,52 +28,52 @@
 - name: "Stop {{ app }} service"
   ansible.builtin.shell:
     cmd: "docker compose down"
-    chdir: "{{project_root}}/{{app}}"
+    chdir: "{{project_root}}/{{app_domain}}"
   ignore_errors: true
 
 - name: "Restore {{ app }} data from {{ latest_backup.path }}"
   ansible.builtin.shell:
     cmd: "tar -xzf {{latest_backup.path}}/files.tgz"
-    chdir: "{{project_root}}/{{app}}"
+    chdir: "{{project_root}}/{{app_domain}}"
   become: true
 
-- name: "Uzip {{app}} MySQL dump file"
+- name: "Uzip {{app_domain}} MySQL dump file"
   ansible.builtin.shell:
-    cmd: "zcat {{latest_backup.path}}/mysql.sql.gz > {{project_root}}/base/mariadb/{{app}}.sql"
-    chdir: "{{project_root}}/base"
+    cmd: "zcat {{latest_backup.path}}/mysql.sql.gz > {{project_root}}/lokal/mariadb/{{app_domain}}.sql"
+    chdir: "{{project_root}}/lokal"
   when: mysql_db is defined
 
-- name: "Restore {{app}} MySQL tables"
+- name: "Restore {{app_domain}} MySQL tables"
   ansible.builtin.shell:
-    cmd: "docker compose exec mariadb mysql -u root --password={{mysql_root_password}} -f -e 'source /var/lib/mysql/{{app}}.sql' {{mysql_db}}"
-    chdir: "{{project_root}}/base"
+    cmd: "docker compose exec mariadb mysql -u root --password={{mysql_root_password}} -f -e 'source /var/lib/mysql/{{app_domain}}.sql' {{mysql_db}}"
+    chdir: "{{project_root}}/lokal"
   when: mysql_db is defined
 
-- name: "Delete ucompressed {{app}} MySQL dump file"
+- name: "Delete ucompressed {{app_domain}} MySQL dump file"
   ansible.builtin.file:
-    path: "{{project_root}}/base/mariadb/{{app}}.sql"
+    path: "{{project_root}}/lokal/mariadb/{{app_domain}}.sql"
     state: "absent"
   when: mysql_db is defined
 
-- name: "Uzip {{app}} PostgreSQL dump file"
+- name: "Uzip {{app_domain}} PostgreSQL dump file"
   ansible.builtin.shell:
-    cmd: "zcat {{latest_backup.path}}/mysql.sql.gz > {{project_root}}/base/postgres/{{app}}.sql"
-    chdir: "{{project_root}}/base"
+    cmd: "zcat {{latest_backup.path}}/mysql.sql.gz > {{project_root}}/lokal/postgres/{{app_domain}}.sql"
+    chdir: "{{project_root}}/lokal"
   when: postgres_db is defined
 
-- name: "Restore {{app}} PostgreSQL tables"
+- name: "Restore {{app_domain}} PostgreSQL tables"
   ansible.builtin.shell:
-    cmd: "docker compose exec postgres pg_restore -U postgres -d {{postgres_db}} /var/lib/postgresql/data/{{app}}.sql"
-    chdir: "{{project_root}}/base"
+    cmd: "docker compose exec postgres pg_restore -U postgres -d {{postgres_db}} /var/lib/postgresql/data/{{app_domain}}.sql"
+    chdir: "{{project_root}}/lokal"
   when: postgres_db is defined
 
-- name: "Delete ucompressed {{app}} PostgreSQL dump file"
+- name: "Delete ucompressed {{app_domain}} PostgreSQL dump file"
   ansible.builtin.file:
-    path: "{{project_root}}/base/postgres/{{app}}.sql"
+    path: "{{project_root}}/lokal/postgres/{{app_domain}}.sql"
     state: "absent"
   when: postgres_db is defined
 
-- name: "Start {{app}} again"
+- name: "Start {{app_domain}} again"
   ansible.builtin.shell:
     cmd: "docker compose up -d"
-    chdir: "{{project_root}}/{{app}}"
+    chdir: "{{project_root}}/{{app_domain}}"

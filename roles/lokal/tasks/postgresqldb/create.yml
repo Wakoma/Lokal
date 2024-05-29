@@ -1,5 +1,5 @@
 ---
-- name: Does {{app}} PostgreSQL already exist?
+- name: Does {{app_domain}} PostgreSQL already exist?
   ansible.builtin.shell:
     cmd: >
       docker compose exec postgres
@@ -7,7 +7,7 @@
     chdir: "{{project_root}}/lokal"
   register: psql_db_exists
 
-- name: Create {{app}} PostgreSQL user
+- name: Create {{app_domain}} PostgreSQL user
   ansible.builtin.shell:
     cmd: >
       docker compose exec postgres
@@ -15,7 +15,7 @@
     chdir: "{{project_root}}/lokal"
   when: psql_db_exists.stdout is falsy
 
-- name: Create {{app}} PostgreSQL database
+- name: Create {{app_domain}} PostgreSQL database
   ansible.builtin.shell:
     cmd: >
       docker compose exec postgres
@@ -23,7 +23,7 @@
     chdir: "{{project_root}}/lokal"
   when: psql_db_exists.stdout is falsy
 
-- name: Create extensions for {{app}} in PostgreSQL
+- name: Create extensions for {{app_domain}} in PostgreSQL
   ansible.builtin.shell:
     cmd: >
       docker compose exec postgres
