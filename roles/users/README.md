@@ -1,9 +1,17 @@
-# Authelia
+# Users role
+
+Contains two very important services: ldap for user management and authelia for authentication
+
+## LDAP (aka users.{{domain}})
+
+
+
+## Authelia (aka auth.{{domain}})
 
 Authelia provides a single sign on (SSO) to your applications. Authelia captures every request that
 is going to your application. If it sees the request origin for the first time then it redirects user
 to a login portal. Once the user is logged-in the you will see following headers in HTTP requests to
-your application: `X-Forwarded-Proto`, `X-Forwarded-Host`, `X-Forwarded-Uri`, `X-Forwarded-For`, 
+your application: `X-Forwarded-Proto`, `X-Forwarded-Host`, `X-Forwarded-Uri`, `X-Forwarded-For`,
 `X-Forwarded-Method`
 
 # Usage

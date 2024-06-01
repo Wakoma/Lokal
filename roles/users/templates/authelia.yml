@@ -9,13 +9,13 @@ session:
 authentication_backend:
   ldap:
     implementation: custom
-    url: ldap://ldap:3890
+    url: ldap://ldap:{{ldap_port}}
     timeout: 5s
     start_tls: false
-    base_dn: {{domain_ldap}}
+    base_dn: {{ldap_domain}}
     additional_users_dn: ou=people
+    username_attribute: cn  # or uid ?
     users_filter: (&({username_attribute}={input})(objectClass=person))
-    username_attribute: uid
     mail_attribute: mail
     display_name_attribute: displayName
     additional_groups_dn: ou=groups
@@ -35,7 +35,7 @@ storage:
   local:
     path: /data/db.sqlite3
 
-# rules should be set by docker labels so each service can control it's protection policy 
+# rules should be set by docker labels so each service can control it's protection policy
 access_control:
   networks:
   - name: internal

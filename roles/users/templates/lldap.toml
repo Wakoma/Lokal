@@ -12,10 +12,10 @@ ldap_port = {{ldap_port}}
 
 ## The port on which to have the HTTP server, for user login and
 ## administration.
-#http_port = 17170
+http_port = 17170
 
 ## The public URL of the server, for password reset links.
-http_url = "https://ldap.{{domain}}"
+http_url = "https://users.{{domain}}"
 
 ## Random secret for JWT signature.
 ## This secret should be random, and should be shared with application
@@ -73,7 +73,7 @@ ldap_user_pass = "{{password_admin}}"
 ##  - "mysql://mysql-user:password@mysql-server/my-database"
 ##
 ## This can be overridden with the DATABASE_URL env variable.
-database_url = "mysql://ldap:{{ldap_db_password}}@{{mysql_host}}/ldap"
+# database_url = "mysql://ldap:ldap_password@{{mysql_host}}/ldap"
 
 ## Private key file.
 ## Contains the secret private key used to store the passwords safely.

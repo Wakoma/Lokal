@@ -1,0 +1,11 @@
+# Authelia secrets
+authelia_jwt_secret: "{{(lokal_secret + 'authelia_jwt_secret') | hash('sha1') | regex_search('\\w{10}') }}"
+authelia_session_secret: "{{(lokal_secret + 'authelia_session_secret') | hash('sha1') | regex_search('\\w{10}') }}"
+authelia_password_smtp: "{{(lokal_secret + 'authelia_password_smtp') | hash('sha1') | regex_search('\\w{8}') }}"
+authelia_storage_password: "{{(lokal_secret + 'authelia_storage_password') | hash('sha1') | regex_search('\\w{10}') }}"
+authelia_storage_encryption_key: "{{(lokal_secret + 'authelia_storage_encryption_key') | hash('sha1') | regex_search('\\w{20}') }}"
+
+# LDAP integration
+ldap_port: 3890
+ldap_domain: "{%for part in domain.split('.')%}dc={{part}}{%if not loop.last%},{%endif%}{%endfor%}"
+ldap_secret: "{{(lokal_secret + 'ldap_secret') | hash('sha1') | regex_search('\\w{20}') }}"

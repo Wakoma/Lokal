@@ -84,7 +84,7 @@
 #     firewall_restart_docker: true
 #   become: true
 
-- name: "Render traefik configuration"
+- name: "Render traefik config"
   ansible.builtin.template:
     src: traefik/dynamic.yml
     dest: '{{lokal_root}}/traefik/conf/dynamic.yml'

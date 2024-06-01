@@ -9,6 +9,8 @@ networks:
     name: postgres
   minio:
     name: minio
+  lokal:
+    name: lokal
 
 services:
   mariadb:

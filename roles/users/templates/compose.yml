@@ -3,12 +3,42 @@ version: "3.8"
 networks:
   traefik:
     external: true
-  mail:
+  lokal:
     external: true
   postgres:
     external: true
+  ldap:
+    name: ldap
 
 services:
+  ldap:
+    image: nitnelave/lldap:stable
+    container_name: ldap
+    #ports:
+    #   - "3890:3890" # LDAP !only for localhost connections - don't allow on firewall!
+    # don't even export. It is a pain in the ass to disable routing external traffic so this is easier
+    #   - "17170:17170" # web front-end
+    restart: unless-stopped
+    volumes:
+      - "{{lokal_root}}/ldap/:/data/"
+    environment:
+      UID: "{{uid}}"
+      GID: "{{gid}}"
+      TZ: "{{tz}}"
+    networks:
+      - traefik
+      - lokal
+      - ldap
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.ldap.entrypoints: websecure
+      traefik.http.routers.ldap.rule: Host(`users.{{domain}}`)
+      traefik.http.routers.ldap.tls: "true"
+      traefik.http.services.ldap.loadbalancer.server.port: 17170
+{% if ssl_use_acme %}
+      traefik.http.routers.ldap.tls.certresolver: {{cert_resolver}}
+{% endif %}
+
   authelia:
     container_name: authelia
     user: "{{uid}}:{{gid}}"
@@ -16,13 +46,13 @@ services:
     restart: unless-stopped
     networks:
       - traefik
-      - mail
       - postgres
+      - lokal
     # expose:
     #   - 9091
     volumes:
-      - {{app_root}}/conf/:/config/
-      - {{app_root}}/data/:/data/
+      - {{app_root}}/authelia/conf/:/config/
+      - {{app_root}}/authelia/data/:/data/
     environment:
       TZ: "{{tz}}"
       AUTHELIA_JWT_SECRET: "{{jwt_secret_authelia}}"

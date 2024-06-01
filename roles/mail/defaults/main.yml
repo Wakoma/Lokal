@@ -3,10 +3,3 @@
 smtp_host: "mail"
 smtp_port: 465
 imap_port: 993
-
-transmission_subdomain: torrent
-
-# LDAP integration
-ldap_port: 3890
-ldap_domain: "{%for part in domain.split('.')%}dc={{part}}{%if not loop.last%},{%endif%}{%endfor%}"
-ldap_secret: "{{(lokal_secret + 'ldap_secret') | hash('sha1') | regex_search('\\w{20}') }}"

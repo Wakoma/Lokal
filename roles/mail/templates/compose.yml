@@ -1,69 +1,39 @@
-version: "3.8"
-
 networks:
   traefik:
     external: true
   mysql:
     external: true
-  prometheus:
+  lokal:
     external: true
-  postgres:
-    external: true
-  ldap:
-    name: ldap
   mail:
     name: mail
 
 services:
-  ldap:
-    image: nitnelave/lldap:stable
-    container_name: ldap
-    #ports:
-    #   - "3890:3890" # LDAP !only for localhost connections - don't allow on firewall!
-    # don't even export. It is a pain in the ass to disable routing external traffic so this is easier
-    #   - "17170:17170" # web front-end
-    restart: always
-    volumes:
-      - "{{project_root}}/base/ldap/:/data/"
-    environment:
-      UID: "{{uid}}"
-      GID: "{{gid}}"
-      TZ: "{{tz}}"
-    networks:
-      - traefik
-      - mysql
-      - mail
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.ldap.entrypoints: websecure
-      traefik.http.routers.ldap.rule: Host(`ldap.{{domain}}`)
-      traefik.http.routers.ldap.tls: "true"
-      traefik.http.services.ldap.loadbalancer.server.port: 17170
-{% if ssl_use_acme %}
-      traefik.http.routers.ldap.tls.certresolver: {{cert_resolver}}
-{% endif %}
-
   webmail:
-    image: sailfrog/cypht-docker:latest
+    image: cypht/cypht:2.0.1
     container_name: webmail
     volumes:
     - "{{app_root}}/webmail:/var/lib/hm3/users"
     environment:
-      CYPHT_AUTH_USERNAME: "admin"
-      CYPHT_AUTH_PASSWORD: "{{password_admin}}"
-      CYPHT_DB_CONNECTION_TYPE: host
-      CYPHT_AUTH_TYPE: IMAP
-      CYPHT_IMAP_AUTH_SERVER: "mail.{{domain}}"
-      CYPHT_IMAP_AUTH_PORT: 993
-      CYPHT_DEFAULT_SMTP_SERVER: "mail.{{domain}}"
-      CYPHT_DEFAULT_SMTP_PORT: 465
-      CYPHT_DB_HOST: mariadb
-      CYPHT_DB_NAME: cypht
-      CYPHT_DB_USER: cypht
-      CYPHT_DB_PASS: cypht
-      CYPHT_SESSION_TYPE: DB
-      CYPHT_SINGLE_SERVER_MODE: true
-      CYPHT_DEFAULT_EMAIL_DOMAIN: "mail.{{domain}}"
+      AUTH_USERNAME: "admin"
+      AUTH_PASSWORD: "{{password_admin}}"
+      DB_CONNECTION_TYPE: host
+      DB_DRIVER: mysql
+      DB_HOST: {{mysql_host}}
+      DB_NAME: cypht
+      DB_USER: cypht
+      DB_PASS: cypht
+      AUTH_TYPE: IMAP
+      IMAP_AUTH_SERVER: "mail"
+      IMAP_AUTH_PORT: 143
+      DEFAULT_SMTP_SERVER: "mail.{{domain}}"
+      DEFAULT_SMTP_PORT: 465
+      SESSION_TYPE: PHP
+      DEFAULT_EMAIL_DOMAIN: "{{domain}}"
+      ENABLE_MEMCACHED: false
+      ENABLE_REDIS: false
+      SINGLE_SERVER_MODE: true
+      DEFAULT_LANGUAGE: en
     networks:
     - mysql
     - traefik
@@ -79,12 +49,11 @@ services:
 {% endif %}
 
   mail:
-    image: foxcpp/maddy:0.6
+    image: foxcpp/maddy:{{app_version}}
     container_name: mail
     networks:
+    - lokal
     - mail
-    - ldap
-    # user: "{{uid}}:{{gid}}"
     ports:
     - "465:465"  # ESMTP (implicit TLS)
     - "993:993"  # IMAP4 (implicit TLS)
@@ -92,12 +61,12 @@ services:
     # - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
     # - "587:587"  # ESMTP (explicit TLS => STARTTLS)
     volumes:
-    - {{app_root}}/maddy/:/data
+    - {{app_root}}/data/:/data
     - {{project_root}}/.certs/mail.{{domain}}:/etc/ssl:ro
     restart: always
     stop_grace_period: 1m
     environment:
-      MADDY_HOSTNAME: "mail.{{domain}}"
+      MADDY_HOSTNAME: "mail"
       MADDY_DOMAIN: "{{domain}}"
     depends_on:
     - webmail

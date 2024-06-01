@@ -1,7 +1,7 @@
 ---
 - name: List possible backup files
   ansible.builtin.find:
-    paths: "{{backup_root}}/base"
+    paths: "{{backup_root}}/lokal"
     file_type: directory
   register: available_backups
 
@@ -17,11 +17,11 @@
 - name: "Stop the service"
   ansible.builtin.shell:
     cmd: "docker compose down"
-    chdir: "{{project_root}}/base"
+    chdir: "{{project_root}}/lokal"
   ignore_errors: yes
 
 - name: "Restore data"
   ansible.builtin.shell:
     cmd: "tar -xzf {{latest_backup.path}}/files.tgz"
-    chdir: "{{project_root}}/base"
+    chdir: "{{project_root}}/lokal"
   become: yes

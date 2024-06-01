@@ -4,49 +4,18 @@
     name: lokal
     tasks_from: install
   vars:
-    app: base
-    app_domain: "{{domain}}"
+    app: mail
+    app_version: 0.7
+    app_domain: "mail.{{domain}}"
+    mysql_db: cypht
+    mysql_user: cypht
+    mysql_password: cypht
     data_dirs:
-    - ldap
-    - mail
-    - maddy
+    - data
     firewall_tcp:
     - 465
     - 993
     start: false
-
-- name: Create ldap MySQL database
-  ansible.builtin.import_tasks:
-    file: roles/lokal/tasks/mysqldb/create.yml
-  vars:
-    mysql_db: ldap
-    mysql_user: ldap
-    mysql_password: "{{ldap_db_password}}"
-
-- name: Create Cypth MySQL database
-  ansible.builtin.import_tasks:
-    file: roles/lokal/tasks/mysqldb/create.yml
-  vars:
-    mysql_db: cypht
-    mysql_user: cypht
-    mysql_password: cypht
-
-- name: Render ldap config
-  ansible.builtin.template:
-    src: ldap/config.toml
-    dest: "{{app_root}}/ldap/config.cfg"
-    force: false  # must not override because there is User DB imprinted!!
-
-# - name: Render ldap user db
-#   ansible.builtin.template:
-#     src: ldap/db.toml
-#     dest: "{{app_root}}/ldap/db.cfg"
-#     force: false
-
-# - name: Render ldap config
-#   ansible.builtin.template:
-#     src: ldap-ui/config.toml
-#     dest: "{{app_root}}/ldap-ui/config.cfg"
 
 - name: Self-sign certificate for the mail.domain
   ansible.builtin.import_tasks:
@@ -55,20 +24,10 @@
     cert_domain: "mail.{{domain}}"
   when: not ssl_use_acme and not (ssl_key is defined and ssl_cert is defined)
 
-- name: Render maddy (mail) config
+- name: Render maddy mail config
   ansible.builtin.template:
-    src: mail/maddy.conf
-    dest: "{{app_root}}/maddy/maddy.conf"
-
-# - name: Render ldap config
-#   ansible.builtin.template:
-#     src: mail/mailserver.env
-#     dest: "{{app_root}}/mailserver.env"
-
-- name: Render ldap config
-  template:
-    src: ldap/lldap_config.toml
-    dest: '{{project_root}}/base/ldap/lldap_config.toml'
+    src: maddy.conf
+    dest: "{{app_root}}/data/maddy.conf"
 
 - name: Docker-compose up
   ansible.builtin.shell:

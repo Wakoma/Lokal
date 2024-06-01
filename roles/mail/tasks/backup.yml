@@ -5,5 +5,4 @@
     tasks_from: backup
   vars:
     app: base
-    mysql_db: "{{mysql_database_your_app}}"  # to backup MySQL database
-    postgres_db: "{{postgres_db_your_app}}"  # to backup PostgreSQL database
+    mysql_db: "cypht"  # to backup MySQL database
