@@ -1,0 +1,10 @@
+---
+- name: Install piwigo
+  include_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: piwigo
+    data_dirs:
+    - data
+    - config
