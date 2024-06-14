@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  homeassistant:
+    image: homeassistant/home-assistant
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    restart: unless-stopped
+    environment:
+      TZ: {{tz}}
+    volumes:
+    - {{app_root}}/config:/config
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.homeassistant.entrypoints: websecure
+      traefik.http.routers.homeassistant.rule: Host(`{{subdomain_homeassistant}}.{{domain}}`)
+      traefik.http.routers.homeassistant.tls: "true"
+      traefik.http.services.homeassistant.loadbalancer.server.port: 8123
+{% if server_is_live %}
+      traefik.http.routers.get.tls.certresolver: {{cert_resolver}}
+{% endif %}
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
