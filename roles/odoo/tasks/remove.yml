@@ -6,5 +6,4 @@
   vars:
     app: odoo
     app_domain: "{{odoo_domain}}"
-    postgres_db: "{{odoo_db}}"
-    postgres_user: "{{odoo_db_user}}"
+    app_db: "postgres"

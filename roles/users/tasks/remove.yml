@@ -1,7 +1,7 @@
 ---
-- name: Remove auth
+- name: Remove users
   ansible.builtin.include_role:
     name: lokal
     tasks_from: remove
   vars:
-    app: auth
+    app: users

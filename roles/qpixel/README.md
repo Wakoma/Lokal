@@ -15,4 +15,4 @@ StackOverflow-like forum.
 
 The installation script should create a community with given `qpixel_community_name` and `qpixel_domain`.
 
-It should also mark your admin user (email: admin@`qpixel_domain`, password your `password_admin`)
+It should also mark your admin user (email: admin@`qpixel_domain`, password your `admin_password`)

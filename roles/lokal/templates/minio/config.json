@@ -3,8 +3,8 @@
     "aliases": {
         "local": {
                 "url": "http://localhost:9000",
-                "accessKey": "admin",
-                "secretKey": "{{password_admin}}",
+                "accessKey": "{{admin_user}}",
+                "secretKey": "{{admin_password}}",
                 "api": "S3v4",
                 "path": "auto"
         }

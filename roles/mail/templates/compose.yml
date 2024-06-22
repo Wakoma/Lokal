@@ -1,59 +1,79 @@
 networks:
   traefik:
     external: true
-  mysql:
-    external: true
   lokal:
     external: true
-  mail:
-    name: mail
 
 services:
+#   webmail:
+#     image: djmaze/snappymail:v2.36.3
+#     container_name: webmail
+#     environment:
+#       - DEBUG=true
+#     volumes:
+#       - {{app_root}}/webmail:/var/lib/snappymail
+#     networks:
+#     - traefik
+#     - lokal
+#     labels:
+#       traefik.enable: "true"
+#       traefik.http.routers.webmail.entrypoints: websecure
+#       traefik.http.routers.webmail.rule: Host(`mail.{{domain}}`)
+#       traefik.http.routers.webmail.tls: "true"
+#       traefik.http.services.webmail.loadbalancer.server.port: 8888
+# {% if ssl_use_acme %}
+#       traefik.http.routers.webmail.tls.certresolver: {{cert_resolver}}
+# {% endif %}
+
+
   webmail:
     image: cypht/cypht:2.0.1
     container_name: webmail
     volumes:
-    - "{{app_root}}/webmail:/var/lib/hm3/users"
+    - "{{app_root}}/webmail:/var/lib/hm3"
+    - "{{app_root}}/log:/var/log/nginx"
     environment:
-      AUTH_USERNAME: "admin"
-      AUTH_PASSWORD: "{{password_admin}}"
+      AUTH_TYPE: IMAP
+      USER_CONFIG_TYPE: file
+      SESSION_TYPE: PHP
+      AUTH_USERNAME: "{{admin_user}}"
+      AUTH_PASSWORD: "{{admin_password}}"
+      ADMIN_USERS: "{{admin_user}}"
       DB_CONNECTION_TYPE: host
       DB_DRIVER: mysql
       DB_HOST: {{mysql_host}}
       DB_NAME: cypht
       DB_USER: cypht
       DB_PASS: cypht
-      AUTH_TYPE: IMAP
       IMAP_AUTH_SERVER: "mail"
       IMAP_AUTH_PORT: 143
-      DEFAULT_SMTP_SERVER: "mail.{{domain}}"
-      DEFAULT_SMTP_PORT: 465
-      SESSION_TYPE: PHP
-      DEFAULT_EMAIL_DOMAIN: "{{domain}}"
+      DEFAULT_SMTP_SERVER: "mail"
+      DEFAULT_SMTP_PORT: 25
+      # DEFAULT_EMAIL_DOMAIN: "{{domain}}"
       ENABLE_MEMCACHED: false
       ENABLE_REDIS: false
       SINGLE_SERVER_MODE: true
-      DEFAULT_LANGUAGE: en
+      DEFAULT_LANGUAGE: {{lang}}
+      WITH_DEBUG: false
     networks:
-    - mysql
     - traefik
-    - mail
+    - lokal
     labels:
       traefik.enable: "true"
-      traefik.http.routers.mail.entrypoints: websecure
-      traefik.http.routers.mail.rule: Host(`mail.{{domain}}`)
-      traefik.http.routers.mail.tls: "true"
-      traefik.http.services.mail.loadbalancer.server.port: 80
+      traefik.http.routers.webmail.entrypoints: websecure
+      traefik.http.routers.webmail.rule: Host(`mail.{{domain}}`)
+      traefik.http.routers.webmail.tls: "true"
+      traefik.http.services.webmail.loadbalancer.server.port: 80
 {% if ssl_use_acme %}
-      traefik.http.routers.mail.tls.certresolver: {{cert_resolver}}
+      traefik.http.routers.webmail.tls.certresolver: {{cert_resolver}}
 {% endif %}
 
   mail:
     image: foxcpp/maddy:{{app_version}}
+    user: "{{uid}}:{{gid}}"
     container_name: mail
     networks:
     - lokal
-    - mail
     ports:
     - "465:465"  # ESMTP (implicit TLS)
     - "993:993"  # IMAP4 (implicit TLS)
@@ -61,7 +81,7 @@ services:
     # - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
     # - "587:587"  # ESMTP (explicit TLS => STARTTLS)
     volumes:
-    - {{app_root}}/data/:/data
+    - {{app_root}}/mail/:/data
     - {{project_root}}/.certs/mail.{{domain}}:/etc/ssl:ro
     restart: always
     stop_grace_period: 1m
@@ -70,35 +90,3 @@ services:
       MADDY_DOMAIN: "{{domain}}"
     depends_on:
     - webmail
-
-  # mail:
-  #   image: docker.io/mailserver/docker-mailserver:latest
-  #   container_name: mail
-  #   hostname: "mail.{{domain}}"
-  #   domainname: "mail.{{domain}}"
-  #   env_file: "{{app_root}}/mailserver.env"
-  #   cap_add:
-  #   - NET_ADMIN
-  #   ports:
-  #   - "465:465"  # ESMTP (implicit TLS)
-  #   - "993:993"  # IMAP4 (implicit TLS)
-  #   # - "25:25"    # SMTP  (explicit TLS => STARTTLS)
-  #   # - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
-  #   # - "587:587"  # ESMTP (explicit TLS => STARTTLS)
-  #   networks:
-  #   - ldap
-  #   - mail
-  #   volumes:
-  #   - {{app_root}}/mail/data/:/var/mail/
-  #   - {{app_root}}/mail/state/:/var/mail-state/
-  #   - {{app_root}}/mail/logs/:/var/log/mail/
-  #   - {{app_root}}/mail/config/:/tmp/docker-mailserver/
-  #   - {{project_root}}/lokal/traefik/acme/acme.json:/etc/letsencrypt/acme.json:ro
-  #   restart: always
-  #   stop_grace_period: 1m
-  #   depends_on:
-  #   - webmail
-  #   healthcheck:
-  #     test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
-  #     timeout: 3s
-  #     retries: 0

@@ -55,8 +55,8 @@ services:
       EMAIL_HOST_PASSWORD: ""
       EMAIL_HOST_TLS: False
       EMAIL_TIMEOUT: 10
-      ADMIN_PASSWORD: "{{password_admin}}"
-      EMAIL_DJANGO_DEFAULT: {{email_admin}}
+      ADMIN_PASSWORD: "{{admin_password}}"
+      EMAIL_DJANGO_DEFAULT: {{admin_email}}
       DJANGO_LOG_LEVEL: WARNING
       DJANGO_LANGUAGE_CODE: {{lang|lower|replace("_", "-")}}
       DJANGO_ALLOWED_HOSTS: "{{subdomain_openwisp}}.{{domain}}"
@@ -80,7 +80,7 @@ services:
       X509_CITY: default
       X509_ORGANIZATION_NAME: "{{project_name}}"
       X509_ORGANIZATION_UNIT_NAME: "{{project_name}}"
-      X509_EMAIL: "{{email_admin}}"
+      X509_EMAIL: "{{admin_email}}"
       X509_COMMON_NAME: "{{project_name}}"
       # Modules Enabled
       USE_OPENWISP_RADIUS: "False"

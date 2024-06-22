@@ -1,7 +1,7 @@
 ---
-- name: Restore auth
+- name: Restore users
   ansible.builtin.include_role:
     name: lokal
     tasks_from: restore
   vars:
-    app: auth
+    app: users

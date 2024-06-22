@@ -1,0 +1,27 @@
+---
+- name: Install users
+  include_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: users
+    data_dirs:
+    - auth/conf
+    - auth/data
+    - ldap
+    start: false
+
+- name: Render authelia conf
+  template:
+    src: authelia.yml
+    dest: '{{app_root}}/auth/conf/configuration.yml'
+
+- name: Render ldap config
+  template:
+    src: lldap.toml
+    dest: '{{app_root}}/ldap/lldap_config.toml'
+
+- name: Docker-compose up
+  ansible.builtin.shell:
+    cmd: "docker compose up -d"
+    chdir: "{{app_root}}"

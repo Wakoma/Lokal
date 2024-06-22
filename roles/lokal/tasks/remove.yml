@@ -10,38 +10,46 @@
   ignore_errors: true  # ignore because docker compose down fails on removing external networks
   notify: "lokal : Restart router"
 
+# Auto-generate database name, user, and password in case that the developer/user
+# did not provide their own app_db_name (and others (user, password that we don't check)
+- name: "Export app_db facts"
+  ansible.builtin.set_fact:
+    app_db_name: "{{ app_domain | replace('.', '_') | replace('-', '') }}"
+    app_db_user: "{{ app_domain | replace('.', '_') | replace('-', '') }}"
+    app_db_password: "{{ (lokal_secret + app_domain) | hash('sha1') | regex_search('\\w{10}') }}"
+
 - name: Drop {{app_domain}} MySQL database
   ansible.builtin.shell:
     cmd: >
       docker exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e "DROP DATABASE {{mysql_db}}"
-  when: mysql_db is defined
+      mysql -u root --password={{mysql_root_password}} -e "DROP DATABASE {{app_db_name}}"
+  when: app_db is defined and app_db == "mysql"
   ignore_errors: true
 
 - name: Drop {{app_domain}} MySQL user
   ansible.builtin.shell:
     cmd: >
       docker exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e "DROP USER '{{mysql_user|default(mysql_db)}}'@'%'"
-  when: mysql_db is defined or mysql_user is defined
+      mysql -u root --password={{mysql_root_password}} -e "DROP USER '{{app_db_user}}'@'%'"
+  when: app_db is defined and app_db == "mysql"
   ignore_errors: true
 
 - name: Remove {{app_domain}} PostgreSQL database
   ansible.builtin.shell:
     cmd: >
       docker compose exec postgres
-      psql -c 'DROP DATABASE "{{postgres_db}}"' postgres postgres;
+      psql -c 'DROP DATABASE "{{app_db_name}}"' postgres postgres;
     chdir: "{{project_root}}/lokal"
-  when: postgres_db is defined
+  when: app_db is defined and app_db == "postgres"
   ignore_errors: true
 
 - name: Remove {{app_domain}} PostgreSQL user
   ansible.builtin.shell:
     cmd: >
       docker compose exec postgres
-      psql -c 'DROP USER "{{postgres_user}}"' postgres postgres;
+      psql -c 'DROP USER "{{app_db_user}}"' postgres postgres;
     chdir: "{{project_root}}/lokal"
-  when: postgres_user is defined
+  when: app_db is defined and app_db == "postgres"
   ignore_errors: true
 
 # - name: Remove firewall rules

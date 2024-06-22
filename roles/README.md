@@ -1,19 +1,18 @@
 # Services
 
-Lokal provides software as sepatare `roles`. There are two special roles. Maybe we should have moved
-the `lokal` role to a separate module. We'll see if we do in the future.
+Lokal provides software as sepatare `roles`. There the `lokal` role that installs, well, lokal base
+services such as databases, minio (s3 compatible storage), prometheus and traefik (router).
 
-## Common role
+## Lokal role
 
 This is the only role that does not hold any software - it is intended solely for developers. You
 will use it when add your own role (service). Common role contains logic to install, backup, restore, and remove
 applications. Therefore it is hard-wired in playbook.yml because all standard roles are using it. If you
 want to add a new software to Lokal stack please visit (lokal/)[this lokal role] for more information.
 
-## Base role
+## Example role
 
-The other special role is `base`. It is special because it is mandatory. It contains necessary software
-for running Lokal.
+The other special role is `_example`. Copy-paste this one to start creating your own.
 
 ## Other roles
 
@@ -22,7 +21,7 @@ Roles can use undefined variables to force you to actually define them. This is 
 because for example passowrds are deduced from `lokal_secret`. Only publically-facing credentials need to
 be defined.
 
-Each role should take advantage of `password_admin` to create any "admin" accounts if possible. If your
+Each role should take advantage of `admin_password` to create any "admin" accounts if possible. If your
 software is intended only for admin users and it doesn't have builtin authentication mechanism then you
 can easily hide it behind traefik's basic authentication mechanism.
 
@@ -96,7 +95,7 @@ You can find the full list of services here: https://wakoma.co/lokal/#services
 
 * [HedgeDoc](https://hedgedoc.org/) - HedgeDoc (formerly known as CodiMD) is an open-source collaborative markdown editor.
 
-* [Home Assistant (HASSIO)](https://www.home-assistant.io/) - Open source home automation that puts local control & privacy first. 
+* [Home Assistant (HASSIO)](https://www.home-assistant.io/) - Open source home automation that puts local control & privacy first.
 
 * [LimeSurvey](https://www.limesurvey.org/) - Create and launch surveys.
 

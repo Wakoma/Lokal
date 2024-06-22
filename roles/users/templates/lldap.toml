@@ -43,12 +43,12 @@ ldap_base_dn = "{{ldap_domain}}"
 ## For the LDAP interface, a value of "admin" here will create the LDAP
 ## user "cn=admin,ou=people,dc=example,dc=com" (with the base DN above).
 ## For the administration interface, this is the username.
-ldap_user_dn = "admin"
+ldap_user_dn = "{{admin_user}}"
 
 ## Admin email.
 ## Email for the admin account. It is only used when initially creating
 ## the admin user, and can safely be omitted.
-ldap_user_email = "admin@{{domain}}"
+ldap_user_email = "{{admin_user}}@{{domain}}"
 
 ## Admin password.
 ## Password for the admin account, both for the LDAP bind and for the
@@ -60,7 +60,7 @@ ldap_user_email = "admin@{{domain}}"
 ## in the LLDAP_LDAP_USER_PASS_FILE environment variable
 ## Note: you can create another admin user for user administration, this
 ## is just the default one.
-ldap_user_pass = "{{password_admin}}"
+ldap_user_pass = "{{admin_password}}"
 
 ## Database URL.
 ## This encodes the type of database (SQlite, Mysql and so
@@ -104,12 +104,12 @@ port={{smtp_port}}
 ## How the connection is encrypted, either "TLS" or "STARTTLS".
 #smtp_encryption = "TLS"
 ## The SMTP user, usually your email address.
-user="admin@{{domain}}"
+user="{{admin_user}}@{{domain}}"
 ## The SMTP password.
-password="{{password_admin}}"
+password="{{admin_password}}"
 ## The header field, optional: how the sender appears in the email. The first
 ## is a free-form name, followed by an email between <>.
-#from="Admin <admin@{{domain}}>"
+#from="{{admin_user | title}} <{{admin_user}}@{{domain}}>"
 ## Same for reply-to, optional.
 #reply_to="Do not reply <noreply@{{domain}}>"
 

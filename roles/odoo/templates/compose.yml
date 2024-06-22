@@ -1,16 +1,16 @@
 services:
   odoo:
-    user: "{{uid}}:{{gid}}"
+    # user: "{{uid}}:{{gid}}"
     image: odoo:{{app_version}}
-    command: ["--proxy-mode"]
+    command: ["--proxy-mode"{% if app_first_install %},"-i", "base"{% endif %}]
     restart: unless-stopped
     networks:
       - traefik
       - postgres
     environment:
     - HOST=postgres
-    - USER={{odoo_db_user}}
-    - PASSWORD={{odoo_db_password}}
+    - POSTGRES_USER={{app_db_user}}
+    - POSTGRES_PASSWORD={{app_db_password}}
     volumes:
     - {{app_root}}/data:/var/lib/odoo
     - {{app_root}}/addons:/mnt/extra-addons

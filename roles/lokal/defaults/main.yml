@@ -1,7 +1,9 @@
 # Mandatory settings
-# password_admin
-# email_admin
+# admin_password
+# admin_email
 # domain
+debug: false
+admin_user: admin
 
 # Common base settings
 project_name: Lokal
@@ -15,9 +17,8 @@ verbose: false
 services: []
 
 # HTTPS certificate handling
-ssl_use_acme: false # obtain HTTPS certificates from ACME
-staging_acme: false # use only staging ACME
-# email_admin:
+ssl_use_acme: false # obtain HTTPS certificates from ACME server
+staging_acme: false # use only staging ACME server
 # ssl_key:
 # ssl_cert:
 
@@ -31,11 +32,10 @@ namecheap_api_user:
 namecheap_api_key:
 
 # Common services settings
-mysql_root_password: default
+mysql_root_password: "{{'mysql' + lokal_secret | hash('sha1') | regex_search('\\w{8}') }}"
 mysql_host: mariadb
 mysql_port: 3306
-
-postgres_root_password: default
+postgres_root_password: "{{'postgres' + lokal_secret | hash('sha1') | regex_search('\\w{8}') }}"
 postgres_host: postgres
 postgres_port: 5432
 

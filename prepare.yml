@@ -18,6 +18,7 @@
       name:
       - python3-passlib
       - python3-docker
+      - mosh
       state: present
 
   - name: Ensure that the app user is present
@@ -53,9 +54,6 @@
       state: present
     when: setup_ssh
 
-# geerlingguy.docker MUST be placed after geerlingguy.firewall!
-# geerlingguy.firewall drops INPUT and FORWARD tables that are
-# manipulated by the docker daemon upon its (re)start
   - name: Install docker
     include_role:
       name: geerlingguy.docker

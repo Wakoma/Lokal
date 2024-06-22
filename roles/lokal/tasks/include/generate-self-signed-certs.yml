@@ -20,7 +20,7 @@
     privatekey_path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.key"
     organization_name: "Wakoma"
     commonName: "{{ cert_domain }}"
-    email_address: "{{ email_admin }}"
+    email_address: "{{ admin_email }}"
     country_name: "US"
 
 - name: Create SSL certificate

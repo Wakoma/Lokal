@@ -7,10 +7,11 @@ networks:
     name: prometheus
   postgres:
     name: postgres
-  minio:
-    name: minio
   lokal:
     name: lokal
+    internal: true
+  minio:
+    name: minio
 
 services:
   mariadb:
@@ -22,7 +23,7 @@ services:
       MARIADB_MYSQL_LOCALHOST_USER: "true"
     networks:
     - mysql
-    - prometheus
+    - lokal
     healthcheck:
       test: mysql --protocol tcp -u root --password={{mysql_root_password}} -e "SELECT 1 FROM DUAL" mysql
       interval: 60s
@@ -43,6 +44,7 @@ services:
       DEFAULT_CTYPE: "{{locale}}"
     networks:
     - postgres
+    - lokal
     restart: unless-stopped
     volumes:
     - "{{lokal_root}}/postgres/:/var/lib/postgres/data/"
@@ -63,7 +65,7 @@ services:
 {% endif %}
     networks:
     - traefik
-    - prometheus
+    - lokal
     restart: unless-stopped
     volumes:
     - {{lokal_root}}/prometheus/etc/prometheus/:/etc/prometheus/
@@ -75,7 +77,7 @@ services:
     container_name: portainer
     user: "{{uid}}:{{gid_docker}}"
     restart: unless-stopped
-    command: --admin-password '{{password_admin|password_hash('bcrypt')}}'
+    command: --admin-password '{{admin_password|password_hash('bcrypt')}}'
     security_opt:
     - no-new-privileges:true
     volumes:
@@ -101,8 +103,8 @@ services:
 #   - "9000:9000"
 #   - "9090:9090"
     environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: "{{password_admin}}"
+      MINIO_ROOT_USER: {{admin_user}}
+      MINIO_ROOT_PASSWORD: "{{admin_password}}"
       MC_CONFIG_DIR: /.mc
     volumes:
       - "{{lokal_root}}/minio/data:/data"
@@ -112,7 +114,7 @@ services:
     container_name: minio
     networks:
     - minio
-    - prometheus
+    - lokal
 
   traefik:
     image: traefik:{{version_traefik}}
@@ -132,7 +134,6 @@ services:
 {% endif %}
     networks:
     - traefik
-    - prometheus
     ports:
     - 80:80
     - 443:443
@@ -162,17 +163,17 @@ services:
 {% if ssl_use_acme %}
     - --certificatesResolvers.dns.acme.dnsChallenge.delayBeforeCheck=60
     - --certificatesResolvers.dns.acme.dnsChallenge.provider={{dns_provider}}
-    - --certificatesResolvers.dns.acme.email={{email_admin}}
+    - --certificatesResolvers.dns.acme.email={{admin_email}}
     - --certificatesResolvers.dns.acme.storage=/acme/acme.json
     - --certificatesresolvers.http.acme.httpchallenge=true
     - --certificatesresolvers.http.acme.httpchallenge.entrypoint=web
-    - --certificatesresolvers.http.acme.email={{email_admin}}
+    - --certificatesresolvers.http.acme.email={{admin_email}}
     - --certificatesresolvers.http.acme.storage=/acme/acme.json
 {% if staging_acme %}
     - --certificatesresolvers.http.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
 {% endif %}
     - --certificatesresolvers.tls.acme.tlschallenge=true
-    - --certificatesresolvers.tls.acme.email={{email_admin}}
+    - --certificatesresolvers.tls.acme.email={{admin_email}}
     - --certificatesresolvers.tls.acme.storage=/acme/acme.json
 {% if staging_acme %}
     - --certificatesresolvers.tls.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory

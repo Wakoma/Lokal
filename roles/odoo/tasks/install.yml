@@ -1,0 +1,47 @@
+---
+- name: Install odoo
+  import_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: odoo
+    app_domain: "{{odoo_domain}}"
+    app_port: 8069
+    app_version: 17
+    # Odoo is specific - it requires postgres user created but no DB - it creates its own
+    # hence we do not specify that we want to create a DB for our app.
+    # app_db: "postgres"
+    # I made change in lokal that we still get DB settings even though no database was created
+    # so we can use them later - a bit hacky but necessary
+    app_templates:
+      odoo.conf: config/odoo.conf
+    app_dirs:
+    - data
+    - config
+    - addons
+    app_start: false # you can postpone starting (by defaults the container starts)
+
+# Just create a DB user with DBCREATE permission because that's how Odoo requires it
+- name: Create only postgres user {{ app_db_user }} because Odoo want's to create its own DB
+  ansible.builtin.shell:
+    cmd: >
+      docker compose exec postgres
+      psql -c "CREATE USER {{app_db_user}} WITH NOSUPERUSER CREATEDB PASSWORD '{{app_db_password}}'" postgres postgres;
+    chdir: "{{project_root}}/lokal"
+  ignore_errors: yes
+
+# Odoo container is running under own 'odoo' user with (unknown?) UID hence we chmod 777 all writable data dirs
+- name: Fix folder rights
+  ansible.builtin.file:
+    path: "{{ app_root }}/data"
+    mode: "0777"
+    state: directory
+
+- name: WARNING!
+  ansible.builtin.debug:
+    msg: Your Odoo database must be named {{ app_db_name }} in order to be backed up!
+
+- name: Start the app at {{app_domain}}
+  ansible.builtin.shell:
+    cmd: "docker compose up -d"
+    chdir: "{{app_root}}"

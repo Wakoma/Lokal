@@ -9,29 +9,33 @@ session:
 authentication_backend:
   ldap:
     implementation: custom
-    url: ldap://ldap:{{ldap_port}}
+    address: ldap://ldap:{{ldap_port}}
     timeout: 5s
     start_tls: false
     base_dn: {{ldap_domain}}
     additional_users_dn: ou=people
-    username_attribute: cn  # or uid ?
-    users_filter: (&({username_attribute}={input})(objectClass=person))
-    mail_attribute: mail
-    display_name_attribute: displayName
+    users_filter: '(&({username_attribute}={input})(objectClass=person))'
     additional_groups_dn: ou=groups
-    groups_filter: "(member={dn})"
-    group_name_attribute: cn
+    groups_filter: '(&(member={dn})(objectClass=groupOfNames))'
+    group_search_mode: 'filter'
     permit_referrals: false
     permit_unauthenticated_bind: false
-    user: uid=admin,ou=people,{{domain_ldap}}
-    password: "{{password_admin}}"
+    user: cn={{admin_user}},ou=people,{{ldap_domain}}
+    password: "{{admin_password}}"
+    attributes:
+      distinguished_name: 'distinguishedName'
+      username: 'cn'  # or uid ?
+      display_name: 'displayName'
+      mail: 'mail'
+      member_of: 'memberOf'
+      group_name: 'cn'
 
   # Password reset through authelia works normally.
   password_reset:
     disable: false
 
 storage:
-  encryption_key: {{storage_encryption_key_authelia}}
+  encryption_key: {{authelia_storage_encryption_key}}
   local:
     path: /data/db.sqlite3
 
@@ -54,11 +58,10 @@ notifier:
   disable_startup_check: false
 {% if "mail" in services %}
   smtp: # authelia requires STARTLS for SMTP connection
-    username: admin
-    password: {{password_admin}}
-    host: {{domain}}
-    port: {{smtp_port}}
-    sender: admin@{{domain}}
+    username: {{admin_user}}
+    password: {{admin_password}}
+    address: 'smtp://mail:25'
+    sender: {{admin_user}}@{{domain}}
 {% else %}
   filesystem:
     filename: /config/notification.txt

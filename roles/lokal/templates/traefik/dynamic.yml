@@ -3,7 +3,7 @@ http:
     admin-auth:
       basicAuth:
         users:
-          - "admin:{{password_admin|password_hash('bcrypt')}}"
+          - "{{admin_user}}:{{admin_password|password_hash('bcrypt')}}"
 
 {% if not ssl_use_acme %}
 tls:

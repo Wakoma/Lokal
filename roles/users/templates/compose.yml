@@ -1,14 +1,8 @@
-version: "3.8"
-
 networks:
   traefik:
     external: true
   lokal:
     external: true
-  postgres:
-    external: true
-  ldap:
-    name: ldap
 
 services:
   ldap:
@@ -20,7 +14,7 @@ services:
     #   - "17170:17170" # web front-end
     restart: unless-stopped
     volumes:
-      - "{{lokal_root}}/ldap/:/data/"
+      - "{{app_root}}/ldap/:/data/"
     environment:
       UID: "{{uid}}"
       GID: "{{gid}}"
@@ -28,7 +22,6 @@ services:
     networks:
       - traefik
       - lokal
-      - ldap
     labels:
       traefik.enable: "true"
       traefik.http.routers.ldap.entrypoints: websecure
@@ -46,19 +39,18 @@ services:
     restart: unless-stopped
     networks:
       - traefik
-      - postgres
       - lokal
     # expose:
     #   - 9091
     volumes:
-      - {{app_root}}/authelia/conf/:/config/
-      - {{app_root}}/authelia/data/:/data/
+      - {{app_root}}/auth/conf/:/config/
+      - {{app_root}}/auth/data/:/data/
     environment:
       TZ: "{{tz}}"
-      AUTHELIA_JWT_SECRET: "{{jwt_secret_authelia}}"
-      AUTHELIA_SESSION_SECRET: "{{session_secret_authelia}}"
-      # AUTHELIA_STORAGE_PASSWORD: "{{storage_password_authelia}}"
-      # AUTHELIA_STORAGE_ENCRYPTION_KEY: "{{storage_encryption_key_authelia}}"
+      AUTHELIA_JWT_SECRET: "{{authelia_jwt_secret}}"
+      AUTHELIA_SESSION_SECRET: "{{authelia_session_secret}}"
+      # AUTHELIA_STORAGE_PASSWORD: "{{authelia_storage_password}}"
+      # AUTHELIA_STORAGE_ENCRYPTION_KEY: "{{authelia_storage_encryption_key}}"
     labels:
       traefik.enable: true
       traefik.http.routers.authelia.rule: Host(`auth.{{domain}}`)

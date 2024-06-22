@@ -10,7 +10,7 @@ services:
       RAILS_SERVE_STATIC_FILES: true
       CONFIRMABLE_ALLOWED_ACCESS_DAYS: 2
       COMMUNITY_ADMIN_USERNAME: admin
-      COMMUNITY_ADMIN_PASSWORD: "{{password_admin}}"
+      COMMUNITY_ADMIN_PASSWORD: "{{admin_password}}"
       COMMUNITY_ADMIN_EMAIL: admin@{{domain}}
       COMMUNITY_OTHERS_SHOW: "false"
       SECRET_KEY_BASE: "{{(lokal_secret + 'secret_key_base') | hash('sha1') | regex_search('\\w{24}') }}"

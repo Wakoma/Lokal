@@ -10,7 +10,7 @@ It gives you
 ## Variables to set
 
 You only need to set a `lokal_secret` that will act as a seed for other
-passwords and a `password_admin` that you will be using every time when
+passwords and a `admin_password` that you will be using every time when
 you will be asked to login as an admin user. An admin person in LDAP with
 this password will be created. HTTP simple auth will use this password
 as well (for protecting services that don't have own authentication such
@@ -23,7 +23,7 @@ as portainer).
 
 ## Portainer setup
 
-Portainer comes with default "admin" user with `password_admin` password.
+Portainer comes with default "admin" user with `admin_password` password.
 Upon first usage, it is necessary to set new environment defined by
 the docker socket that is already bound to the portainer container.
 

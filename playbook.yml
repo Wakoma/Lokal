@@ -5,13 +5,25 @@
   - lokal
 
   tasks:
-  - name: Install all services
+  # first, import all services for the variables
+  # import_role, unlike include_role, exports role's variables to the calling playbook
+  - name: Import all services for their variables
     loop: "{{services}}"
     loop_control:
       loop_var: service
     include_role:
       name: "{{service}}"
       tasks_from: "main"
+      public: true
+
+  # now we proceeed with intallation, backup, restoration, or removal of services
+  - name: Install all services
+    loop: "{{services}}"
+    loop_control:
+      loop_var: service
+    include_role:
+      name: "{{service}}"
+      tasks_from: "install"
     when: '(not install is defined and not remove is defined and not backup is defined and not restore is defined) or (install is defined and install == "all")'
 
   - name: Check selected service is listed in services variable
@@ -25,7 +37,7 @@
       loop_var: service
     include_role:
       name: "{{service}}"
-      tasks_from: "main"
+      tasks_from: "install"
     when: "install is defined and install|split(',')|difference(['lokal', ] + services) is falsy"
 
   - name: Check selected services for backup were installed

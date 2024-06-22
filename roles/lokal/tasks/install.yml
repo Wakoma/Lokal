@@ -10,6 +10,7 @@
 - name: Export app_root variable
   ansible.builtin.set_fact:
     app_root: "{{project_root}}/{{app_domain}}"
+    app_first_install: false
 
 - name: Create {{app_domain}} directory
   ansible.builtin.file:
@@ -56,42 +57,58 @@
   ansible.builtin.file:
     path: "{{app_root}}/{{item}}"
     state: directory
-  loop: "{{data_dirs}}"
-  when: data_dirs is defined
+  loop: "{{app_dirs}}"
+  when: app_dirs is defined
 
 - name: Get previous {{app_domain}} version
   ansible.builtin.slurp:
-    src: "{{app_root}}/version"
+    src: "{{app_root}}/.version"
   register: version_file
   when: app_version is defined
   ignore_errors: true
 
+- name: Mark app_first_install=true
+  ansible.builtin.set_fact:
+    app_first_install: true
+  when: app_version is defined and not version_file is defined
+
 - name: Parse previous {{app_domain}} version
   ansible.builtin.set_fact:
-    app_version_prev: "{{version_file['content'] | b64decode}}"
-    app_updated: "{{(version_file['content'] | b64decode) is version(app_version, '<')}}"
+    app_version_prev: "{{ version_file['content'] | b64decode }}"
+    app_updated: "{{ (version_file['content'] | b64decode) is version(app_version, '<') }}"
   when: app_version is defined and version_file is defined and version_file.content is defined
 
-- name: Set current {{app_domain}} version
-  ansible.builtin.copy:
-    dest: "{{app_root}}/version"
-    content: "{{app_version}}"
-  when: app_version is defined
+# Auto-generate database name, user, and password in case that the developer/user
+# did not provide their own app_db_name (and others (user, password that we don't check)
+- name: "Export app_db facts"
+  ansible.builtin.set_fact:
+    app_db_name: "{{ app_domain | replace('.', '_') | replace('-', '') }}"
+    app_db_user: "{{ app_domain | replace('.', '_') | replace('-', '') }}"
+    app_db_password: "{{ (lokal_secret + app_domain) | hash('sha1') | regex_search('\\w{10}') }}"
 
-- name: "Call lokal/tasks/mysqldb/create.yml"
+- name: "Call lokal/tasks/mysql/create.yml"
   ansible.builtin.import_tasks:
-    file: mysqldb/create.yml
-  when: mysql_db is defined
+    file: mysql/create.yml
+  when: app_db is defined and app_db == "mysql"
 
-- name: "Call lokal/tasks/postgresqldb/create.yml"
+- name: "Call lokal/tasks/postgres/create.yml"
   ansible.builtin.import_tasks:
-    file: postgresqldb/create.yml
-  when: postgres_db is defined
+    file: postgres/create.yml
+  when: app_db is defined and app_db == "postgres"
+
+# Auto-generate variables for minio bucket (name, user, password) derived from the domain
+# and lokal_secret
+- name: "Export app_bucket facts"
+  ansible.builtin.set_fact:
+    app_bucket_name: "{{ app_domain | replace('.', '-') | replace('_', '') }}"
+    app_bucket_user: "{{ app_domain | replace('.', '-') | replace('_', '') }}"
+    app_bucket_password: "{{ (lokal_secret + app_domain) | hash('sha1') | regex_search('\\w{10}')) }}"
+  when: app_bucket is defined and app_bucket == "minio"
 
 - name: "Call lokal/tasks/minio/create.yml"
   ansible.builtin.import_tasks:
     file: minio/create.yml
-  when: minio_bucket is defined
+  when: app_bucket is defined and app_bucket == "minio"
 
 # Docker should take care of this. This role purpose should be only closing ports
 # that we don't want the internet to access.
@@ -106,6 +123,13 @@
 #     name: geerlingguy.firewall.d
 #   when: firewall_tcp is truthy or firewall_udp is truthy
 
+- name: Render templates
+  ansible.builtin.template:
+    src: "{{item.key}}"
+    dest: "{{app_root}}/{{item.value}}"
+  loop: "{{ app_templates | dict2items }}"
+  when: app_templates is defined
+
 - name: Render {{app_domain}} docker-compose.yml
   ansible.builtin.template:
     src: "roles/{{app}}/templates/compose.yml"
@@ -113,12 +137,19 @@
     mode: "0600"
 
 # you can avoid starting the app defining "start: false" in `vars` section
-- name: Docker-compose up
+- name: Start the app at {{app_domain}}
   ansible.builtin.shell:
     cmd: "docker compose up -d"
     chdir: "{{app_root}}"
-  when: not start is defined or start is truthy  # start only when start: false is not a fact
+  when: not app_start is defined or app_start is truthy  # start only when start: false is not a fact
   notify: "lokal : Restart router"
+
+# as a last step: render .version file to mark app successfully installed
+- name: Set current {{app}} version
+  ansible.builtin.copy:
+    dest: "{{app_root}}/.version"
+    content: "{{app_version}}"
+  when: app_version is defined
 
 - name: Docker purge unused images
   ansible.builtin.shell:

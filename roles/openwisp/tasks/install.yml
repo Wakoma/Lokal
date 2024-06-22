@@ -1,0 +1,33 @@
+---
+- name: Install openwisp
+  ansible.builtin.include_role:
+    name: lokal
+    tasks_from: install
+  vars:
+    app: openwisp
+    app_dirs:
+    - openwisp
+    - media
+    - static
+    - private
+    - certs
+    - influxdb
+    - openvpn
+    app_templates:
+      openwisp.j2: openwisp/openwisp
+    app_db: postgres
+    app_db_extensions:
+    - postgis
+    app_start: false
+
+# - name: Render opwnwisp config
+#   ansible.builtin.template:
+#     src: "openwisp.j2"
+#     dest: "{{app_root}}/openwisp/openwisp"
+#     force: false
+
+# - name: Docker-compose up
+#   ansible.builtin.shell:
+#     cmd: "docker compose up -d"
+#     chdir: "{{app_root}}"
+#   notify: "lokal : Restart router"
