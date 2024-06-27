@@ -1,12 +1,4 @@
 ---
-- name: Export app_subdomain variable
-  ansible.builtin.set_fact:
-    app_subdomain: "{{app_subdomain | default(app)}}"
-
-- name: Export app_domain variable
-  ansible.builtin.set_fact:
-    app_domain: "{{app_domain | default(app_subdomain + '.' + domain)}}"
-
 - name: Export app_root variable
   ansible.builtin.set_fact:
     app_root: "{{project_root}}/{{app_domain}}"
@@ -16,6 +8,16 @@
   ansible.builtin.file:
     path: "{{app_root}}"
     state: directory
+    owner: "{{uid}}"
+    group: "{{gid}}"
+  become: true
+
+- name: Create {{app_domain}} data directories
+  ansible.builtin.file:
+    path: "{{app_root}}/{{item}}"
+    state: directory
+  loop: "{{app_dirs}}"
+  when: app_dirs is defined
 
 - name: Link provided SSL certificate for this subdomain
   ansible.builtin.file:
@@ -52,13 +54,6 @@
     state: link
   loop: "{{linked_dirs | dict2items}}"
   when: linked_dirs is defined and linked_dirs|bool
-
-- name: Create {{app_domain}} data directories
-  ansible.builtin.file:
-    path: "{{app_root}}/{{item}}"
-    state: directory
-  loop: "{{app_dirs}}"
-  when: app_dirs is defined
 
 - name: Get previous {{app_domain}} version
   ansible.builtin.slurp:
@@ -102,7 +97,7 @@
   ansible.builtin.set_fact:
     app_bucket_name: "{{ app_domain | replace('.', '-') | replace('_', '') }}"
     app_bucket_user: "{{ app_domain | replace('.', '-') | replace('_', '') }}"
-    app_bucket_password: "{{ (lokal_secret + app_domain) | hash('sha1') | regex_search('\\w{10}')) }}"
+    app_bucket_password: "{{ (lokal_secret + app_domain) | hash('sha1') | regex_search('\\w{10}') }}"
   when: app_bucket is defined and app_bucket == "minio"
 
 - name: "Call lokal/tasks/minio/create.yml"

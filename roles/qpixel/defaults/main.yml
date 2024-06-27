@@ -1,10 +1,4 @@
 qpixel_community_name: Lokal community
-qpixel_domain: "{{qpixel_subdomain}}.{{domain}}"
-qpixel_mysql: "{{qpixel_domain | replace('.', '_') | replace('-', '')}}"
-qpixel_mysql_user: "{{qpixel_domain | replace('.', '_') | replace('-', '')}}"
-qpixel_mysql_password: "{{(lokal_secret + qpixel_domain) | hash('sha1') | regex_search('\\w{10}')) }}"
-qpixel_minio_user: "{{qpixel_domain | replace('.', '-') | replace('_', '')}}"
-qpixel_minio_bucket: "{{qpixel_domain | replace('.', '-') | replace('_', '')}}"
-qpixel_minio_password: "{{(lokal_secret + qpixel_domain) | hash('sha1') | regex_search('\\w{10}')) }}"
-qpixel_version: 2024.3.1
 qpixel_subdomain: qpixel
+qpixel_domain: "{{qpixel_subdomain}}.{{domain}}"
+qpixel_version: 2024.3.1

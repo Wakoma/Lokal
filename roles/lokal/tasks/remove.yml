@@ -52,16 +52,6 @@
   when: app_db is defined and app_db == "postgres"
   ignore_errors: true
 
-# - name: Remove firewall rules
-#   vars:
-#     firewall_remove: true
-#     firewall_group: "{{app_domain}}"
-#   ansible.builtin.import_role:
-#     name: geerlingguy.firewall.d
-#   become: true
-#   when: firewall
-#   notify: Reload docker
-
 - name: Remove the app directory {{app_root}}
   ansible.builtin.file:
     path: "{{app_root}}"

@@ -1,14 +1,14 @@
 ---
-- name: Create {{mysql_user}} MySQL database
+- name: Create MySQL database {{app_db_name}}
   ansible.builtin.shell:
     cmd: >
       docker compose exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e 'CREATE DATABASE IF NOT EXISTS {{mysql_user}}'
+      mysql -u root --password={{mysql_root_password}} -e 'CREATE DATABASE IF NOT EXISTS {{app_db_name}}'
     chdir: "{{project_root}}/lokal"
 
-- name: Create {{mysql_db}} MySQL user
+- name: Create MySQL user {{app_db_user}}
   ansible.builtin.shell:
     cmd: >
       docker compose exec mariadb
-      mysql -u root --password={{mysql_root_password}} -e "GRANT ALL ON {{mysql_db}}.* TO '{{mysql_user|default(mysql_db)}}'@'%' IDENTIFIED BY '{{mysql_password}}'"
+      mysql -u root --password={{mysql_root_password}} -e "GRANT ALL ON {{app_db_name}}.* TO '{{app_db_user}}'@'%' IDENTIFIED BY '{{app_db_password}}'"
     chdir: "{{project_root}}/lokal"

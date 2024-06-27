@@ -4,20 +4,20 @@ default: &default
   collation: utf8mb4_unicode_ci
   host: {{mysql_host}}
   port: 3306
-  username: {{qpixel_mysql_user}}
-  password: {{qpixel_mysql_password}}
+  username: {{app_db_user}}
+  password: {{app_db_password}}
 
 development:
   <<: *default
-  database: {{qpixel_mysql}}_dev
+  database: {{app_db_name}}_dev
 
 test:
   <<: *default
-  database: {{qpixel_mysql}}_test
+  database: {{app_db_name}}_test
 
 production:
   <<: *default
-  database: {{qpixel_mysql}}
+  database: {{app_db_name}}
 
 redis_default: &redis_default
   host: redis

@@ -37,11 +37,11 @@
     mode: "0777"
     state: directory
 
-- name: WARNING!
-  ansible.builtin.debug:
-    msg: Your Odoo database must be named {{ app_db_name }} in order to be backed up!
-
 - name: Start the app at {{app_domain}}
   ansible.builtin.shell:
     cmd: "docker compose up -d"
     chdir: "{{app_root}}"
+
+- name: BEWARE!
+  ansible.builtin.debug:
+    msg: Your Odoo database must be named {{ app_db_name }}!

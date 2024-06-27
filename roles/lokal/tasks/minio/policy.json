@@ -14,7 +14,7 @@
           "s3:ListBucketMultipartUploads"
         ],
         "Resource": [
-          "arn:aws:s3:::{{minio_bucket}}"
+          "arn:aws:s3:::{{app_bucket_name}}"
         ]
       },
       {
@@ -32,7 +32,7 @@
           "s3:PutObject"
         ],
         "Resource": [
-          "arn:aws:s3:::{{minio_bucket}}/*"
+          "arn:aws:s3:::{{app_bucket_name}}/*"
         ]
       }
     ]

@@ -12,38 +12,22 @@
     - data
     - config
     - log
+    app_templates:
+      database.yml: config/database.yml
+      storage.yml: config/storage.yml
     app_db: "mysql"
     app_bucket: "minio"
     app_start: false # you can postpone starting (by defaults the container starts)
-    # --
-    # mysql_db: "{{qpixel_mysql}}"
-    # mysql_user: "{{qpixel_mysql_user}}"
-    # mysql_password: "{{qpixel_mysql_password}}"
-    # minio_user: "{{qpixel_minio_user}}"
-    # minio_password: "{{qpixel_minio_password}}"
-    # minio_bucket: "{{qpixel_minio_bucket}}"
 
 # qpixel's entrypoint runs migrations for production and development databases
 # non-negotiable. Once I get more info about the app, I can remove that
 - name: Create MySQL-dev database and user
   ansible.builtin.import_tasks:
-    file: roles/lokal/tasks/mysqldb/create.yml
+    file: roles/lokal/tasks/mysql/create.yml
   vars:
-    mysql_db: "{{qpixel_mysql}}_dev"
-    mysql_user: "{{qpixel_mysql_user}}"
-    mysql_password: "{{qpixel_mysql_password}}"
-
-- name: Render database config
-  ansible.builtin.template:
-    src: "database.yml"
-    dest: "{{app_root}}/config/database.yml"
-    force: false
-
-- name: Render storage config
-  ansible.builtin.template:
-    src: "storage.yml"
-    dest: "{{app_root}}/config/storage.yml"
-    force: false
+    app_db_name: "{{app_db_name}}_dev"
+    app_db_user: "{{app_db_user}}"
+    app_db_password: "{{app_db_password}}"
 
 - name: Copy a needed file (but I have no clue what it does)
   ansible.builtin.copy:
@@ -52,7 +36,7 @@
     force: false
 
 # This is the command to start your app manually
-- name: Start the app
+- name: Start the {{app_domain}}
   ansible.builtin.shell:
     cmd: "docker compose up -d"
     chdir: "{{app_root}}"

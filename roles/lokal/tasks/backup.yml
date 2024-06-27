@@ -39,17 +39,17 @@
     cmd: >
       docker exec mariadb
       mysqldump -u root --password={{mysql_root_password}} --routines --triggers --add-drop-table --flush-logs
-      {{mysql_db}} | gzip > {{backup_dir}}/mysql.sql.gz
+      {{app_db_name}} | gzip > {{backup_dir}}/mysql.sql.gz
     chdir: "{{project_root}}/lokal"
-  when: mysql_db is defined
+  when: app_db is defined and app_db == "mysql"
 
 - name: "Backup {{app_domain}} PostgreSQL to {{backup_dir}}"
   ansible.builtin.shell:
     cmd: >
       docker exec postgres
-      pg_dump -U postgres {{postgres_db}} | gzip > {{backup_dir}}/postgres.sql.gz
+      pg_dump -U postgres {{app_db_name}} | gzip > {{backup_dir}}/postgres.sql.gz
     chdir: "{{project_root}}/lokal"
-  when: postgres_db is defined
+  when: app_db is defined and app_db == "postgres"
 
 - name: "Start the service again"
   ansible.builtin.shell:

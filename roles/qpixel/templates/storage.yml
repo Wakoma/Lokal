@@ -8,7 +8,7 @@ local:
 
 s3:
   service: S3
-  access_key_id: "{{qpixel_minio_user}}"
-  secret_access_key: "{{qpixel_minio_password}}"
+  access_key_id: "{{app_bucket_user}}"
+  secret_access_key: "{{app_bucket_password}}"
   region: local
-  bucket: "{{qpixel_minio_bucket}}"
+  bucket: "{{app_bucket_name}}"
