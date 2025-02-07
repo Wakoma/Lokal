@@ -1,0 +1,34 @@
+services:
+  {{custom_app}}:
+{% if custom_docker is defined and custom_docker %}
+    image: "{{custom_docker}}:{{custom_version}}"
+{% endif %}
+{% if custom_git is defined and custom_git %}
+    build: "{{custom_git}}#{{custom_ref}}"
+    # This structured build is available only for local files which are supported via
+    # `app_git`, `app_version` and `app` - then lokal checks out {{app_git}}#{{app_version}} into {{app_root}}/{{app}}
+    # build:
+    #   context: "."
+    #   dockerfile: docker/Dockerfile
+{% endif %}
+{% if custom_env %}
+    environment:
+{% for key in custom_env %}
+    - "{{key}}={{custom_env[key]}}"
+{% endfor %}
+{% endif %}
+{% if custom_dirs %}
+    volumes:
+{% for key in custom_dirs %}
+    - "{{app_root}}/{{key}}:{{custom_dirs[key]}}"
+{% endfor %}
+{% endif %}
+    networks:
+    - lokal
+    restart: unless-stopped
+{% include "labels.yml" %}  # labels expect app_domain to be set and app_port to be set if different than 80
+
+
+networks:
+  lokal:
+    external: true

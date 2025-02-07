@@ -1,3 +1,38 @@
+# Lokal
+
+## Usage
+
+```
+$ lokal.sh add-server <ALIAS|DOMAIN> <IP> <very-strong-password> [--user USER] [--ssh-port PORT] [--no-setup]
+Created servers/myserver.com/config.yml and servers/myserver.com/root-config.yml
+
+$ lokal.sh add-service nextcloud cloud.myserver.com servers/my.server.com
+Please edit services/cloud.myserver.com.yml with default settings of nextcloud
+
+$ lokal.sh deploy servers/myserver.com/cloud.myserver.com
+$ lokal.sh backup servers/myserver.com/cloud.myserver.com
+$ lokal.sh restore servers/myserver.com/cloud.myserver.com
+$ lokal.sh remove servers/myserver.com/cloud.myserver.com
+```
+
+### lokal.sh init
+
+Create basic host files and setting up your server to be lokal compatible. That means that lokal
+will SSH into your server as `root` (provided you have your `~/.ssh/id_rsa.pub`) in
+`your-server:/root/.ssh/authorized_keys` and will modify your system by installing latest docker
+and some libraries and applications.
+
+### lokal.sh service
+
+Create a service bound to a domain. The service configuration will be created in services/domain.yml
+and will wait until you modify it. Then call
+
+### local.sh deploy
+
+Will read server configuration and service coniguration and deploy the configured service to given server
+
+
+
 
 # Lokal Services. Global Impact.
 
@@ -13,7 +48,7 @@ Included services (save one or two) are open source and primarily focused on ena
 You can find the full list of current and upcoming services [here](https://github.com/Wakoma/Lokal/tree/main/roles#current-services).
 
 ![Alt text](https://github.com/Wakoma/docs/blob/main/docs/assets/nimblemeshcolorcropped.png)
- 
+
 
 ## What else can it do?
 
@@ -39,7 +74,7 @@ The inventory file is the only file you need to edit. It lives in `hosts/` folde
 ### How do I try it out?
 
 Please take a look at the script `tryitout.sh`. There are the few necessary steps to run Lokal on your computer with the most basic setup (monitoring + wordpress). If you happend to have `apt` based OS, then you can simply run the script.
- 
+
 The script will first create `$HOME/lokal-client` that is a python virtualenv and installs ansible into it. Then it starts Lokal installation that will use provided `hosts/local` "inventory file" hence will install lokal into `$HOME/lokal` with mentioned services.
 
 You can change the location and services and passwords in this file. The file `hosts/local` is the only file that you need to modify and it completely describes Lokal setup.
@@ -94,9 +129,9 @@ Feel free to join us here:
 
 There are many platforms for deploying services, many of which we support.  For example, [Internet in a Box](https://github.com/iiab/) is a great solution if you're aiming to deploying local content on a Raspberry Pi or similar SBC, to a smaller number of users.
 
-Lokal aims to make it easier to deploy locally relevant content and services to ANY number of users, depending on the network in which it runs. 
+Lokal aims to make it easier to deploy locally relevant content and services to ANY number of users, depending on the network in which it runs.
 
-We're also using and integrating services that enable network management, offgrid communications, live radio, content production, and other tools which are absent in a number of existing platforms but essential for communities without meaningful connectivity. 
+We're also using and integrating services that enable network management, offgrid communications, live radio, content production, and other tools which are absent in a number of existing platforms but essential for communities without meaningful connectivity.
 
 
 ## Contributing

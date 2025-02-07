@@ -1,0 +1,6 @@
+custom_app: custom_app  # your app name
+custom_subdomain: app
+custom_domain: "{{custom_subdomain}}.{{domain}}"
+custom_git: "git+https://github.com/wakoma/lokal.git"
+# custom_git: "https://username:your-deploy-token@github.com/username/project"
+custom_ref: main  # branch name
