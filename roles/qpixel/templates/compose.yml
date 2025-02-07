@@ -1,6 +1,8 @@
 services:
   qpixel:
-    image: wakoma/qpixel:{{qpixel_version}}
+    build:
+      context: "{{app_root}}/qpixel"
+      dockerfile: "{{app_root}}/qpixel/docker/Dockerfile"  # relative to docker context
     # user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
       COMMUNITY_NAME: "{{qpixel_community_name}}"
@@ -13,6 +15,11 @@ services:
       COMMUNITY_ADMIN_PASSWORD: "{{admin_password}}"
       COMMUNITY_ADMIN_EMAIL: admin@{{domain}}
       COMMUNITY_OTHERS_SHOW: "false"
+      SMTP_HOST: mail.{{domain}}
+      SMTP_PORT: "{{smtp_port}}"
+      SMTP_DOMAIN: "{{app_domain}}"
+      SMTP_USER_NAME: "{{admin_user}}"
+      SMTP_PASSWORD: "{{admin_password}}"
       SECRET_KEY_BASE: "{{(lokal_secret + 'qpixel') | hash('sha1') | regex_search('\\w{24}') }}"
     volumes:  # use only bind-mounts inside {{app_root}} folder as shown below
     - {{app_root}}/config/database.yml:/code/config/database.yml
@@ -20,13 +27,17 @@ services:
     - {{app_root}}/log:/code/log
     - {{app_root}}/.irbrc:/code/.irbrc
 {% if qpixel_logo is defined %}
-    - {{app_root}}/assets/logo.png:/code/app/assets/logo.png
-    - {{app_root}}/assets/logo.png:/code/app/assets/codidact.png
+    - {{app_root}}/assets/logo.png:/code/public/assets/logo.png
+    - {{app_root}}/assets/logo.png:/code/public/assets/logo-writing.png
+    - {{app_root}}/assets/logo.png:/code/public/assets/codidact.png
+    - {{app_root}}/assets/logo.png:/code/public/assets/codidactyl.png
+    - {{app_root}}/assets/logo.png:/code/public/assets/codidact-org.png
+    - {{app_root}}/assets/logo.png:/code/public/assets/favicon.png
 {% endif %}
 {% if qpixel_icon is defined %}
-    - {{app_root}}/assets/logo.png:/code/app/assets/favicon.ico
-    - {{app_root}}/assets/logo.png:/code/app/assets/square.ico
-    - {{app_root}}/assets/logo.png:/code/app/assets/fbm.ico
+    - {{app_root}}/assets/favicon.ico:/code/public/favicon.ico
+    - {{app_root}}/assets/favicon.ico:/code/public/assets/square.ico
+    - {{app_root}}/assets/favicon.ico:/code/public/assets/fbm.ico
 {% endif %}
     restart: unless-stopped
     depends_on:

@@ -5,9 +5,10 @@
     tasks_from: install
   vars:
     app: qpixel
+    app_git: "{{qpixel_git}}"
     app_domain: "{{qpixel_domain}}"
+    app_version: "{{qpixel_version}}"
     app_port: 3000
-    app_version: 2024.7.1
     app_dirs:
     - data
     - config
