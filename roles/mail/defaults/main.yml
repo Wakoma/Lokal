@@ -1,5 +1,3 @@
-# Email is a part of Lokal - you can specify your own SMTP server
-# and the installation of Lokal SMTP will be skipped
 smtp_host: "mail"
 smtp_port: 465
 imap_port: 993

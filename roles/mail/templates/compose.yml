@@ -27,7 +27,7 @@ services:
 
 
   webmail:
-    image: cypht/cypht:2.0.1
+    image: cypht/cypht:2.4.0
     container_name: webmail
     volumes:
     - "{{app_root}}/webmail:/var/lib/hm3"
@@ -41,19 +41,19 @@ services:
       ADMIN_USERS: "{{admin_user}}"
       DB_CONNECTION_TYPE: host
       DB_DRIVER: mysql
-      DB_HOST: {{mysql_host}}
-      DB_NAME: cypht
-      DB_USER: cypht
-      DB_PASS: cypht
+      DB_HOST: "{{mysql_host}}"
+      DB_NAME: "{{app_db_name}}"
+      DB_USER: "{{app_db_user}}"
+      DB_PASS: "{{app_db_password}}"
       IMAP_AUTH_SERVER: "mail"
       IMAP_AUTH_PORT: 143
       DEFAULT_SMTP_SERVER: "mail"
       DEFAULT_SMTP_PORT: 25
-      # DEFAULT_EMAIL_DOMAIN: "{{domain}}"
+      DEFAULT_EMAIL_DOMAIN: "{{domain}}"
       ENABLE_MEMCACHED: false
       ENABLE_REDIS: false
       SINGLE_SERVER_MODE: true
-      DEFAULT_LANGUAGE: {{lang}}
+      DEFAULT_LANGUAGE: "{{lang}}"
       WITH_DEBUG: false
     networks:
     - traefik
