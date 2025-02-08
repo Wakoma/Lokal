@@ -25,10 +25,13 @@ services:
 {% endif %}
     networks:
     - lokal
+    - traefik
     restart: unless-stopped
 {% include "labels.yml" %}  # labels expect app_domain to be set and app_port to be set if different than 80
 
 
 networks:
   lokal:
+    external: true
+  traefik:
     external: true
