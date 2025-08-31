@@ -1,0 +1,84 @@
+# Maddy config with local delivery, SPF/DMARC checks on 465,
+# and DKIM signing for outbound mail (DMARC-aligned)
+
+# === Storage for local mail ===
+storage.local_maildir {
+  path /var/mail
+}
+
+table.local_users {
+  file /etc/maddy/users
+}
+
+userpass {
+  table local_users
+}
+
+# === DKIM signing setup ===
+dkim_signer.default {
+  domain example.com                 # replace with your actual domain
+  selector default                   # match your DNS TXT selector (e.g. default._domainkey.example.com)
+  private_key_file /etc/maddy/dkim/private.key
+  header_canon relaxed
+  body_canon relaxed
+  hash sha256
+}
+
+# === Targets ===
+target.local_mbox {
+  destinations {
+    local_maildir
+  }
+}
+
+target.outbound_relay {
+  dkim_signer default
+  mx_auth {}
+}
+
+# === Secure SMTPS listener (465) ===
+smtp.listener.secure {
+  addr :465
+  implicit_tls yes
+  require_tls yes
+  auth userpass
+
+  check {
+    spf
+    dmarc
+  }
+
+  deliver {
+    match {
+      rcpt_domain = localhost
+    }
+    deliver_to &local_mbox
+
+    default {
+      destination &outbound_relay
+    }
+  }
+}
+
+# === Local SMTP listener (25) ===
+smtp.listener.local {
+  addr :25
+
+  listen {
+    address :25
+    allow_from 127.0.0.1 ::1
+  }
+
+  deliver {
+    match {
+      rcpt_domain = localhost
+    }
+    deliver_to &local_mbox
+
+    default {
+      destination &outbound_relay
+    }
+  }
+}
+
+resolver.default {}

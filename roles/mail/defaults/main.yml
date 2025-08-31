@@ -1,3 +1,7 @@
-smtp_host: "mail"
-smtp_port: 465
-imap_port: 993
+# if you are not using `ldap` recipe then manually specyfing allowed users
+# is your only chance. Format is "username": "password" where
+mail_users:
+# settings this to false will make email boxes username-only meaning that
+# admin@foo.com and admin@bar.com end up in the same mailbox - one for admin
+# TODO: not working now
+mail_separate_domain_accounts: true
