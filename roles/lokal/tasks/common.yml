@@ -1,0 +1,18 @@
+
+# Auto-generate database name, user, and password in case that the developer/user
+# did not provide their own app_db_name (and others (user, password that we don't check)
+- name: "Export app_db facts"
+  ansible.builtin.set_fact:
+    app_db_name: "{{ app_domain | replace('.', '_') | replace('-', '') }}"
+    app_db_user: "{{ app_domain | replace('.', '_') | replace('-', '') }}"
+    app_db_password: "{{ (lokal_secret + app_domain) | hash('sha1') | regex_search('\\w{10}') }}"
+
+
+# Auto-generate variables for minio bucket (name, user, password) derived from the domain
+# and lokal_secret
+- name: "Export app_bucket facts"
+  ansible.builtin.set_fact:
+    app_bucket_name: "{{ app_domain | replace('.', '-') | replace('_', '') }}"
+    app_bucket_user: "{{ app_domain | replace('.', '-') | replace('_', '') }}"
+    app_bucket_password: "{{ (lokal_secret + app_domain) | hash('sha1') | regex_search('\\w{10}') }}"
+  when: app_bucket is defined and app_bucket == "minio"

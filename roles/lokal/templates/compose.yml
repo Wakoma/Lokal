@@ -32,7 +32,9 @@ services:
       timeout: 1s
     restart: unless-stopped
     volumes:
-    - "{{lokal_root}}/mariadb/:/var/lib/mysql/"
+    - type: bind
+      source: "{{lokal_root}}/mariadb/"
+      target: "/var/lib/mysql/"
 
   postgres:
     container_name: postgres
@@ -47,69 +49,44 @@ services:
     - lokal
     restart: unless-stopped
     volumes:
-    - "{{lokal_root}}/postgres/:/var/lib/postgres/data/"
+    - type: bind
+      source: "{{lokal_root}}/postgres/"
+      target: "/var/lib/postgres/data/"
 
   prometheus:
     container_name: prometheus
     image: prom/prometheus:{{version_prometheus}}
     user: "{{uid}}:{{gid}}"
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.prometheus.entrypoints: websecure
-      traefik.http.routers.prometheus.rule: Host(`{{subdomain_prometheus}}.{{domain}}`)
-      traefik.http.routers.prometheus.tls: "true"
-      traefik.http.services.prometheus.loadbalancer.server.port: 9090
-      traefik.http.routers.prometheus.middlewares: admin-auth@file
-{% if ssl_use_acme %}
-      traefik.http.routers.prometheus.tls.certresolver: {{cert_resolver}}
-{% endif %}
     networks:
-    - traefik
+    - prometheus
     - lokal
     restart: unless-stopped
     volumes:
-    - {{lokal_root}}/prometheus/etc/prometheus/:/etc/prometheus/
-    - {{lokal_root}}/prometheus/data/:/prometheus/
+    - type: bind
+      source: "{{lokal_root}}/prometheus/etc/prometheus/"
+      target: "/etc/prometheus/"
+    - type: bind
+      source: "{{lokal_root}}/prometheus/data/"
+      target: "/prometheus/"
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    user: "{{uid}}:{{gid_docker}}"
-    restart: unless-stopped
-    command: --admin-password '{{admin_password|password_hash('bcrypt')}}'
-    security_opt:
-    - no-new-privileges:true
-    volumes:
-    - /etc/localtime:/etc/localtime:ro
-    - /var/run/docker.sock:/var/run/docker.sock
-    - "{{lokal_root}}/portainer/:/data/"
-    networks:
-    - prometheus
-    - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.portainer.entrypoints: websecure
-      traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
-      traefik.http.routers.portainer.tls: "true"
-      traefik.http.services.portainer.loadbalancer.server.port: 9000
-{% if ssl_use_acme %}
-      traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
-{% endif %}
-
   minio:
+    image: minio/minio:{{version_minio}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
 #   ports:
 #   - "9000:9000"
 #   - "9090:9090"
     environment:
-      MINIO_ROOT_USER: {{admin_user}}
+      MINIO_ROOT_USER: {{admin_username}}
       MINIO_ROOT_PASSWORD: "{{admin_password}}"
       MC_CONFIG_DIR: /.mc
     volumes:
-      - "{{lokal_root}}/minio/data:/data"
-      - "{{lokal_root}}/minio/config:/.mc"
-    image: quay.io/minio/minio
+      - type: bind
+        source: "{{lokal_root}}/minio/data"
+        target: "/data"
+      - type: bind
+        source: "{{lokal_root}}/minio/config"
+        target: "/.mc"
     command: server /data --console-address=":9090"
     container_name: minio
     networks:
@@ -117,29 +94,25 @@ services:
     - lokal
 
   traefik:
-    image: traefik:{{version_traefik}}
+    image: "traefik:{{version_traefik}}"
     container_name: traefik
     # cannot be simply app_user:app_user because of root:docker privileges on /var/run/docker.sock
     user: "{{uid}}:{{gid_docker}}"  # run the container service as app user (not root)
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.traefik.entrypoints: websecure
-      traefik.http.routers.traefik.rule: Host(`{{subdomain_traefik}}.{{domain}}`)
-      traefik.http.routers.traefik.service: api@internal
-      traefik.http.routers.traefik.tls: "true"
-      traefik.http.services.traefik.loadbalancer.server.port: 8080
-      traefik.http.routers.traefik.middlewares: admin-auth@file
-{% if ssl_use_acme %}
-      traefik.http.routers.traefik.tls.certresolver: {{cert_resolver}}
-{% endif %}
     networks:
     - traefik
     ports:
-    - 80:80
-    - 443:443
-#    - 465:465
-#    - 993:993
-    - 8448:8448
+    - "80:80"
+    - "443:443"
+    # Email ports that cannot be handled by Traefik because of certiface selection (they are not encrypted by default)
+    # - "25:25"  # insecure SMTP
+    # - "143:143"  # insecure IMAP
+    - "587:587"
+    - "465:465"
+    - "993:993"
+    - "110:110"
+    - "995:995"
+    - "4190:4190"
+    - "8448:8448"
     restart: unless-stopped
     environment:
       CERT_RESOLVER: {{cert_resolver}}
@@ -148,13 +121,23 @@ services:
       NAMECHEAP_API_KEY: {{namecheap_api_key}}
 {% endif %}
     volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - "{{lokal_root}}/traefik/log:/var/log"  # used for fail2ban
-    - "{{lokal_root}}/traefik/acme:/acme"
+    - type: bind
+      source: "/var/run/docker.sock"
+      target: "/var/run/docker.sock"
+    - type: bind
+      source: "{{lokal_root}}/traefik/log"
+      target: "/var/log"  # used for fail2ban
+    - type: bind
+      source: "{{lokal_root}}/traefik/acme"
+      target: "/acme"
+    - type: bind
+      source: "{{lokal_root}}/traefik/conf"
+      target: "/config"
 {% if not ssl_use_acme %}
-    - "{{project_root}}/.certs/{{domain}}/:/certs/"
+    - type: bind
+      source: "{{project_root}}/.certs/{{domain}}/"
+      target: "/certs/"
 {% endif %}
-    - "{{lokal_root}}/traefik/conf:/config"
     command:
     - --accessLog=true
     - --api.insecure=false
@@ -182,9 +165,13 @@ services:
     - --entrypoints.web.address=:80
     - --entrypoints.websecure.address=:443/tcp
     - --entryPoints.federation.address=:8448
-    - --entryPoints.metrics.address=:8082
-#    - --entryPoints.smtp.address=:465  # do not bind those port - the mail container do this on its own
-#    - --entryPoints.imap.address=:993  # do not bind those port - the mail container do this on its own
+    # Email ports/protocols
+    # - --entryPoints.smtp.address=:25
+    - --entryPoints.smtp-starttls.address=:587
+    - --entryPoints.smtp-tls.address=:465
+    # - --entryPoints.imap.address=:143
+    - --entryPoints.imaps.address=:993
+    - --entryPoints.mail-managesieve.address=:4190
     - --entrypoints.web.http.redirections.entryPoint.to=websecure
     - --entrypoints.web.http.redirections.entryPoint.scheme=https
     - --entrypoints.web.http.redirections.entrypoint.permanent=true
@@ -208,7 +195,6 @@ services:
     - --serversTransport.insecureSkipVerify=true
     - --providers.file.directory=/config
     - --providers.file.watch=true
-    # - --tls.domains={{domain}}
 
 {% if ssl_use_acme %}
   dumper:
@@ -220,10 +206,18 @@ services:
     labels:
       traefik.enable: false
     volumes:
-      - {{lokal_root}}/traefik/acme:/data
-      - {{lokal_root}}/traefik/dump:/dump
-      - {{project_root}}/.certs:/lokal
-      - {{lokal_root}}/dumper/hook.sh:/hook.sh
+      - type: bind
+        source: "{{lokal_root}}/traefik/acme"
+        target: "/data"
+      - type: bind
+        source: "{{lokal_root}}/traefik/dump"
+        target: "/dump"
+      - type: bind
+        source: "{{project_root}}/.certs"
+        target: "/lokal"
+      - type: bind
+        source: "{{lokal_root}}/dumper/hook.sh"
+        target: "/hook.sh"
 {% endif %}
 
   fail2ban:
@@ -237,5 +231,10 @@ services:
     - NET_ADMIN
     - NET_RAW
     volumes:
-    - {{lokal_root}}/traefik/log/:/var/log/traefik/:ro
-    - {{lokal_root}}/fail2ban/:/data/
+    - type: bind
+      source: "{{lokal_root}}/traefik/log/"
+      target: "/var/log/traefik/"
+      read_only: true
+    - type: bind
+      source: "{{lokal_root}}/fail2ban/"
+      target: "/data/"

@@ -10,7 +10,6 @@
     state: directory
     owner: "{{uid}}"
     group: "{{gid}}"
-  become: true
 
 - name: Create {{app_domain}} data directories
   ansible.builtin.file:
@@ -30,22 +29,20 @@
 - name: Link provided SSL certificate for this subdomain
   ansible.builtin.file:
     state: link
-    src: "{{project_root}}/.certs/{{domain}}/{{domain}}.cert"
-    dest: "{{project_root}}/.certs/{{app_domain}}/{{app_domain}}.cert"
+    src: "{{project_root}}/.certs/default.crt"
+    dest: "{{project_root}}/.certs/{{app_domain}}/{{app_domain}}.crt"
   when: ssl_key is defined and ssl_cert is defined
 
 - name: Link provided SSL key for this subdomain
   ansible.builtin.file:
     state: link
-    src: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
+    src: "{{project_root}}/.certs/default.key"
     dest: "{{project_root}}/.certs/{{app_domain}}/{{app_domain}}.key"
   when: ssl_key is defined and ssl_cert is defined
 
 - name: Self-sign certificate for the domain
   ansible.builtin.include_tasks:
     file: include/generate-self-signed-certs.yml
-  vars:
-    cert_domain: "{{app_domain}}"
   when: not ssl_use_acme and not (ssl_key is defined and ssl_cert is defined)
 
 - name: Create {{app_domain}} external data directories
@@ -75,11 +72,19 @@
     app_first_install: true
   when: app_version is defined and not version_file is defined
 
-- name: Parse previous {{app_domain}} version
+- name: Compare previous {{app_domain}} version numerically
   ansible.builtin.set_fact:
     app_version_prev: "{{ version_file['content'] | b64decode }}"
     app_updated: "{{ (version_file['content'] | b64decode) is version(app_version, '<') }}"
   when: app_version is defined and version_file is defined and version_file.content is defined
+  ignore_errors: true  # might happen when version isn't really a number
+
+- name: Compare previous {{app_domain}} version textually
+  ansible.builtin.set_fact:
+    app_version_prev: "{{ version_file['content'] | b64decode }}"
+    app_updated: "{{ (version_file['content'] | b64decode) != app_version }}"
+  when: not app_updated is defined and app_version is defined and version_file is defined and version_file.content is defined
+  ignore_errors: true  # might happen when version isn't really a number
 
 # Auto-generate database name, user, and password in case that the developer/user
 # did not provide their own app_db_name (and others (user, password that we don't check)
@@ -133,6 +138,13 @@
   loop: "{{ app_templates | dict2items }}"
   when: app_templates is defined
 
+# stop original services and - if upgrading - remove previous images
+- name: Docker purge unused images
+  ansible.builtin.shell:
+    cmd: docker compose down --rmi local
+    chdir: "{{app_root}}"
+  when: app_version is defined and app_updated is defined and app_updated is truthy and app_first_install is falsy
+
 - name: Render {{app_domain}} docker-compose.yml
   ansible.builtin.template:
     src: "roles/{{app}}/templates/compose.yml"
@@ -153,9 +165,3 @@
     dest: "{{app_root}}/.version"
     content: "{{app_version}}"
   when: app_version is defined
-
-- name: Docker purge unused images
-  ansible.builtin.shell:
-    cmd: docker image prune -f
-    chdir: "{{app_root}}"
-  when: app_version is defined and app_updated is defined and app_updated is truthy

@@ -13,7 +13,7 @@
     external_ipv4: '{{ansible_facts["default_ipv4"]["address"]}}'
     today: '{{ansible_facts["date_time"]["date"]}}'
 
-- name: "Install basic infrastructure"
+- name: "Bootstrap basic infrastructure"
   include_tasks:
-    file: include/install-basic-infrastructure.yml
+    file: bootstrap.yml
   when: not backup is defined and not restore is defined and not remove is defined and (not install is defined or install == "all" or "lokal" in install)

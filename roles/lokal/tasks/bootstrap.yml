@@ -1,4 +1,8 @@
 ---
+#
+# Bootstrap script installs basic infracture for the lokal environment
+# and its services. It comprises of databases, router, monitoring and mailing.
+#
 - name: Ensure base dirs exist"
   ansible.builtin.file:
     path: '{{item}}'
@@ -8,34 +12,20 @@
     - "{{backup_root}}"
     - "{{project_root}}"
     - "{{project_root}}/.certs"
-    - "{{project_root}}/.certs/{{domain}}"
-  become: true
+  # become: true
   when: "not backup is defined and not restore is defined"
-
-- name: "Install necessary base software"
-  package:
-    name:
-      - python3-passlib
-    state: present
-  become: true
-  when: ansible_facts['system'] == "Linux" # disable on OSes without package managers
 
 - name: Get certificates - key
   ansible.builtin.copy:
     src: "{{ssl_key}}"
-    dest: "{{project_root}}/.certs/{{domain}}/{{domain}}.key"
+    dest: "{{project_root}}/.certs/default.key"
   when: ssl_key is defined and ssl_cert is defined
 
 - name: Get certificates - cert
   ansible.builtin.copy:
     src: "{{ssl_cert}}"
-    dest: "{{project_root}}/.certs/{{domain}}/{{domain}}.crt"
+    dest: "{{project_root}}/.certs/default.crt"
   when: ssl_key is defined and ssl_cert is defined
-
-- name: "Generate self-signed certs"
-  include_tasks:
-    file: include/generate-self-signed-certs.yml
-  when: not ssl_use_acme and not (ssl_key is defined and ssl_cert is defined)
 
 - name: Export app_root variable
   ansible.builtin.set_fact:
@@ -48,6 +38,7 @@
   loop:
     - fail2ban/filter.d
     - fail2ban/jail.d
+    - mail
     - mariadb
     - dumper
     - postgres
@@ -83,6 +74,18 @@
 #     firewall_flush_rules_and_chains: false
 #     firewall_restart_docker: true
 #   become: true
+
+- name: Find all certificates to print them into traefik dynamic.yml
+  ansible.builtin.find:
+    paths: "{{project_root}}/.certs/"
+    recurse: true
+    patterns: '*.crt'
+  register: cert_find_output
+  when: ssl_use_acme is falsy and not(ssl_key is defined and ssl_cert is defined)
+
+- name: Debug certs
+  debug:
+    var: cert_find_output
 
 - name: "Render traefik config"
   ansible.builtin.template:

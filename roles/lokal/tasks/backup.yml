@@ -6,13 +6,17 @@
 #     name: lokal
 #     tasks_from: backup
 #   vars:
-#     app: your-app
+#     app_domain: your-app-domain
 #     mysql_db: "{{mysql_database_your_app}}"  # to backup MySQL database
 #     postgres_db: "{{postgres_db_your_app}}"  # to backup PostgreSQL database
 
 - name: "Get current timestamp"
   register: timestamp_result
-  shell: date '+%Y%m%dT%H%M%S'
+  shell: date '+%Y%m%d'
+
+- name: "Get current timestamp"
+  register: timestamp_past_result
+  shell: date -d '{{app_retention}} days ago' '+%Y%m%d'
 
 - name: "Get name of backup directory"
   set_fact:
@@ -32,7 +36,13 @@
   ansible.builtin.shell:
     cmd: "tar -czf {{backup_dir}}/files.tgz ."
     chdir: "{{project_root}}/{{app_domain}}"
-  become: true # we need to become root to preserve docker's user owner of the files
+  become: true # we need to become root to preserve files metadata
+
+# Get the auto-generated variables such as app_db_name and others
+- name: "Call lokal/tasks/minio/create.yml"
+  ansible.builtin.import_tasks:
+    file: common.yml
+  when: app_bucket is defined and app_bucket == "minio"
 
 - name: "Backup {{app_domain}} MySQL to {{backup_dir}}"
   ansible.builtin.shell:
@@ -50,6 +60,60 @@
       pg_dump -U postgres {{app_db_name}} | gzip > {{backup_dir}}/postgres.sql.gz
     chdir: "{{project_root}}/lokal"
   when: app_db is defined and app_db == "postgres"
+
+- name: "Upload everything to S3"
+  amazon.aws.aws_s3:
+    bucket: "{{s3_backup_bucket}}"
+    object: "{{app_domain}}/{{timestamp_result.stdout}}/"
+    src: "{{backup_dir}}"
+    mode: put
+    region: "{{s3_backup_region}}"
+    access_key: "{{s3_backup_key}}"
+    secret_key: "{{s3_backup_secret}}"
+  when: s3_backup is truthy
+  register: s3_backup_result
+
+- name: Print s3_backup_result
+  debug:
+    var: s3_backup_result
+  when: s3_backup is truthy
+
+- name: "Upload files to the backup node"
+  ansible.builtin.fetch:
+    dest: "."
+    src: "{{backup_dir}}/files.sql.gz"
+  when: s3_backup is not defined or s3_backup is false
+
+- name: "Upload postgres to the backup node"
+  ansible.builtin.fetch:
+    dest: "."
+    src: "{{backup_dir}}/postgres.sql.gz"
+  when: (s3_backup is not defined or s3_backup is false) and app_db is defined and app_db == "postgres"
+
+- name: "Upload mysql to the backup node"
+  ansible.builtin.fetch:
+    dest: "."
+    src: "{{backup_dir}}/mysql.sql.gz"
+  when: (s3_backup is not defined or s3_backup is false) and app_db is defined and app_db == "mysql"
+
+- name: "Remove local files when upload(s) succeeds"
+  ansible.builtin.file:
+    path: "{{backup_dir}}"
+    state: absent
+  become: true
+  when: s3_backup_result.changed
+
+- name: "Remove old backups"
+  amazon.aws.aws_s3:
+    bucket: "{{s3_backup_bucket}}"
+    object: "{{app_domain}}/{{timestamp_past_result.stdout}}/"
+    mode: delete
+    region: "{{s3_backup_region}}"
+    access_key: "{{s3_backup_key}}"
+    secret_key: "{{s3_backup_secret}}"
+  when: s3_backup is truthy
+  register: s3_backup_result
+
 
 - name: "Start the service again"
   ansible.builtin.shell:

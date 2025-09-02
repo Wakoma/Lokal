@@ -1,31 +1,40 @@
 ---
-- name: Set cert_domain variable
-  set_fact:
-    cert_domain: "{{ domain }}"
-  when: cert_domain is not defined
-
 - name: Ensure cert directory
   ansible.builtin.file:
-    path: "{{ project_root }}/.certs/{{ cert_domain }}"
+    path: "{{ project_root }}/.certs/{{ app_domain }}"
     state: directory
 
 - name: Ensure SSL private key
   community.crypto.openssl_privatekey:
-    path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.key"
+    path: "{{ project_root }}/.certs/{{ app_domain }}/{{ app_domain }}.key"
     state: present
 
 - name: Create SSL CSR
   community.crypto.openssl_csr:
-    path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.csr"
-    privatekey_path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.key"
+    path: "{{ project_root }}/.certs/{{ app_domain }}/{{ app_domain }}.csr"
+    privatekey_path: "{{ project_root }}/.certs/{{ app_domain }}/{{ app_domain }}.key"
     organization_name: "Wakoma"
-    commonName: "{{ cert_domain }}"
+    commonName: "{{ app_domain }}"
     email_address: "{{ admin_email }}"
     country_name: "US"
 
 - name: Create SSL certificate
   community.crypto.x509_certificate:
     provider: "selfsigned"
-    path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.crt"
-    privatekey_path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.key"
-    csr_path: "{{ project_root }}/.certs/{{ cert_domain }}/{{ cert_domain }}.csr"
+    path: "{{ project_root }}/.certs/{{ app_domain }}/{{ app_domain }}.crt"
+    privatekey_path: "{{ project_root }}/.certs/{{ app_domain }}/{{ app_domain }}.key"
+    csr_path: "{{ project_root }}/.certs/{{ app_domain }}/{{ app_domain }}.csr"
+
+- name: Add {{app_domain}}.crt to traefik dynamic config
+  ansible.builtin.lineinfile:
+    line: "    - certFile: certs/{{ app_domain }}/{{ app_domain }}.crt"
+    search_string: "{{ app_domain }}.crt"
+    path: "{{app_root}}/mail/users"
+    create: true
+
+- name: Add {{app_domain}}.key to traefik dynamic config
+  ansible.builtin.lineinfile:
+    line: "      keyFile: certs/{{ app_domain }}/{{ app_domain }}.key"
+    search_string: "{{ app_domain }}.key"
+    path: "{{app_root}}/mail/users"
+    create: true

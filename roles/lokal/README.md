@@ -1,7 +1,12 @@
 # Lokal
 
-Welcome in the role, that helps you to install, backup, restore and remove services
-in Lokal. Each role should have following structure
+Service in lokal - the generic idea is that you have install.yml that is inluding lokal/install.yml
+tasks configured with [#Variables](variables). The lokal/install task will give you variables containing
+freshly generated databases, buckets and other resources. Those variables will be available in your custom
+compose.yml that will be automatically rendered by the lokal/install task. Other templates placed alongside
+compose.yml and specified in `app_templates` will be rendered as well.
+
+Each role should have following structure to allow installation, backup, and restore:
 ```
 roles/
   - your-app/
@@ -25,10 +30,15 @@ to use the logic provided by the lokal role. It helps with the usual tasks as
 creating folders, database and obtaining the most used information such as `uid`
 and `gid`.
 
+## Global variables
+
+- `mysql_host`, `mysql_port` - shared MySQL instance
+- `postgres_host`, `postgres_port` - shared postgres instance
+
 ## Variables
 
-A list of available variables that you can define in role's `tasks/main.yml` when
-including `lokal.install` tasks. Please see the example `roles/_example/tasks/main.yml`
+A list of available variables that you can define in role's `tasks/install.yml` when
+including `lokal.install` tasks. Please see the example `roles/_example/tasks/install.yml`
 
 - `app` name of your app -
 - `app_dirs` (optional) list of directories that will be created inside `app_root`
@@ -36,7 +46,8 @@ including `lokal.install` tasks. Please see the example `roles/_example/tasks/ma
   Example: `app_templates: database.yml: config/database.yml` will render template/config.conf from local folder to remote `{{app_root}}/config/database.yml` so you can use it in docker-compose.yml simply as `"config/database.yml"`
 - `app_git` (optional) git URL where to download the app from - expects `build: {context: "{{app}}", dockerfile: {{app}}/Dockerfile}` in your compose.yml so the docker is built directly on the server
 - `app_version` (optional) version of your app - if an update happen that `app_updated` will be true
-- `app_db`, `app_db_user`, and `app_db_password` will prepare a database of type app_db ("mysql" or "postgres")
+- `app_db` set to "mysql" or "postgres" to receive `app_db_user`, `app_db_password`, and `app_db_name` to your compose.yml and rest of install.yml
+- `app_bucket` set to "minio" to receive `app_bucket_name`, `app_bucket_user`, `app_bucket_password` to your compose.yml and rest of install.yml
 - `start` (optional, boolean) - whether directly invoke `docker compose up -d` at the end
 
 The lokal install tasks will finish with rendering  `templates/compose.yml` into
@@ -65,7 +76,7 @@ see the [compose.yml](examples/compose.yml) in examples directory.
 ### Cloning a GIT repository
 
 Sometimes, you don't have a docker container built in a docker hub. You can specify
-`app_git` with GIT URL and `app` with folder name where the GIT repo should be cloned.
+`app_git` with git clone URL and `app` with folder name where the GIT repo should be cloned.
 Also specify `app_version` to the tag/branch that you want cloned. Only when you change
 this value, the repo will be fetched and updated! So restrain from using branch names.
 Once install is finihed, you will find your app cloned under `{{app_root}}/{{app}}` so

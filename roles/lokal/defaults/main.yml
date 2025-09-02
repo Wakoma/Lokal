@@ -1,9 +1,9 @@
 # Mandatory settings
-# admin_password
-# admin_email
-# domain
+# Settings of `admin_password` and `domain` are required when deploying services
+# not just for server preparation and lokal installation (on the remote server).
 debug: false
-admin_user: admin
+admin_username: admin
+admin_email: "{{admin_username}}@{{domain}}"
 
 # Common base settings
 project_name: Lokal
@@ -15,6 +15,13 @@ locale: en_US.utf-8  # cs_CZ.utf8
 ssh_port: 22
 verbose: false
 services: []
+
+# Backup to S3
+s3_backup: false
+s3_bucket_name: 'lokal-backup'
+s3_bucket_region: 'eu-central-1'
+s3_access_key: ''
+s3_secret_key: ''
 
 # HTTPS certificate handling
 ssl_use_acme: false # obtain HTTPS certificates from ACME server
@@ -44,17 +51,9 @@ postgres_port: 5432
 # GID: '{{ ansible_facts["user_gid"] }}'
 # TZ: '{{ ansible_facts["date_time"]["tz"] }}'
 
-# Empty defaults for the firewall
-firewall_tcp: []
-firewall_udp: []
-firewall: false
-
 version_prometheus: "latest" # v2.40.6
 version_traefik: "latest" # v2.9.6
 version_grafana: "latest" # 9.3.2
 version_mariadb: "10.6.16-focal"
 version_postgres: "16-3.4"
-
-subdomain_traefik: router
-subdomain_prometheus: metrics
-subdomain_portainer: containers
+version_minio: "RELEASE.2025-02-03T21-03-04Z"

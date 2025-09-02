@@ -1,10 +1,4 @@
-http:
-  middlewares:
-    admin-auth:
-      basicAuth:
-        users:
-          - "{{admin_user}}:{{admin_password|password_hash('bcrypt')}}"
-
+# This file is managed by Lokal. Do not edit manually.
 {% if not ssl_use_acme %}
 tls:
   options:
@@ -12,9 +6,19 @@ tls:
       minVersion: VersionTLS12
     mintls13:
       minVersion: VersionTLS13
+{% if ssl_key | default(false) %}
   stores:
     default:
       defaultCertificate:
-        certFile: /certs/{{domain}}.crt
-        keyFile: /certs/{{domain}}.key
+        certFile: /certs/default.crt
+        keyFile: /certs/default.key
+{% else %}
+  certificates:
+    - certFile: /certs/{{domain}}/{{domain}}.crt
+      keyFile: /certs/{{domain}}/{{domain}}.key
+{% for cert in cert_find_output.files %}
+    - certFile: "/certs/{{cert['path'][(project_root+'/.certs')|length:]}}"
+      keyFile: "/certs/{{cert['path'][(project_root+'/.certs')|length:-4]}}.key"
+{% endfor %}
+{% endif %}
 {% endif %}
