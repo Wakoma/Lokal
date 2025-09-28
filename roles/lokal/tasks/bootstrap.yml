@@ -39,7 +39,7 @@
     - fail2ban/filter.d
     - fail2ban/jail.d
     - mail
-    - mariadb
+    - mysql
     - dumper
     - postgres
     - prometheus/data

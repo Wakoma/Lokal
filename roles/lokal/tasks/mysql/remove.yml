@@ -2,13 +2,13 @@
 - name: Drop {{app_db_name}} MySQL database
   ansible.builtin.shell:
     cmd: >
-      docker exec mariadb
+      docker exec mysql
       mysql -u root --password={{mysql_root_password}} -e "DROP DATABASE {{app_db_name}}"
   ignore_errors: true
 
 - name: Drop {{app_db_user}} MySQL user
   ansible.builtin.shell:
     cmd: >
-      docker exec mariadb
+      docker exec mysql
       mysql -u root --password={{mysql_root_password}} -e "DROP USER '{{app_db_user}}'@'%'"
   ignore_errors: true

@@ -20,7 +20,7 @@ authentication_backend:
     group_search_mode: 'filter'
     permit_referrals: false
     permit_unauthenticated_bind: false
-    user: cn={{admin_user}},ou=people,{{ldap_domain}}
+    user: cn={{admin_username}},ou=people,{{ldap_domain}}
     password: "{{admin_password}}"
     attributes:
       distinguished_name: 'distinguishedName'
@@ -58,10 +58,10 @@ notifier:
   disable_startup_check: false
 {% if "mail" in services %}
   smtp: # authelia requires STARTLS for SMTP connection
-    username: {{admin_user}}
+    username: {{admin_username}}
     password: {{admin_password}}
     address: 'smtp://mail:25'
-    sender: {{admin_user}}@{{domain}}
+    sender: {{admin_username}}@{{domain}}
 {% else %}
   filesystem:
     filename: /config/notification.txt

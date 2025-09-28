@@ -39,19 +39,19 @@
 
 - name: "Uzip {{app_domain}} MySQL dump file"
   ansible.builtin.shell:
-    cmd: "zcat {{latest_backup.path}}/mysql.sql.gz > {{project_root}}/lokal/mariadb/{{app_db_name}}.sql"
+    cmd: "zcat {{latest_backup.path}}/mysql.sql.gz > {{project_root}}/lokal/mysql/{{app_db_name}}.sql"
     chdir: "{{project_root}}/lokal"
   when: app_db is defined and app_db == "mysql"
 
 - name: "Restore {{app_domain}} MySQL tables"
   ansible.builtin.shell:
-    cmd: "docker compose exec mariadb mysql -u root --password={{mysql_root_password}} -f -e 'source /var/lib/mysql/{{app_db_name}}.sql' {{app_db_name}}"
+    cmd: "docker compose exec mysql mysql -u root --password={{mysql_root_password}} -f -e 'source /var/lib/mysql/{{app_db_name}}.sql' {{app_db_name}}"
     chdir: "{{project_root}}/lokal"
   when: app_db is defined and app_db == "mysql"
 
 - name: "Delete ucompressed {{app_domain}} MySQL dump file"
   ansible.builtin.file:
-    path: "{{project_root}}/lokal/mariadb/{{app_domain}}.sql"
+    path: "{{project_root}}/lokal/mysql/{{app_domain}}.sql"
     state: "absent"
   when: app_db is defined and app_db == "mysql"
 

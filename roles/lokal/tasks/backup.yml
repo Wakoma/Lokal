@@ -47,7 +47,7 @@
 - name: "Backup {{app_domain}} MySQL to {{backup_dir}}"
   ansible.builtin.shell:
     cmd: >
-      docker exec mariadb
+      docker exec mysql
       mysqldump -u root --password={{mysql_root_password}} --routines --triggers --add-drop-table --flush-logs
       {{app_db_name}} | gzip > {{backup_dir}}/mysql.sql.gz
     chdir: "{{project_root}}/lokal"

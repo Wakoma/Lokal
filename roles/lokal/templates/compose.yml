@@ -14,7 +14,7 @@ networks:
     name: minio
 
 services:
-  mariadb:
+  mysql:
     container_name: "{{mysql_host}}"
     image: mariadb:{{version_mariadb}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
@@ -33,7 +33,7 @@ services:
     restart: unless-stopped
     volumes:
     - type: bind
-      source: "{{lokal_root}}/mariadb/"
+      source: "{{lokal_root}}/mysql/"
       target: "/var/lib/mysql/"
 
   postgres:
