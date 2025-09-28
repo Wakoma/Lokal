@@ -8,8 +8,9 @@ We use Maddy as the email server. Externally, the mail service expose only ports
 No other protocol variants is available due to routing capabilities (getting the intended
 hostname from the request).
 
-Maddy will export DKIM key to `/var/lib/maddy/dkim_keys/example.org_default.dns`. This
-must be available to user.
+Maddy will export DKIM key to `/var/lib/maddy/dkim_keys/example.org_lokal.dns`. Which is
+bond to `{{project_root}}/mail.{{domain}}/mail/dkim_keys/<domain>_<dkimword>.dns`. This
+wil; be available to user at CWD.
 
 
 ## Users
@@ -25,5 +26,3 @@ If no LDAP is used, you can define users statically via
   mail_users:
     "username-without-@domain": "plaintext-password"
 ```
-Hashed password must be in UNIX standard form `"$<ALG>$<SALT>$<HASH>"` that can be generated
-using `openssl passwd`

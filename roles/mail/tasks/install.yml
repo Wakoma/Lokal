@@ -6,56 +6,64 @@
   vars:
     app: mail
     app_version: 0.8
+    app_port: 80  # this is port of webmail
     # app_domain has mail. prefix only not to colide with the root domain to which
     # it most likely points. Hostname and certificates are using bare mail_domain
     app_domain: "mail.{{domain}}"
     app_templates:
       maddy.conf:  mail/maddy.conf
+    app_db: "mysql"
     app_dirs:
     - mail
-    - dkim
 
 # First, let's create SMTP credentials and the actual mailboxes (IMAP) for the admin user.
 - name: Wait for maddy to boot up before trying to create email accounts
   ansible.builtin.pause:
-    seconds: 4
-  when: '"ldap" not in services and mail_users is defined'
+    seconds: 2
+  when: '"ldap" not in services'
 
-- name: Create mail accounts if LDAP is not active
+- name: Create SMTP admin user (if LDAP is not used)
   ansible.builtin.lineinfile:
     create: true
-    line: "{{admin_username}}@{{domain}}:{{ admin_password | ansible.builtin.password_hash('bcrypt', ident='2b$' + domain[:6]) }}"
+    line: "{{admin_username}}@{{domain}}:bcrypt:{{ admin_password | ansible.builtin.password_hash('bcrypt', ident='2b') }}"
     search_string: "{{admin_username}}@{{domain}}:"
-    path: "{{app_root}}/mail/users"
-  when: '"ldap" not in services and mail_users is defined'
+    path: "{{app_root}}/mail/users.passwd"
+  when: '"ldap" not in services'
 
-- name: Install mail users (if LDAP is not used)
+- name: Create IMAP admin user (if LDAP is not used)
   ansible.builtin.shell:
     cmd: >
       docker compose exec mail
       maddy imap-acct create {{admin_username}}@{{domain}}
     chdir: "{{app_root}}"
-  when: '"ldap" not in services and mail_users is defined'
+  when: '"ldap" not in services'
   register: imap_create
   failed_when: imap_create.rc != 0 and "user already exists" not in imap_create.stderr
 
 # Now the same for mail_users
-- name: Create mail accounts if LDAP not active
+- name: Create SMTP custom users (if LDAP is not used)
   ansible.builtin.lineinfile:
     create: true
-    line: "{{item.key}}@{{domain}}:{{item.value | ansible.builtin.password_hash('bcrypt', ident='2b$' + domain[:6])}}"
+    line: "{{item.key}}@{{domain}}:bcrypt:{{item.value | ansible.builtin.password_hash('bcrypt', ident='2b') }}"
     search_string: "{{item.key}}:"
-    path: "{{app_root}}/mail/users"
+    path: "{{app_root}}/mail/users.passwd"
   when: '"ldap" not in services and mail_users is defined'
   loop: "{{ mail_users|dict2items }}"
 
-- name: Install mail users (if not LDAP is used)
+- name: Create IMAP custom users (if LDAP is not used)
   ansible.builtin.shell:
     cmd: >
       docker compose exec mail
-      maddy imap-acct create "{{item.key}}@{{domain}}"
+      maddy imap-acct create {{item.key}}@{{domain}}
     chdir: "{{app_root}}"
   when: '"ldap" not in services and mail_users is defined'
   loop: "{{ mail_users|dict2items }}"
   register: imap_create
   failed_when: imap_create.rc != 0 and "user already exists" not in imap_create.stderr
+
+- name: Get DKIM DNS configuration for {{domain}}
+  ansible.builtin.fetch:
+    src: "{{app_root}}/mail/dkim_keys/{{domain}}_lokal.dns"
+    dest: "{{domain}}_lokal.dns"
+    fail_on_missing: true
+    flat: true
