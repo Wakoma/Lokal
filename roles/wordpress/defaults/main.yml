@@ -1,11 +1,9 @@
-mysql_user_wordpress: wordpress
-mysql_password_wordpress: wordpress
-mysql_database_wordpress: wordpress
+wordpress_version: "6.8.3"
+wordpress_cli_version: "2.12.0"
 
-version_wordpress: "6.2.2"
-title_wordpress: "Lokal Wordpress"
+wordpress_title: "Lokal Wordpress"
 
 # If you don't specify the subdomain then wordpress will be installed into the top-level domain
-subdomain_wordpress:
+wordpress_subdomain:
 
-domain_wordpress: "{% if subdomain_wordpress %}{{subdomain_wordpress}}.{% endif %}{{domain}}"
+domain_wordpress: "{% if wordpress_subdomain %}{{wordpress_subdomain}}.{% endif %}{{domain}}"

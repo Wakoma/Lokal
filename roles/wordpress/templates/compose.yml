@@ -1,0 +1,63 @@
+
+networks:
+  traefik:
+    external: true
+  mysql:
+    external: true
+  lokal:
+    external: true
+
+services:
+  wordpress:
+    container_name: wordpress
+    domainname: "{{app_domain}}"
+    image: wordpress:{{wordpress_version}}
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    environment:
+      WORDPRESS_DB_HOST: "{{mysql_host}}"
+      WORDPRESS_DB_USER: "{{app_db_user}}"
+      WORDPRESS_DB_PASSWORD: "{{app_db_pass}}"
+      WORDPRESS_DB_NAME: "{{app_db_name}}"
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_ALLOW_MULTISITE', false );
+        define('AUTOMATIC_UPDATER_DISABLED', true );
+    networks:
+      - mysql
+      - traefik
+      - lokal
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: "{{app_root}}/app"
+        target: "/var/www/html"
+      - type: bind
+        source: "{{app_root}}/data"
+        target: "/var/www/html/wp-content"
+      - type: bind
+        source: "{{app_root}}/php.ini"
+        target: "/usr/local/etc/php/conf.d/php.ini"
+{% include "labels.yml" %}
+
+  wordpress_cli:
+    image: wordpress:cli-{{wordpress_cli_version}}
+    user: "{{uid}}:{{gid}}"
+    command: wp cli version  # current command does nothing and will be replaced at runtime
+    environment:
+      WORDPRESS_DB_HOST: "{{mysql_host}}"
+      WORDPRESS_DB_USER: "{{app_db_user}}"
+      WORDPRESS_DB_PASSWORD: "{{app_db_pass}}"
+      WORDPRESS_DB_NAME: "{{app_db_name}}"
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_ALLOW_MULTISITE', true );
+        define('AUTOMATIC_UPDATER_DISABLED', true );
+    volumes:
+      - type: bind
+        source: "{{app_root}}/app"
+        target: "/var/www/html"
+      - type: bind
+        source: "{{app_root}}/data"
+        target: "/var/www/html/wp-content"
+    networks:
+      - mysql
+      - traefik
+      - lokal
