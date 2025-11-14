@@ -32,8 +32,6 @@ and will wait until you modify it. Then call
 Will read server configuration and service coniguration and deploy the configured service to given server
 
 
-
-
 # Lokal Services. Global Impact.
 
 [![Twitter URL](https://img.shields.io/twitter/follow/WakomaInc?style=social)](https://twitter.com/WakomaInc)

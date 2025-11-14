@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  yourapp:
+    image: yourapp:{{version_yourapp}}
+    user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
+    environment:
+      MYSQL_DATABASE: {{app_db_name}}      # db credentials might be auto-generated
+      MYSQL_USER: {{app_db_user}}          # if you don't specify them manually
+      MYSQL_PASSWORD: {{app_db_password}}  # and you shouldn't really - it's safer
+      MYSQL_HOST: {{mysql_host}}
+    ports:
+    - '9099' # exported ports will be accessible from outside, if you allow them in firewall as well
+    volumes:  # use only bind-mounts inside {{app_root}} folder as shown below
+    - type: bind
+      source: "{{app_root}}/config"
+      target: "/config"
+    - type: bind
+      source: "{{app_root}}/data"
+      target: "/var/www/html"
+    restart: unless-stopped
+    networks:
+    - traefik # necessary for extenal access to your app (via a domain name)
+    - mysql # necessary if you want to use the external mysql database
+    - prometheus
+{% include "labels.yml" %}  # labels expect app_domain to be set and app_port to be set if different than 80
+
+networks:
+  traefik:
+    external: true
+  mysql:
+    external: true
+  prometheus:
+    external: true

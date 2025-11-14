@@ -8,7 +8,7 @@ networks:
   postgres:
     name: postgres
   lokal:
-    name: lokal
+    name: lokal.base.lokal
     internal: true
   minio:
     name: minio
@@ -16,7 +16,7 @@ networks:
 services:
   mysql:
     container_name: "{{mysql_host}}"
-    image: mariadb:{{version_mariadb}}
+    image: mariadb:{{mariadb_version}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
     environment:
       MYSQL_ROOT_PASSWORD: "{{mysql_root_password}}"
@@ -53,25 +53,8 @@ services:
       source: "{{lokal_root}}/postgres/"
       target: "/var/lib/postgres/data/"
 
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:{{version_prometheus}}
-    user: "{{uid}}:{{gid}}"
-    networks:
-    - prometheus
-    - lokal
-    restart: unless-stopped
-    volumes:
-    - type: bind
-      source: "{{lokal_root}}/prometheus/etc/prometheus/"
-      target: "/etc/prometheus/"
-    - type: bind
-      source: "{{lokal_root}}/prometheus/data/"
-      target: "/prometheus/"
-    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
-
   minio:
-    image: minio/minio:{{version_minio}}
+    image: minio/minio:{{minio_version}}
     user: "{{uid}}:{{gid}}"  # run the container service as app user (not root)
 #   ports:
 #   - "9000:9000"
@@ -93,8 +76,53 @@ services:
     - minio
     - lokal
 
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    # no user: "{{uid}}:{{gid}}" because it cannot bind socket /var/run/fail2ban/fail2ban.sock
+    container_name: fail2ban
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    depends_on:
+    - traefik
+    cap_add:
+    - NET_ADMIN
+    - NET_RAW
+    volumes:
+    - type: bind
+      source: "{{lokal_root}}/traefik/log/"
+      target: "/var/log/traefik/"
+      read_only: true
+    - type: bind
+      source: "{{lokal_root}}/fail2ban/"
+      target: "/data/"
+
+{% if ssl_use_acme %}
+  dumper:
+    image: ldez/traefik-certs-dumper:v2.8.1
+    container_name: dumper
+    command: file --version v2 --watch --source /data/acme.json --dest /dump --post-hook "sh /hook.sh"
+    restart: unless-stopped
+    user: "{{uid}}:{{gid}}"
+    labels:
+      traefik.enable: false
+    volumes:
+      - type: bind
+        source: "{{lokal_root}}/traefik/acme"
+        target: "/data"
+      - type: bind
+        source: "{{lokal_root}}/traefik/dump"
+        target: "/dump"
+      - type: bind
+        source: "{{project_root}}/.certs"
+        target: "/lokal"
+      - type: bind
+        source: "{{lokal_root}}/dumper/hook.sh"
+        target: "/hook.sh"
+{% endif %}
+
   traefik:
-    image: "traefik:{{version_traefik}}"
+    image: "traefik:{{traefik_version}}"
     container_name: traefik
     # cannot be simply app_user:app_user because of root:docker privileges on /var/run/docker.sock
     user: "{{uid}}:{{gid_docker}}"  # run the container service as app user (not root)
@@ -195,46 +223,3 @@ services:
     - --serversTransport.insecureSkipVerify=true
     - --providers.file.directory=/config
     - --providers.file.watch=true
-
-{% if ssl_use_acme %}
-  dumper:
-    image: ldez/traefik-certs-dumper:v2.8.1
-    container_name: dumper
-    command: file --version v2 --watch --source /data/acme.json --dest /dump --post-hook "sh /hook.sh"
-    restart: unless-stopped
-    user: "{{uid}}:{{gid}}"
-    labels:
-      traefik.enable: false
-    volumes:
-      - type: bind
-        source: "{{lokal_root}}/traefik/acme"
-        target: "/data"
-      - type: bind
-        source: "{{lokal_root}}/traefik/dump"
-        target: "/dump"
-      - type: bind
-        source: "{{project_root}}/.certs"
-        target: "/lokal"
-      - type: bind
-        source: "{{lokal_root}}/dumper/hook.sh"
-        target: "/hook.sh"
-{% endif %}
-
-  fail2ban:
-    image: crazymax/fail2ban:latest
-    # no user: "{{uid}}:{{gid}}" because it cannot bind socket /var/run/fail2ban/fail2ban.sock
-    container_name: fail2ban
-    network_mode: "host"
-    depends_on:
-    - traefik
-    cap_add:
-    - NET_ADMIN
-    - NET_RAW
-    volumes:
-    - type: bind
-      source: "{{lokal_root}}/traefik/log/"
-      target: "/var/log/traefik/"
-      read_only: true
-    - type: bind
-      source: "{{lokal_root}}/fail2ban/"
-      target: "/data/"

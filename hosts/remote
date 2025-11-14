@@ -3,8 +3,8 @@ all:
   vars:
     ssl_use_acme: true
     domain: lokal.example.com
-    email_admin: admin@example.com
-    password_admin: strong-password
+    admin_email: admin@example.com
+    admin_password: strong-password
     lokal_secret: nui3fhAoiSDUndakd12
     ansible_user: ubuntu
     services:

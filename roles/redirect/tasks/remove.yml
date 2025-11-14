@@ -1,7 +1,0 @@
----
-- name: Remove redirect {{redirect_from}}
-  ansible.builtin.include_role:
-    name: lokal
-    tasks_from: remove
-  vars:
-    app_domain: {{redirect_from}}

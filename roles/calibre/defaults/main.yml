@@ -1,3 +1,0 @@
-user_calibre: admin
-password_calibre: "{{password_admin}}"
-subdomain_calibre: books

@@ -1,8 +1,0 @@
----
-- name: Remove jellyfin
-  ansible.builtin.include_role:
-    name: lokal
-    tasks_from: remove
-  vars:
-    app: jellyfin
-    firewall: true

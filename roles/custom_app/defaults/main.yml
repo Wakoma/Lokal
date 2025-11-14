@@ -1,4 +1,4 @@
-custom_app: custom_app  # your app name
+custom_name: custom_app  # one-word name
 custom_subdomain: app
 custom_domain: "{{custom_subdomain}}.{{domain}}"
 custom_git: "git+https://github.com/wakoma/lokal.git"

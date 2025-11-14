@@ -1,0 +1,32 @@
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    user: "{{uid}}:{{gid_docker}}"
+    restart: unless-stopped
+    command: --admin-password '{{admin_password|password_hash('bcrypt')}}'
+    security_opt:
+    - no-new-privileges:true
+    volumes:
+    - type: bind
+      source: /etc/localtime"
+      target: "/etc/localtime"
+      read_only: true
+    - type: bind
+      source: /var/run/docker.sock"
+      target: "/var/run/docker.sock"
+    - type: bind
+      source: "{{lokal_root}}/portainer/"
+      target: "/data/"
+    networks:
+    - prometheus
+    - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.portainer.entrypoints: websecure
+      traefik.http.routers.portainer.rule: Host(`{{subdomain_portainer}}.{{domain}}`)
+      traefik.http.routers.portainer.tls: "true"
+      traefik.http.services.portainer.loadbalancer.server.port: 9000
+{% if ssl_use_acme %}
+      traefik.http.routers.portainer.tls.certresolver: {{cert_resolver}}
+{% endif %}

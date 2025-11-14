@@ -9,6 +9,7 @@ because the docker image will be created directly on it.
 
 ## Configuration
 
+- `custom_name` - one-word name for your app (will be used as docker service name)
 - `custom_docker` - docker image path (exclusive with custom_git)
 - `custom_git` - url to checkout
 - `custom_ref` - branch/tag to checkout

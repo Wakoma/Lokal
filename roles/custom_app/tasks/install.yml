@@ -1,10 +1,10 @@
 ---
 - name: Install {{custom_domain}}
   import_role:
-    name: lokal
+    name: lokal.base.lokal
     tasks_from: install
   vars:
-    app: "{{custom_app}}"  # required for git checkout and
+    app_name: "{{custom_name}}"  # required for git checkout and
     app_git: "{{custom_git}}"
     app_domain: "{{custom_domain}}"
     app_version: "{{custom_ref}}"

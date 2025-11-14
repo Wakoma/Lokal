@@ -1,0 +1,42 @@
+---
+- name: Install lokal and services
+  hosts: all
+  roles:
+  - lokal
+
+  tasks:
+  # first, import all services for the variables
+  # import_role, unlike include_role, exports role's variables to the calling playbook
+  - name: Import all services for their variables
+    loop: "{{services}}"
+    loop_control:
+      loop_var: app
+    include_role:
+      name: "{{app}}"
+      tasks_from: "main"
+      public: true
+
+  # Next check that if 'only' is defined, it contains only services already defined in 'services'
+  # difference filter provides a unique list of all the elements of the first list that do not appear in the second one.
+  - name: Check selected app is listed in services variable
+    ansible.builtin.fail:
+      msg: "Only ({{only}}) contains services not defined in services ({{services}})"
+    when: "only is defined and only | split(',') | difference(['lokal'] + services) is truthy"
+
+  - name: Install all services
+    loop: "{{services}}"
+    loop_control:
+      loop_var: app
+    include_role:
+      name: "{{app}}"
+      tasks_from: "install"
+    when: "not (only is defined)"
+
+  - name: Install only specified services
+    loop: "{{ only | split(',') }}"
+    loop_control:
+      loop_var: app
+    include_role:
+      name: "{{app}}"
+      tasks_from: "install"
+    when: "only is defined"

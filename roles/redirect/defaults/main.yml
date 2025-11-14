@@ -1,5 +1,0 @@
-#
-# redirect_from: to-be-defined
-#
-redirect_to: https://wakoma.co/lokal/
-redirect_path: true  # change to false to drop any path when redirecting

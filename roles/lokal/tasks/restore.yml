@@ -3,7 +3,7 @@
 #
 # - name: Restore your-app
 #   ansible.builtin.include_role:
-#     name: lokal
+#     name: lokal.base.lokal
 #     tasks_from: restore
 #   vars:
 #     app: your-app

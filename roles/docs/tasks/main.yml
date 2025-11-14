@@ -1,7 +1,7 @@
 ---
 - name: Install docs
   include_role:
-    name: lokal
+    name: lokal.base.lokal
     tasks_from: install
   vars:
     app: docs
@@ -11,7 +11,7 @@
     start: false
 
 - name: Stop running server
-  ansible.builtin.shell: 
+  ansible.builtin.shell:
     cmd: "docker compose down"
     chdir: "{{app_root}}"
 
@@ -50,6 +50,6 @@
     search_string: "site_url: https://docs.lokal.network/"
 
 - name: Start the build and server
-  ansible.builtin.shell: 
+  ansible.builtin.shell:
     cmd: "docker compose up -d"
     chdir: "{{app_root}}"

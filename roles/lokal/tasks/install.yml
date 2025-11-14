@@ -18,10 +18,10 @@
   loop: "{{app_dirs}}"
   when: app_dirs is defined
 
-- name: Checkout app git repository if given
+- name: Checkout app git repository to {{app_root}}/git if given
   ansible.builtin.git:
     repo: "{{app_git}}"
-    dest: "{{app_root}}/{{app}}"
+    dest: "{{app_root}}/git"
     version: "{%if app_version is defined%}{{app_version}}{%else%}'HEAD'{%endif%}"
     force: true
   when: app_git is defined
@@ -93,6 +93,7 @@
     app_db_name: "{{ app_domain | replace('.', '_') | replace('-', '') }}"
     app_db_user: "{{ app_domain | replace('.', '_') | replace('-', '') }}"
     app_db_password: "{{ (lokal_secret + app_domain) | hash('sha1') | regex_search('\\w{10}') }}"
+    app_db_pass: "{{app_db_password}}"
 
 - name: "Call lokal/tasks/mysql/create.yml"
   ansible.builtin.import_tasks:
@@ -137,6 +138,14 @@
     dest: "{{app_root}}/{{item.value}}"
   loop: "{{ app_templates | dict2items }}"
   when: app_templates is defined
+
+- name: Copy static files (but do not override existing ones)
+  ansible.builtin.copy:
+    src: "files/{{item.key}}"
+    dest: "{{app_root}}/{{item.value}}"
+    force: false
+  loop: "{{ app_templates | dict2items }}"
+  when: app_files is defined
 
 # stop original services and - if upgrading - remove previous images
 - name: Docker purge unused images

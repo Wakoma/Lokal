@@ -1,9 +1,0 @@
-qpixel_community_name: Lokal community
-qpixel_subdomain: qpixel
-qpixel_domain: "{{qpixel_subdomain}}.{{domain}}"
-qpixel_version: v0.9.0
-qpixel_git: https://github.com/codidact/qpixel.git
-
-# qpixel_logo: "relative-to-cwd/logo.png"
-# qpixel_logo_small: "relative-to-cwd/logo-s.png"
-# qpixel_icon: "relative-to-cwd/favicon.ico"

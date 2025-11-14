@@ -1,2 +1,0 @@
-odoo_subdomain: odoo
-odoo_domain: "{{odoo_subdomain}}.{{domain}}"

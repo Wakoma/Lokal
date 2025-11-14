@@ -39,10 +39,10 @@ namecheap_api_user:
 namecheap_api_key:
 
 # Common services settings
-mysql_root_password: "{{('mysql' + lokal_secret) | hash('sha1') | regex_search('\\w{8}') }}"
+mysql_root_password: "{{('mysql' + lokal_secret) | hash('sha1') | regex_search('\\w{12}') }}"
 mysql_host: mysql
 mysql_port: 3306
-postgres_root_password: "{{('postgres' + lokal_secret) | hash('sha1') | regex_search('\\w{8}') }}"
+postgres_root_password: "{{('postgres' + lokal_secret) | hash('sha1') | regex_search('\\w{12}') }}"
 postgres_host: postgres
 postgres_port: 5432
 
@@ -51,9 +51,8 @@ postgres_port: 5432
 # GID: '{{ ansible_facts["user_gid"] }}'
 # TZ: '{{ ansible_facts["date_time"]["tz"] }}'
 
-version_prometheus: "latest" # v2.40.6
-version_traefik: "latest" # v2.9.6
-version_grafana: "latest" # 9.3.2
-version_mariadb: "10.6.16-focal"
-version_postgres: "16-3.4"
-version_minio: "RELEASE.2025-02-03T21-03-04Z"
+prometheus_version: "v3.7.3"
+traefik_version: "latest" # v2.9.6
+mariadb_version: "10.6.16-focal"
+postgres_version: "16-3.4"
+minio_version: "RELEASE.2025-02-03T21-03-04Z"

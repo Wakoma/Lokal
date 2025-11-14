@@ -5,7 +5,7 @@
 # docker build -t lokal-client:latest .
 # docker run --rm -itv ${pwd}:/lokal lokal-client:latest
 # $ # now you can issue commands from the documentation
-FROM python:3.9-bullseye as controller
+FROM python:3.12
 RUN pip install ansible
 COPY ./requirements.yml .
 RUN ansible-galaxy install -r requirements.yml

@@ -76,23 +76,23 @@ see the [compose.yml](examples/compose.yml) in examples directory.
 ### Cloning a GIT repository
 
 Sometimes, you don't have a docker container built in a docker hub. You can specify
-`app_git` with git clone URL and `app` with folder name where the GIT repo should be cloned.
-Also specify `app_version` to the tag/branch that you want cloned. Only when you change
+`app_git` with git clone URL (e.g.: https://github.com/username/repo.git) and specify `app_version`
+to the tag/branch that you want cloned (e.g.: v1.2.3). Only when you change
 this value, the repo will be fetched and updated! So restrain from using branch names.
-Once install is finihed, you will find your app cloned under `{{app_root}}/{{app}}` so
+Once install is finihed, you will find your app cloned under `{{app_root}}/git` so
 you can then reference it in your `compose.yml` as
 
 ```
 services:
-  {{app}}:
+  your-app:
     build:
-      context: "{{app}}"
-      dockerfile: "{{app}}/Dockerfile"
+      context: "git/"
+      dockerfile: "git/Dockerfile"
     volumes:
       ...
 ```
 
-because the compose.yml is run in {{app_root}} so your code will be accessible in "{{app}}" folder.
+because the compose.yml is run in {{app_root}} so your code will be accessible in "git/" folder.
 
 
 ### Networks

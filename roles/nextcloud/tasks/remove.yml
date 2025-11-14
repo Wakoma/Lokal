@@ -1,9 +1,0 @@
----
-- name: Remove nextcloud
-  ansible.builtin.include_role:
-    name: lokal
-    tasks_from: remove
-  vars:
-    app: nextcloud
-    mysql_db: '{{mysql_database_nextcloud}}'
-    mysql_user: '{{mysql_user_nextcloud}}'

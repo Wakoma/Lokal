@@ -1,9 +1,0 @@
-wordpress_version: "6.8.3"
-wordpress_cli_version: "2.12.0"
-
-wordpress_title: "Lokal Wordpress"
-
-# If you don't specify the subdomain then wordpress will be installed into the top-level domain
-wordpress_subdomain:
-
-domain_wordpress: "{% if wordpress_subdomain %}{{wordpress_subdomain}}.{% endif %}{{domain}}"

@@ -1,9 +1,0 @@
----
-- name: Remove odoo
-  ansible.builtin.include_role:
-    name: lokal
-    tasks_from: remove
-  vars:
-    app: odoo
-    app_domain: "{{odoo_domain}}"
-    app_db: "postgres"

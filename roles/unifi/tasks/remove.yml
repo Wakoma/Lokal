@@ -1,8 +1,0 @@
----
-- name: Remove unifi
-  ansible.builtin.include_role:
-    name: lokal
-    tasks_from: remove
-  vars:
-    app: unifi
-    firewall: true

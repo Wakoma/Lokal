@@ -1,7 +1,0 @@
----
-- name: Install netdata
-  include_role:
-    name: lokal
-    tasks_from: install
-  vars:
-    app: netdata

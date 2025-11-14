@@ -1,9 +1,0 @@
----
-- name: Install {{website_domain}}
-  include_role:
-    name: lokal
-    tasks_from: install
-  vars:
-    app_domain: "{{website_domain}}"
-    app_git: "{{website_git}}"
-    app_port: 8080

@@ -12,6 +12,9 @@ __pycache__
 .vscode
 .venv
 
+# build
+lokal-base-*.tar.gz
+
 # kiwix
 config/services/kiwix/data/
 library.xml

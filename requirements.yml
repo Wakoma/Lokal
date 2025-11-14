@@ -14,10 +14,12 @@ roles:
 
 collections:
 - name: markuman.nextcloud
-  version: 3.0.2
+  version: 29.0.4
 
 - name: community.mysql
 - name: community.postgresql
 - name: community.general
 - name: community.crypto
 
+- name: amazon.aws
+  version: 9.2.0

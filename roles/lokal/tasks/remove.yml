@@ -6,7 +6,7 @@
 # ---
 # - name: Remove {{qpixel_domain}}
 #   ansible.builtin.include_role:
-#     name: lokal
+#     name: lokal.base.lokal
 #     tasks_from: remove
 #   vars:
 #     app_domain: "{{qpixel_domain}}"

@@ -1,12 +1,12 @@
 services:
-  {{custom_app}}:
+  {{custom_name}}:
 {% if custom_docker is defined and custom_docker %}
     image: "{{custom_docker}}:{{custom_version}}"
 {% endif %}
 {% if custom_git is defined and custom_git %}
     build: "{{custom_git}}#{{custom_ref}}"
     # This structured build is available only for local files which are supported via
-    # `app_git`, `app_version` and `app` - then lokal checks out {{app_git}}#{{app_version}} into {{app_root}}/{{app}}
+    # `app_git` and `app_version` - then lokal checks out {{app_git}}#{{app_version}} into {{app_root}}/git
     # build:
     #   context: "."
     #   dockerfile: docker/Dockerfile

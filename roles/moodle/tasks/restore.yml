@@ -1,8 +1,0 @@
-- name: Restore moodle
-  ansible.builtin.include_role:
-    name: lokal
-    tasks_from: restore
-  vars:
-    app: moodle
-    mysql_db: "{{db_name_moodle}}"
-    mysql_user: "{{db_user_moodle}}"

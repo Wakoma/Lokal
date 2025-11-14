@@ -1,7 +1,7 @@
 ---
 - name: Remove get
   ansible.builtin.include_role:
-    name: lokal
+    name: lokal.base.lokal
     tasks_from: remove
   vars:
     app: get

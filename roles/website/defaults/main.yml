@@ -1,4 +1,0 @@
-website_subdomain: www
-website_domain: "{{website_subdomain}}.{{domain}}"
-website_git: "git+https://github.com/wakoma/lokal.git"
-website_ref: main  # branch name
