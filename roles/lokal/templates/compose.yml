@@ -8,7 +8,7 @@ networks:
   postgres:
     name: postgres
   lokal:
-    name: lokal.base.lokal
+    name: lokal.core.lokal
     internal: true
   minio:
     name: minio

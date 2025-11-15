@@ -1,7 +1,7 @@
 ---
 - name: Install mail
   ansible.builtin.include_role:
-    name: lokal.base.lokal
+    name: lokal.core.lokal
     tasks_from: install
   vars:
     app: mail
@@ -20,7 +20,7 @@
 - name: Wait for maddy to boot up before trying to create email accounts
   ansible.builtin.pause:
     seconds: 2
-  when: '"ldap" not in services'
+  when: '"users" not in services'
 
 - name: Create SMTP admin user (if LDAP is not used)
   ansible.builtin.lineinfile:
@@ -28,7 +28,7 @@
     line: "{{admin_username}}@{{domain}}:bcrypt:{{ admin_password | ansible.builtin.password_hash('bcrypt', ident='2b') }}"
     search_string: "{{admin_username}}@{{domain}}:"
     path: "{{app_root}}/mail/users.passwd"
-  when: '"ldap" not in services'
+  when: '"users" not in services'
 
 - name: Create IMAP admin user (if LDAP is not used)
   ansible.builtin.shell:
@@ -36,7 +36,7 @@
       docker compose exec mail
       maddy imap-acct create {{admin_username}}@{{domain}}
     chdir: "{{app_root}}"
-  when: '"ldap" not in services'
+  when: '"users" not in services'
   register: imap_create
   failed_when: imap_create.rc != 0 and "user already exists" not in imap_create.stderr
 
@@ -47,7 +47,7 @@
     line: "{{item.key}}@{{domain}}:bcrypt:{{item.value | ansible.builtin.password_hash('bcrypt', ident='2b') }}"
     search_string: "{{item.key}}:"
     path: "{{app_root}}/mail/users.passwd"
-  when: '"ldap" not in services and mail_users is defined'
+  when: '"users" not in services and mail_users is defined'
   loop: "{{ mail_users|dict2items }}"
 
 - name: Create IMAP custom users (if LDAP is not used)
@@ -56,7 +56,7 @@
       docker compose exec mail
       maddy imap-acct create {{item.key}}@{{domain}}
     chdir: "{{app_root}}"
-  when: '"ldap" not in services and mail_users is defined'
+  when: '"users" not in services and mail_users is defined'
   loop: "{{ mail_users|dict2items }}"
   register: imap_create
   failed_when: imap_create.rc != 0 and "user already exists" not in imap_create.stderr

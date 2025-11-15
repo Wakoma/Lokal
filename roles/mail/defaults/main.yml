@@ -1,3 +1,3 @@
-# if you are not using `ldap` recipe then manually specyfing allowed users
+# if you are not using `users` recipe then manually specyfing allowed users
 # is your only chance. Format is "username": "password" where
 mail_users:

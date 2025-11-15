@@ -13,33 +13,4 @@ __pycache__
 .venv
 
 # build
-lokal-base-*.tar.gz
-
-# kiwix
-config/services/kiwix/data/
-library.xml
-.zims
-
-# calibre
-config/services/calibre/data-calibre-server/
-config/services/calibre/data-calibre-web/
-
-# nextcloud
-config/services/nextcloud/config/
-config/services/nextcloud/data/
-
-# transmission
-config/services/transmission/config/
-config/services/transmission/downloads/
-config/services/transmission/watch/
-
-# wordpress
-config/services/wordpress/html/
-
-# jellyfin
-config/services/jellyfin/config/
-config/services/jellyfin/data/
-
-# traefik
-certs
-acme
+lokal-*.tar.gz
